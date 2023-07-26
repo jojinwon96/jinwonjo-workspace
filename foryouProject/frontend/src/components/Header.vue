@@ -9,12 +9,21 @@
       <div class="category-header">
         <ul>
           <li>
-            <a href="#">로그인</a>
             <a>
-              <router-link to="/signUp">회원가입</router-link>
+              <router-link to="/signIn" class="default-border"
+                >로그인</router-link
+              >
+            </a>
+            <a>
+              <router-link to="/signUp" class="default-border"
+                >회원가입</router-link
+              >
             </a>
           </li>
-          <li class="category-close" @click="setCategory">
+          <li
+            class="category-close"
+            @click="[setCategory(), $emit('openCategory')]"
+          >
             <span>&#10005;</span>
           </li>
         </ul>
@@ -49,12 +58,17 @@
     </div>
     <div></div>
     <div class="header-wrap">
-      <div class="category-panel" @click="setCategory">
+      <div
+        class="category-panel"
+        @click="[setCategory(), $emit('openCategory')]"
+      >
         <img src="../assets/img/hamburger.png" />
       </div>
 
       <div class="main-logo">
-        <img src="../assets/img/logo.png" />
+        <router-link to="/home" class="default-border"
+          ><img src="../assets/img/logo.png"
+        /></router-link>
       </div>
 
       <div class="search-wrap">
@@ -95,8 +109,6 @@ export default {
       } else {
         this.isShow = false;
       }
-
-      console.log(this.isShow);
     },
   },
 };
@@ -110,13 +122,17 @@ export default {
   display: none;
 }
 
+.active-li {
+  background: #3385f096;
+}
+
 header {
   z-index: 50;
 }
 
 .header-wrap {
   margin: 0 auto;
-  padding: 1rem;
+  padding: 2rem;
   display: flex;
   justify-content: center;
 }
@@ -135,7 +151,7 @@ header {
   margin: 0px 2rem;
 }
 
-.main-logo > img {
+.main-logo img {
   background-size: 200px;
   width: 200px;
   background-repeat: no-repeat;
@@ -150,12 +166,14 @@ header {
 }
 
 .serach-category {
+  width: 20%;
   padding: 5px;
   outline: 0;
   border: none;
 }
 
 .search-text {
+  width: 65%;
   outline: 0;
   border: 0;
 }
@@ -239,16 +257,18 @@ header {
   transition: all 0.5s;
 }
 .fade-enter-to {
-  opacity: 0.5;
 }
 .fade-leave-from {
-  opacity: 0.5;
 }
 .fade-leave-active {
   transition: all 0.5s;
 }
 .fade-leave-to {
   opacity: 0;
+}
+
+.default-border {
+  border: none !important;
 }
 
 .category ul {
@@ -265,8 +285,7 @@ header {
 
 .category-bg-black {
   position: fixed;
-  background-color: black;
-  opacity: 0.5;
+  background: rgba(0, 0, 0, 0.5);
   width: 100%;
   height: 100%;
 }
@@ -367,8 +386,38 @@ header {
   opacity: 0;
 }
 
-/* 테플릿 */
-@media screen and (max-width: 1200px) {
+.content {
+  margin: 0 auto;
+  max-width: 1240px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.card-wrap {
+  font-size: 0;
+}
+
+.card-panel {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 24%;
+  vertical-align: top;
+  padding: 10px;
+  margin: 1% 0 0 1%;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.16), 0 1px 1px rgba(0, 0, 0, 0.23);
+  cursor: default;
+}
+
+.card-panel:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+@media screen and (max-width: 1240px) {
+  .card-panel {
+    width: 45%;
+  }
 }
 
 @media screen and (max-width: 1000px) {
@@ -412,8 +461,16 @@ header {
     display: none;
   }
 
+  .serach-category {
+    width: 30px;
+  }
+
   .search-text {
     width: 100px;
+  }
+
+  .card-panel {
+    width: 90%;
   }
 }
 </style>

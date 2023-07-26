@@ -1,21 +1,13 @@
 <template>
   <div class="wrap">
-    <custom_header />
-    <custom_nav />
     <router-view />
   </div>
 </template>
 
 <script>
-import custom_header from "./components/Header";
-import custom_nav from "./components/Nav";
-
 export default {
   name: "App",
-  components: {
-    custom_header,
-    custom_nav,
-  },
+  components: {},
   create: function () {
     console.log("ok");
   },
