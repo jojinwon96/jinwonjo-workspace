@@ -1,96 +1,101 @@
 <template>
-  <Header/>
-  <Home/>
-  <Footer/>
+  <div class="wrap">
+    <router-view />
+  </div>
 </template>
 
 <script>
 
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import Home from "@/pages/home";
+import store from "@/scripts/store";
+import axios from "axios";
+import {watch} from "vue";
+import {useRoute} from "vue-router/dist/vue-router";
 
 export default {
-  name: 'App',
-  components: {
-    Home,
-    Header,
-    Footer
-  }
-}
+  name: "App",
+  setup() {
+
+    const logOutUser = {
+      id:'',
+      name:'',
+      email:'',
+      tel:'',
+      mileage:0
+    }
+
+    const check = () => {
+      axios.get("/api/account/check").then(({data}) => {
+        store.commit("setAccount", data || logOutUser)
+      }).catch(()=>{
+        console.log('서버요청 실패');
+      })
+      console.log('ok');
+    };
+
+    const route = useRoute();
+
+    watch(route, () => {
+      check();
+    })
+
+  },
+
+};
 </script>
-
 <style>
-.bd-placeholder-img {
-  font-size: 1.125rem;
-  text-anchor: middle;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
+@import "./assets/css/normalize.css";
+
+:root {
+  scroll-behavior: auto;
 }
 
-@media (min-width: 768px) {
-  .bd-placeholder-img-lg {
-    font-size: 3.5rem;
+* {
+  margin: auto 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  border: none;
+  outline: none;
+}
+
+li {
+  list-style: none;
+}
+
+ul {
+  padding: 0;
+}
+
+.fade-enter-from {
+  opacity: 0;
+}
+.fade-enter-active {
+  transition: all 0.5s;
+}
+.fade-enter-to {
+  opacity: 1;
+}
+.fade-leave-from {
+  opacity: 1;
+}
+.fade-leave-active {
+  transition: all 0.5s;
+}
+.fade-leave-to {
+  opacity: 0;
+}
+/* 테플릿 */
+@media screen and (max-width: 1200px) {
+  .wrap {
   }
 }
 
-.b-example-divider {
-  width: 100%;
-  height: 3rem;
-  background-color: rgba(0, 0, 0, .1);
-  border: solid rgba(0, 0, 0, .15);
-  border-width: 1px 0;
-  box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
-}
-
-.b-example-vr {
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 100vh;
-}
-
-.bi {
-  vertical-align: -.125em;
-  fill: currentColor;
-}
-
-.nav-scroller {
-  position: relative;
-  z-index: 2;
-  height: 2.75rem;
-  overflow-y: hidden;
-}
-
-.nav-scroller .nav {
-  display: flex;
-  flex-wrap: nowrap;
-  padding-bottom: 1rem;
-  margin-top: -1px;
-  overflow-x: auto;
-  text-align: center;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
-}
-
-.btn-bd-primary {
-  --bd-violet-bg: #712cf9;
-  --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
-
-  --bs-btn-font-weight: 600;
-  --bs-btn-color: var(--bs-white);
-  --bs-btn-bg: var(--bd-violet-bg);
-  --bs-btn-border-color: var(--bd-violet-bg);
-  --bs-btn-hover-color: var(--bs-white);
-  --bs-btn-hover-bg: #6528e0;
-  --bs-btn-hover-border-color: #6528e0;
-  --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
-  --bs-btn-active-color: var(--bs-btn-hover-color);
-  --bs-btn-active-bg: #5a23c8;
-  --bs-btn-active-border-color: #5a23c8;
-}
-
-.bd-mode-toggle {
-  z-index: 1500;
+/* 모바일 */
+@media screen and (max-width: 768px) {
+  .wrap {
+  }
 }
 </style>

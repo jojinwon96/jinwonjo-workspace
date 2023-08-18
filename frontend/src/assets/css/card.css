@@ -1,0 +1,134 @@
+.card-wrap{
+}
+
+.best-title{
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* 카드 */
+.card-panel {
+    display: inline-block;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+    padding: 10px;
+
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.16), 0 1px 1px rgba(0, 0, 0, 0.23);
+    cursor: default;
+}
+
+.card-panel:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.card-img {
+    height: 250px;
+    background-image: url("../img/bouquet1.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: brightness(100%);
+    transition: all 0.1s linear;
+}
+
+.card-img:hover{
+    transform: scale(1.02);
+}
+
+.product-title {
+    font-size: 12px;
+    font-weight: bolder !important;
+    line-height: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.discount {
+    font-size: 20px;
+    color: red;
+    margin-right: 5px;
+}
+
+.price {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.origin-price {
+    color: rgb(169, 168, 168);
+    font-size: 15px;
+    text-decoration: line-through;
+
+}
+
+.star {
+    position: relative;
+    font-size: 20px;
+    color: #ddd;
+}
+
+.star input {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.star span {
+    width: 0;
+    position: absolute;
+    left: 0;
+    color: rgb(148, 148, 0);
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.review-count {
+    font-size: 12px;
+}
+
+.best {
+    display: block;
+    background: red;
+    color: white;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    width: 50px;
+    height: 30px;
+    line-height: 30px;
+}
+
+.like-btn-panel{
+    position: absolute;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    top: 170px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    cursor: pointer;
+    opacity: 0;
+    transition: 0.2s;
+}
+
+.like-btn{
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: 10px;
+    left: 10px;
+}
+
+.fade-in{
+    opacity: 1;
+}
+
+.fade-out{
+    opacity: 0;
+}
