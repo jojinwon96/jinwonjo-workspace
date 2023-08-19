@@ -1,24 +1,24 @@
 <template>
-  <custom_header />
-  <custom_nav />
+  <custom_header/>
+  <custom_nav/>
   <div class="content">
     <div class="sign-up-wrap">
       <div class="sign-up-panel">
         <div class="sign-up-title">
           <h2>회원가입</h2>
         </div>
-        <form @submit="onSubmit" action="#" method="get">
+        <form @submit.prevent="onSubmit">
           <div class="input-panel">
             <label class="input-title" for="id">아이디</label>
             <input
-              type="text"
-              class="input-id sign-up-input"
-              id="userId"
-              name="userId"
-              placeholder="띄어쓰기 없이 영문/숫자 6~10"
-              @blur="idPass"
-              @input="userId = $event.target.value"
-              :class="{ blurBorder: !idChk }"
+                type="text"
+                class="input-id sign-up-input"
+                id="userId"
+                name="cust_id"
+                placeholder="띄어쓰기 없이 영문/숫자 6~10"
+                @blur="idPass"
+                @input="userId = $event.target.value"
+                :class="{ blurBorder: !idChk }"
             />
             <div class="id-error sign-up-error">
               {{ idErrorMsg }}
@@ -28,14 +28,14 @@
           <div class="input-panel">
             <label class="input-title" for="pwd">비밀번호</label>
             <input
-              type="password"
-              class="input-pwd sign-up-input"
-              name="pwd"
-              id="pwd"
-              placeholder="8~15자의 영문자, 숫자, 특수문자 조합"
-              @blur="pwdPass"
-              @input="pwd = $event.target.value"
-              :class="{ blurBorder: !pwdChk }"
+                type="password"
+                class="input-pwd sign-up-input"
+                name="cust_pwd"
+                id="pwd"
+                placeholder="8~15자의 영문자, 숫자, 특수문자 조합"
+                @blur="pwdPass"
+                @input="pwd = $event.target.value"
+                :class="{ blurBorder: !pwdChk }"
             />
             <div class="pwd-error sign-up-error">
               {{ pwdErrorMsg }}
@@ -45,14 +45,13 @@
           <div class="input-panel">
             <label class="input-title" for="pwdChk">비밀번호 확인</label>
             <input
-              type="password"
-              class="input-pwd-chk sign-up-input"
-              name="pwdChk"
-              id="pwdChk"
-              placeholder="위의 비밀번호를 다시 입력해주세요."
-              @blur="reconfirmPwdPass($event.target.value)"
-              @input="reconfirmPwdPass($event.target.value)"
-              :class="{ blurBorder: !reconfirmPwdChk }"
+                type="password"
+                class="input-pwd-chk sign-up-input"
+                id="pwdChk"
+                placeholder="위의 비밀번호를 다시 입력해주세요."
+                @blur="reconfirmPwdPass($event.target.value)"
+                @input="reconfirmPwdPass($event.target.value)"
+                :class="{ blurBorder: !reconfirmPwdChk }"
             />
             <div class="pwdChk-error sign-up-error">
               {{ reconfirmPwdMsg }}
@@ -62,13 +61,13 @@
           <div class="input-panel">
             <label class="input-title" for="name">이름</label>
             <input
-              type="text"
-              class="input-name sign-up-input"
-              name="userName"
-              id="userName"
-              @blur="namePass"
-              @input="userName = $event.target.value"
-              :class="{ blurBorder: !nameChk }"
+                type="text"
+                class="input-name sign-up-input"
+                name="cust_name"
+                id="userName"
+                @blur="namePass"
+                @input="userName = $event.target.value"
+                :class="{ blurBorder: !nameChk }"
             />
             <div class="name-error sign-up-error">
               {{ nameErrorMsg }}
@@ -79,22 +78,22 @@
             <label class="input-title" for="email">이메일</label>
             <div class="custom-input-group">
               <input
-                type="text"
-                class="input-email-local sign-up-input"
-                id="emailId"
-                @blur="emailPass($event.target.value, 'id')"
-                @input="emailPass($event.target.value, 'id')"
-                :class="{ blurBorder: !emailChk }"
+                  type="text"
+                  class="input-email-local sign-up-input"
+                  id="emailId"
+                  @blur="emailPass($event.target.value, 'id')"
+                  @input="emailPass($event.target.value, 'id')"
+                  :class="{ blurBorder: !emailChk }"
               />
               <span class="input-separator">@</span>
               <select
-                class="input-email-domain sign-up-input"
-                id="domain"
-                v-model="domain"
-                @change="changeDomainInp"
-                :class="{ blurBorder: !emailChk, hide: isDomainInp }"
+                  class="input-email-domain sign-up-input"
+                  id="domain"
+                  v-model="domain"
+                  @change="changeDomainInp"
+                  :class="{ blurBorder: !emailChk, hide: isDomainInp }"
               >
-                <option selected value="0">선택해주세요</option>
+                <option disabled value="">선택해주세요</option>
                 <option value="naver.com">naver.com</option>
                 <option value="hanmail.net">hanmail.net</option>
                 <option value="daum.net">daum.net</option>
@@ -106,26 +105,26 @@
                 <option value="1">직접입력</option>
               </select>
               <div
-                class="domainTextPanel sign-up-input"
-                :class="{ show: isDomainInp, blurBorder: !emailChk }"
+                  class="domainTextPanel sign-up-input"
+                  :class="{ show: isDomainInp, blurBorder: !emailChk }"
               >
                 <input
-                  type="text"
-                  class="domain-text sign-up-input"
-                  @blur="emailPass($event.target.value, 'domain')"
-                  @input="emailPass($event.target.value, 'domain')"
+                    type="text"
+                    class="domain-text sign-up-input"
+                    @blur="emailPass($event.target.value, 'domain')"
+                    @input="emailPass($event.target.value, 'domain')"
                 />
                 <span
-                  class="domain-text-close"
-                  @click="(isDomainInp = false), (domain = '')"
-                  >&#10006;</span
+                    class="domain-text-close"
+                    @click="(isDomainInp = false), (domain = '')"
+                >&#10006;</span
                 >
               </div>
               <input
-                type="hidden"
-                name="userEmail"
-                id="userEmail"
-                v-model="email"
+                  type="hidden"
+                  name="cust_email"
+                  id="userEmail"
+                  v-model="email"
               />
             </div>
             <div class="email-error sign-up-error">
@@ -146,32 +145,32 @@
             <label class="input-title" for="">휴대폰번호</label>
             <div class="custom-input-group">
               <input
-                type="text"
-                class="sign-up-input input-phone"
-                maxlength="4"
-                @blur="phonePass($event.target.value, 1)"
-                @input="phonePass($event.target.value, 1)"
-                :class="{ blurBorder: !phoneChk }"
+                  type="text"
+                  class="sign-up-input input-phone"
+                  maxlength="4"
+                  @blur="phonePass($event.target.value, 1)"
+                  @input="phonePass($event.target.value, 1)"
+                  :class="{ blurBorder: !phoneChk }"
               />
               <span class="input-separator">-</span>
               <input
-                type="text"
-                class="sign-up-input input-phone"
-                maxlength="4"
-                @blur="phonePass($event.target.value, 2)"
-                @input="phonePass($event.target.value, 2)"
-                :class="{ blurBorder: !phoneChk }"
+                  type="text"
+                  class="sign-up-input input-phone"
+                  maxlength="4"
+                  @blur="phonePass($event.target.value, 2)"
+                  @input="phonePass($event.target.value, 2)"
+                  :class="{ blurBorder: !phoneChk }"
               />
               <span class="input-separator">-</span>
               <input
-                type="text"
-                class="sign-up-input input-phone"
-                maxlength="4"
-                @blur="phonePass($event.target.value, 3)"
-                @input="phonePass($event.target.value, 3)"
-                :class="{ blurBorder: !phoneChk }"
+                  type="text"
+                  class="sign-up-input input-phone"
+                  maxlength="4"
+                  @blur="phonePass($event.target.value, 3)"
+                  @input="phonePass($event.target.value, 3)"
+                  :class="{ blurBorder: !phoneChk }"
               />
-              <input type="hidden" name="phone" id="phone" v-model="phone" />
+              <input type="hidden" name="cust_tel" id="phone" v-model="phone"/>
             </div>
           </div>
           <div class="sign-up-error">
@@ -182,38 +181,39 @@
             <label class="input-title" for="">주소</label>
             <div class="custom-input-group">
               <input
-                type="text"
-                class="sign-up-input input-post"
-                name="post"
-                readonly
-                v-model="addressArr[0]"
-                @input="addressPass"
-                :class="{ blurBorder: !addressChk }"
+                  type="text"
+                  class="sign-up-input input-post"
+                  name="post"
+                  readonly
+                  v-model="addressArr[0]"
+                  @input="addressPass"
+                  :class="{ blurBorder: !addressChk }"
               />
               <button
-                type="button"
-                class="sign-up-input sign-up-btn find-address-btn"
-                @click="findAddress"
+                  type="button"
+                  class="sign-up-input sign-up-btn find-address-btn"
+                  @click="findAddress"
               >
                 주소찾기
               </button>
             </div>
             <input
-              type="text"
-              class="sign-up-input input-address"
-              name="address1"
-              readonly
-              v-model="addressArr[1]"
-              @input="addressPass"
-              :class="{ blurBorder: !addressChk }"
+                type="text"
+                class="sign-up-input input-address"
+                name="address1"
+                readonly
+                v-model="addressArr[1]"
+                @input="addressPass"
+                :class="{ blurBorder: !addressChk }"
             />
             <input
-              type="text"
-              class="sign-up-input input-address-detail"
-              name="address2"
-              v-model="addressArr[2]"
-              @input="addressPass"
-              :class="{ blurBorder: !addressChk }"
+                type="text"
+                class="sign-up-input input-address-detail"
+                name="address2"
+                v-model="addressArr[2]"
+                @blur="addressPass"
+                @input="addressPass"
+                :class="{ blurBorder: !addressChk }"
             />
             <div class="address-error sign-up-error">
               {{ addressErrorMsg }}
@@ -232,6 +232,8 @@
 <script>
 import custom_header from "../components/Header.vue";
 import custom_nav from "../components/Nav.vue";
+import axios from "axios";
+import router from "@/router";
 
 export default {
   name: "signUp",
@@ -284,15 +286,39 @@ export default {
       this.phonePass();
 
       if (
-        this.idPass() &&
-        this.pwdPass() &&
-        this.reconfirmPwdPass() &&
-        this.namePass() &&
-        this.emailPass() &&
-        this.addressPass() &&
-        this.phonePass()
+          this.idPass() &&
+          this.pwdPass() &&
+          this.reconfirmPwdPass() &&
+          this.namePass() &&
+          this.emailPass() &&
+          this.addressPass() &&
+          this.phonePass()
       ) {
-        alert("입력완료");
+
+        const user = {
+          cust_id: this.userId,
+          cust_pwd: this.pwd,
+          cust_name: this.userName,
+          cust_email: this.email,
+          cust_tel: this.phone,
+          post: parseInt(this.addressArr[0]),
+          address1: this.addressArr[1],
+          address2: this.addressArr[2],
+        }
+
+        const axiosConfig = {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+        axios.post("api/account/signUp", JSON.stringify(user), axiosConfig).then(({status}) => {
+          if (status == 200) {
+            alert("회원가입을 축하드립니다.");
+            router.push({path: "/signIn"});
+          }
+        }).catch(() => {
+          alert("서버오류");
+        })
       } else {
         e.preventDefault();
       }
@@ -309,7 +335,7 @@ export default {
         this.idChk = false;
       } else if (!idRegex.test(this.userId)) {
         this.idErrorMsg =
-          "아이디는 띄어쓰기 없이 영문, 숫자 6~10자로 입력하세요.";
+            "아이디는 띄어쓰기 없이 영문, 숫자 6~10자로 입력하세요.";
         this.idChk = false;
       } else {
         this.idErrorMsg = "";
@@ -323,13 +349,13 @@ export default {
 
     pwdPass() {
       const passwordRegex =
-        /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/;
+          /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/;
       if (this.pwd == "") {
         this.pwdErrorMsg = "필수 입력 항목입니다.";
         this.pwdChk = false;
       } else if (!passwordRegex.test(this.pwd)) {
         this.pwdErrorMsg =
-          "비밀번호는 영문, 숫자, 특수문자 포함하여 8~15자로 입력하세요.";
+            "비밀번호는 영문, 숫자, 특수문자 포함하여 8~15자로 입력하세요.";
         this.pwdChk = false;
       } else {
         this.pwdErrorMsg = "";
@@ -375,7 +401,7 @@ export default {
 
     emailPass(value, target) {
       const emailRegex =
-        /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+          /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
       let resultEmail = "";
 
       if (value != null) {
@@ -389,9 +415,9 @@ export default {
       resultEmail = this.emailId + "@" + this.domain;
 
       if (
-        !emailRegex.test(resultEmail) ||
-        this.emailId == "" ||
-        this.domain == "0"
+          !emailRegex.test(resultEmail) ||
+          this.emailId == "" ||
+          this.domain == "0"
       ) {
         this.emailErrorMsg = "이메일 형식이 올바르지 않습니다.";
         this.emailChk = false;
@@ -430,7 +456,7 @@ export default {
         }
       }
       this.phone =
-        this.phoneArr[0] + "-" + this.phoneArr[1] + "-" + this.phoneArr[2];
+          this.phoneArr[0] + "-" + this.phoneArr[1] + "-" + this.phoneArr[2];
 
       if (!phoneRegex.test(this.phone)) {
         this.phoneErrorMsg = "잘못된형식입니다.";
@@ -476,6 +502,7 @@ export default {
 .show {
   display: block !important;
 }
+
 .hide {
   display: none;
 }

@@ -1,13 +1,12 @@
 package com.me.backend.member.service;
 
-import com.me.backend.member.vo.MemberVO;
-
-import java.util.List;
+import com.me.backend.member.dto.MemberDTO;
 
 public interface MemberService{
-    List<MemberVO> getMemberList();
 
-    MemberVO member(MemberVO loginMember);
+    MemberDTO member(MemberDTO loginMember);
 
+    int signUp(MemberDTO signUpMember);
 
+    MemberDTO loginMember (String id);
 }

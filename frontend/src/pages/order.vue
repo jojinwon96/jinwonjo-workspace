@@ -30,7 +30,7 @@
           </div>
           <div class="order-input-panel">
             <label for="phone">휴대전화</label>
-            <input class="input-phone" type="text" />
+            <input class="order-input-phone" type="text" />
             <span class="ordrer-input-separator">-</span>
             <input class="input-phone" type="text" />
             <span class="ordrer-input-separator">-</span>
@@ -212,7 +212,7 @@ export default {
   outline: none;
 }
 
-.input-phone {
+.order-input-phone {
   width: 22.5% !important;
 }
 

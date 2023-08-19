@@ -1,17 +1,19 @@
-package com.me.backend.member.vo;
+package com.me.backend.member.dto;
 
-import lombok.Builder;
 import lombok.Data;
 
 import java.sql.Date;
 
 @Data
-public class MemberVO {
+public class MemberDTO {
     private String cust_id;
     private String cust_pwd;
     private String cust_name;
     private String cust_email;
     private String cust_tel;
+    private int post;
+    private String address1;
+    private String address2;
     private int mileage;
     private String banned;
     private String status;

@@ -3,11 +3,7 @@
 
 <mapper namespace="com.me.backend.member.mapper.MemberMapper">
 
-    <select id="getMemberList" resultType="com.me.backend.member.vo.MemberVO">
-        SELECT * FROM foryou.customer;
-    </select>
-
-    <select id="member" resultType="com.me.backend.member.vo.MemberVO">
+    <select id="member" resultType="MemberVO">
         select
             cust_id,
             cust_pwd,
@@ -19,5 +15,76 @@
         from foryou.customer
         where cust_id = #{cust_id} and cust_pwd = #{cust_pwd} and status = 'N'
     </select>
+
+    <select id="loginMember" parameterType="String" resultType="MemberVO">
+        select
+            cust_id,
+            cust_pwd,
+            cust_name,
+            cust_email,
+            cust_tel,
+            mileage,
+            status
+        from foryou.customer
+        where cust_id = #{id}
+    </select>
+
+    <insert id="signUp">
+        insert
+            into
+                foryou.customer
+                (
+                    cust_id,
+                    cust_pwd,
+                    cust_name,
+                    cust_email,
+                    cust_tel,
+                    mileage,
+                    banned,
+                    status,
+                    enroll_date,
+                    delete_date,
+                    token
+                )
+                values
+                (
+                    #{cust_id},
+                    #{cust_pwd},
+                    #{cust_name},
+                    #{cust_email},
+                    #{cust_tel},
+                    default,
+                    default,
+                    default,
+                    default,
+                    default,
+                    default
+                );
+        insert
+            into
+                foryou.address
+                (
+                    cust_id,
+                    name,
+                    post,
+                    addr,
+                    addr_detail,
+                    addr_default
+                )
+                values
+                (
+                    #{cust_id},
+                    #{cust_name},
+                    #{post},
+                    #{address1},
+                    #{address2},
+                    default
+                );
+    </insert>
+
+    <insert id="">
+
+
+    </insert>
 
 </mapper>

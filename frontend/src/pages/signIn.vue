@@ -1,36 +1,38 @@
 <template>
-  <custom_header />
-  <custom_nav />
+  <custom_header/>
+  <custom_nav/>
   <div class="login-wrap">
     <div class="login-panel">
       <div class="login-header"></div>
       <div class="login-content">
-          <div class="login-input">
-            <input autofocus @keyup.enter="submit()" type="text" class="form-group id" name="id" id="id" placeholder="아이디" v-model="state.form.id"/>
-            <input @keyup.enter="submit()" type="text" class="form-group pwd" name="pwd" id="pwd" placeholder="비밀번호" v-model="state.form.pwd"/>
-          </div>
+        <div class="login-input">
+          <input autofocus @keyup.enter="submit()" type="text" class="form-group id" name="id" id="id" placeholder="아이디"
+                 v-model="state.form.id"/>
+          <input @keyup.enter="submit()" type="password" class="form-group pwd" name="pwd" id="pwd" placeholder="비밀번호"
+                 v-model="state.form.pwd"/>
+        </div>
 
-          <button type="button" class="form-group sign-btn"  @click="submit()">로그인</button>
+        <button type="button" class="form-group sign-btn" @click="submit()">로그인</button>
 
-          <div class="login-util">
-            <div class="login-join">
-              <a href="#">회원가입</a>
-            </div>
-            <div class="login-find">
-              <a href="#">아이디찾기</a>
-              <span></span>
-              <a href="#" class="find-pwd">비밀번호찾기</a>
-            </div>
+        <div class="login-util">
+          <div class="login-join">
+            <a href="#">회원가입</a>
           </div>
+          <div class="login-find">
+            <a href="#">아이디찾기</a>
+            <span></span>
+            <a href="#" class="find-pwd">비밀번호찾기</a>
+          </div>
+        </div>
 
-          <div class="sns">
-            <a href="">
-              <img class="sns-icon" src="../assets/img/naver.png" />
-            </a>
-            <a href="">
-              <img class="sns-icon" src="../assets/img/kakko.png" />
-            </a>
-          </div>
+        <div class="sns">
+          <a href="">
+            <img class="sns-icon" src="../assets/img/naver.png"/>
+          </a>
+          <a href="">
+            <img class="sns-icon" src="../assets/img/kakko.png"/>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -45,21 +47,31 @@ import store from "@/scripts/store";
 import router from "@/router";
 
 export default {
-  setup(){
+  setup() {
     const state = reactive({
-      form :{
-        id:"",
-        pwd:"",
+      form: {
+        id: "",
+        pwd: "",
       }
     })
 
-    const submit = () =>{
-      axios.post("/api/account/login", state.form).then((result)=>{
-        store.commit('setAccount',result.data);
-        sessionStorage.setItem("loginUser", JSON.stringify(result.data));
-        router.push({path:"/"});
-        alert("성공적으로 로그인 되었습니다.");
-      }).catch(()=>{
+    const submit = () => {
+      axios.post("/api/account/login", state.form).then(({data}) => {
+        let msg = "";
+
+        if (data == 2) {
+          msg = "존재하지 않는 회원입니다.";
+        } else if (data == 1) {
+          msg = "비밀번호를 다시 확인해주세요."
+        } else {
+          msg = "성공적으로 로그인 되었습니다."
+          store.commit('setAccount', data);
+          sessionStorage.setItem("loginUser", JSON.stringify(data));
+          router.push({path: "/"});
+        }
+        alert(msg);
+
+      }).catch(() => {
         alert("야이디와 비밀번호를 확인해주세요.")
       })
     }
@@ -124,6 +136,8 @@ export default {
 .id {
   border-top: none;
 }
+
+
 
 .sign-btn {
   width: 100%;

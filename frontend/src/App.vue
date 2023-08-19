@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <router-view />
+    <router-view/>
   </div>
 </template>
 
@@ -16,20 +16,20 @@ export default {
   setup() {
 
     const logOutUser = {
-      id:'',
-      name:'',
-      email:'',
-      tel:'',
-      mileage:0
+      id: '',
+      name: '',
+      email: '',
+      tel: '',
+      mileage: 0
     }
 
     const check = () => {
-      axios.get("/api/account/check").then(({data}) => {
-        store.commit("setAccount", data || logOutUser)
-      }).catch(()=>{
-        console.log('서버요청 실패');
-      })
-      console.log('ok');
+        axios.get("/api/account/check").then(({data}) => {
+          store.commit("setAccount", data || logOutUser)
+        }).catch(() => {
+          console.log('서버요청 실패');
+        })
+
     };
 
     const route = useRoute();
@@ -72,21 +72,27 @@ ul {
 .fade-enter-from {
   opacity: 0;
 }
+
 .fade-enter-active {
   transition: all 0.5s;
 }
+
 .fade-enter-to {
   opacity: 1;
 }
+
 .fade-leave-from {
   opacity: 1;
 }
+
 .fade-leave-active {
   transition: all 0.5s;
 }
+
 .fade-leave-to {
   opacity: 0;
 }
+
 /* 테플릿 */
 @media screen and (max-width: 1200px) {
   .wrap {
