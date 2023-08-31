@@ -3,88 +3,157 @@
 
 <mapper namespace="com.me.backend.member.mapper.MemberMapper">
 
-    <select id="member" resultType="MemberVO">
+    <select id="checkId" parameterType="hashMap" resultType="_int">
         select
-            cust_id,
-            cust_pwd,
-            cust_name,
-            cust_email,
-            cust_tel,
-            mileage,
-            status
-        from foryou.customer
-        where cust_id = #{cust_id} and cust_pwd = #{cust_pwd} and status = 'N'
+        count(*)
+        <choose>
+            <when test="target == 0">
+                from foryou.customer
+                where cust_id = #{id}
+            </when>
+            <otherwise>
+                from foryou.seller
+                where seller_id = #{id}
+            </otherwise>
+        </choose>
+
     </select>
 
-    <select id="loginMember" parameterType="String" resultType="MemberVO">
-        select
-            cust_id,
-            cust_pwd,
-            cust_name,
-            cust_email,
-            cust_tel,
-            mileage,
-            status
-        from foryou.customer
-        where cust_id = #{id}
-    </select>
-
-    <insert id="signUp">
-        insert
-            into
-                foryou.customer
-                (
+    <select id="member" resultType="MemberDTO">
+        <choose>
+            <when test='cust_id neq ""'>
+                select
                     cust_id,
                     cust_pwd,
                     cust_name,
                     cust_email,
                     cust_tel,
                     mileage,
-                    banned,
-                    status,
-                    enroll_date,
-                    delete_date,
-                    token
+                    status
+                from foryou.customer
+                where cust_id = #{cust_id} and cust_pwd = #{cust_pwd} and status = 'N'
+            </when>
+            <otherwise>
+                select
+                seller_id,
+                seller_pwd,
+                seller_name,
+                seller_tel,
+                from foryou.seller
+                where cust_id = #{seller_id} and cust_pwd = #{seller_pwd} and status = 'N'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="loginMember" parameterType="hashMap" resultType="MemberDTO">
+        <choose>
+            <when test="target == 'user'">
+                select
+                    cust_id,
+                    cust_pwd,
+                    cust_name,
+                    cust_email,
+                    cust_tel,
+                    mileage,
+                    status
+                from foryou.customer
+                where cust_id = #{id}
+            </when>
+            <otherwise>
+                select
+                    seller_id,
+                    seller_pwd,
+                    seller_number,
+                    company_name,
+                    seller_tel,
+                    seller_name
+                from foryou.seller
+                where seller_id = #{id}
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="signUp">
+        <choose>
+            <when test='cust_id neq ""'>
+                insert
+                into
+                foryou.customer
+                (
+                cust_id,
+                cust_pwd,
+                cust_name,
+                cust_email,
+                cust_tel,
+                mileage,
+                banned,
+                status,
+                enroll_date,
+                delete_date,
+                token
                 )
                 values
                 (
-                    #{cust_id},
-                    #{cust_pwd},
-                    #{cust_name},
-                    #{cust_email},
-                    #{cust_tel},
-                    default,
-                    default,
-                    default,
-                    default,
-                    default,
-                    default
+                #{cust_id},
+                #{cust_pwd},
+                #{cust_name},
+                #{cust_email},
+                #{cust_tel},
+                default,
+                default,
+                default,
+                default,
+                default,
+                default
                 );
-        insert
-            into
+                insert
+                into
                 foryou.address
                 (
-                    cust_id,
-                    name,
-                    post,
-                    addr,
-                    addr_detail,
-                    addr_default
+                cust_id,
+                name,
+                post,
+                addr,
+                addr_detail,
+                addr_default
                 )
                 values
                 (
-                    #{cust_id},
-                    #{cust_name},
-                    #{post},
-                    #{address1},
-                    #{address2},
-                    default
+                #{cust_id},
+                #{cust_name},
+                #{post},
+                #{address1},
+                #{address2},
+                default
                 );
-    </insert>
-
-    <insert id="">
-
-
+            </when>
+            <otherwise>
+                insert
+                into
+                foryou.seller
+                (
+                seller_id,
+                seller_pwd,
+                seller_number,
+                seller_name,
+                company_name,
+                seller_tel,
+                status,
+                enroll_date
+                )
+                values
+                (
+                #{seller_id},
+                #{seller_pwd},
+                #{seller_number},
+                #{seller_name},
+                #{company_name},
+                #{seller_tel},
+                default,
+                default
+                )
+            </otherwise>
+        </choose>
     </insert>
 
 </mapper>

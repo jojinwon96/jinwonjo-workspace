@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan(basePackages = "com.me.backend.member.mapper")
+@MapperScan(value = {"com.me.backend.member.mapper", "com.me.backend.product.mapper"})
 public class BackendApplication {
 
 	public static void main(String[] args) {

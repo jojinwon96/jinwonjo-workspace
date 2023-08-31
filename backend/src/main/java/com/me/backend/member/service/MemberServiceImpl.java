@@ -5,11 +5,18 @@ import com.me.backend.member.dto.MemberDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class MemberServiceImpl implements MemberService {
 
     @Autowired
     private MemberMapper memberMapper;
+
+    @Override
+    public int checkId(Map<String, String> params) {
+        return memberMapper.checkId(params);
+    }
 
     @Override
     public MemberDTO member(MemberDTO loginMember) {
@@ -22,8 +29,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberDTO loginMember(String id) {
-        return memberMapper.loginMember(id);
+    public MemberDTO loginMember(Map<String, String> params) {
+        return memberMapper.loginMember(params);
     }
 
 

@@ -2,7 +2,7 @@
   <!-- 리뷰 모달 시작 -->
   <Transition name="fade">
     <div
-      class="review-modal"
+      class="modify-modal"
       v-show="isOpenReview == true"
       data-modal-id="1"
       @click="closeModal($event)"
@@ -133,7 +133,7 @@ export default {
     modalControl() {
       if (this.isOpenReview) {
         this.$emit("closeModal");
-        this.clearImage;
+        this.clearImage();
       }
     },
 
@@ -141,7 +141,7 @@ export default {
       let modalId = e.target.dataset.modalId;
       if (modalId == 1) {
         this.$emit("closeModal");
-        this.clearImage;
+        this.clearImage();
       }
     },
   },
@@ -149,7 +149,7 @@ export default {
 </script>
 
 <style>
-.review-modal {
+.modify-modal {
   background-color: rgba(0, 0, 0, 0.5);
   position: fixed;
   top: 0;
@@ -157,6 +157,7 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
+  z-index: 70;
 }
 
 .review-content {
@@ -221,7 +222,6 @@ export default {
 
 .review-write textarea {
   padding: 0.5rem;
-
   font-size: 15px;
   height: 110px;
   resize: none;
@@ -294,4 +294,7 @@ export default {
   cursor: pointer;
   vertical-align: middle;
 }
+
+
+
 </style>

@@ -1,13 +1,14 @@
 <template>
   <div class="wrap">
     <router-view/>
+    <div style="height: 500px"></div>
   </div>
 </template>
 
 <script>
-
-import store from "@/scripts/store";
+import store from "@/store/modules/store";
 import axios from "axios";
+
 import {watch} from "vue";
 import {useRoute} from "vue-router/dist/vue-router";
 
@@ -20,18 +21,24 @@ export default {
       name: '',
       email: '',
       tel: '',
-      mileage: 0
+      mileage: 0,
+
+      seller_id:'',
+      seller_name:'',
+      seller_number:'',
+      seller_tel:'',
     }
 
     const check = () => {
-        axios.get("/api/account/check").then(({data}) => {
-          store.commit("setAccount", data || logOutUser)
+        axios.get("api/account/check").then(({data}) => {
+          console.log(data);
+          store.commit("setAccount", data || logOutUser);
         }).catch(() => {
           console.log('서버요청 실패');
         })
 
-    };
 
+    };
     const route = useRoute();
 
     watch(route, () => {

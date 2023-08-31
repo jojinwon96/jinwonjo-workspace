@@ -20,4 +20,11 @@ public class MemberDTO {
     private Date enroll_date;
     private Date delete_date;
     private String token;
+
+    private String seller_id;
+    private String seller_pwd;
+    private String seller_number;
+    private String seller_name;
+    private String company_name;
+    private String seller_tel;
 }

@@ -28,14 +28,28 @@ public class MemberController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @PostMapping("api/account/idCheck")
+    public ResponseEntity idCheck(@RequestBody Map<String, String> params) {
+
+        int result = memberService.checkId(params);
+
+        return new ResponseEntity(result, HttpStatus.OK);
+    }
+
+
     @PostMapping("api/account/signUp")
     public ResponseEntity signUp(@RequestBody MemberDTO member) {
 
-        System.out.println(member);
+        String encodePwd = "";
 
-        String encodePwd = passwordEncoder.encode(member.getCust_pwd());
+        if (!member.getCust_id().equals("")) {
+            encodePwd = passwordEncoder.encode(member.getCust_pwd());
+            member.setCust_pwd(encodePwd);
+        } else {
+            encodePwd = passwordEncoder.encode(member.getSeller_pwd());
+            member.setSeller_pwd(encodePwd);
+        }
 
-        member.setCust_pwd(encodePwd);
 
         int result = memberService.signUp(member);
 
@@ -49,19 +63,33 @@ public class MemberController {
     @PostMapping("/api/account/login")
     public ResponseEntity login(@RequestBody Map<String, String> params, HttpServletResponse res, HttpSession session) {
 
+        String target = params.get("target");
+        String getPwd = "";
+
         int result = 0;
 
-        MemberDTO member = memberService.loginMember(params.get("id"));
+        MemberDTO member = memberService.loginMember(params);
+
+        if (target.equals("user")){
+            getPwd = member.getCust_pwd();
+        } else {
+            getPwd = member.getSeller_pwd();
+        }
 
         if (member != null) {
             String inputPwd = params.get("pwd");
-            String getPwd = member.getCust_pwd();
 
             if (passwordEncoder.matches(inputPwd, getPwd)) {
                 member.setCust_pwd("");
+                member.setSeller_pwd("");
 
                 JwtService jwtService = new JwtServiceImpl();
-                String token = jwtService.getToken("id", member.getCust_id());
+                String token = "";
+                if (target.equals("user")){
+                    token = jwtService.getToken("id", member.getCust_id());
+                } else {
+                    token = jwtService.getToken("id", member.getSeller_id());
+                }
 
                 member.setToken(token);
                 session.setAttribute("loginMember", member);
@@ -73,7 +101,7 @@ public class MemberController {
             result = 2;
         }
 
-        if (result > 0){
+        if (result > 0) {
             return new ResponseEntity<>(result, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(member, HttpStatus.OK);
@@ -92,7 +120,7 @@ public class MemberController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/api/account/check")
+    @GetMapping("api/account/check")
     public ResponseEntity check(HttpSession session) {
 
         MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");

@@ -3,8 +3,19 @@
   <custom_nav/>
   <div class="login-wrap">
     <div class="login-panel">
-      <div class="login-header"></div>
+      <div class="login-header">
+      </div>
       <div class="login-content">
+        <div class="target-wrap">
+          <div>
+            <input id="user" type="radio" v-model="state.form.target" value="user">
+            <label for="user">사용자 로그인</label>
+          </div>
+          <div>
+            <input id="seller" type="radio" v-model="state.form.target" value="seller">
+            <label for="seller">판매자 로그인</label>
+          </div>
+        </div>
         <div class="login-input">
           <input autofocus @keyup.enter="submit()" type="text" class="form-group id" name="id" id="id" placeholder="아이디"
                  v-model="state.form.id"/>
@@ -43,16 +54,19 @@ import custom_header from "../components/Header.vue";
 import custom_nav from "../components/Nav.vue";
 import {reactive} from "vue";
 import axios from "axios";
-import store from "@/scripts/store";
+import store from "@/store/modules/store.js";
 import router from "@/router";
 
 export default {
   setup() {
+
     const state = reactive({
       form: {
         id: "",
         pwd: "",
-      }
+        target: "",
+      },
+
     })
 
     const submit = () => {
@@ -67,7 +81,12 @@ export default {
           msg = "성공적으로 로그인 되었습니다."
           store.commit('setAccount', data);
           sessionStorage.setItem("loginUser", JSON.stringify(data));
-          router.push({path: "/"});
+
+          if (state.form.target == 'user'){
+            router.replace({path: "/"});
+          } else {
+            router.replace({path: "/seller"});
+          }
         }
         alert(msg);
 
@@ -114,6 +133,13 @@ export default {
   margin-bottom: 30px;
 }
 
+.target-wrap{
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 10px;
+  font-weight: bolder;
+}
+
 .form-group {
   display: block;
   width: 350px;
@@ -136,7 +162,6 @@ export default {
 .id {
   border-top: none;
 }
-
 
 
 .sign-btn {

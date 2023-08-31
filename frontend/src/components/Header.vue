@@ -15,7 +15,7 @@
               </router-link
               >
             </a>
-            <a>
+            <a @click="[loadSignUp(), this.isShow=false]">
               <router-link to="/signUp" class="default-border"
               >회원가입
               </router-link
@@ -92,7 +92,7 @@
         <button class="search-btn"></button>
       </div>
 
-      <div class="user-panel">
+      <div class="user-panel" v-if="$store.state.account.id">
         <router-link to="/myPage" class="default-border user-panel">
           <span class="user-myPage"></span>
         </router-link>
@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import store from "@/scripts/store";
+import store from "@/store/modules/store.js";
 import router from "@/router";
 import axios from "axios";
 
@@ -119,6 +119,17 @@ export default {
   },
 
   setup() {
+    const loadSignUp = () => {
+      const state = {
+        isChose: true,
+        isCust: false,
+        isSeller: false
+      }
+
+      store.commit("setSignupState", state);
+    }
+
+
     const logOut = () => {
       const logOutUser = {
         id: '',
@@ -132,12 +143,12 @@ export default {
           store.commit('setAccount', logOutUser);
           sessionStorage.removeItem("loginUser");
           router.go(0);
-          router.push({path: "/"});
+          router.replace({path: "/"});
         }
       })
     }
 
-    return {logOut}
+    return {loadSignUp, logOut}
   },
 
   methods: {
@@ -171,12 +182,12 @@ a {
 }
 
 header {
-  z-index: 50;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   border-bottom: 1px #d0d0d0 solid;
+  z-index: 60;
 }
 
 .header-wrap {
@@ -310,7 +321,7 @@ header {
 }
 
 .category-bg-white {
-  background-color: none;
+  background: none;
   opacity: 0;
   width: 100%;
   height: 100%;

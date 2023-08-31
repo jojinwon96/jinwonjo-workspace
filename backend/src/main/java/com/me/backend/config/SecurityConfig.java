@@ -29,7 +29,7 @@ public class SecurityConfig{
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/api/**").permitAll()
+                                .requestMatchers("/**", "/api/seller/**").permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 );
         return http.build();

@@ -1,8 +1,8 @@
 import { createApp } from "vue";
-import store from "@/scripts/store"
 import App from "./App.vue";
 import axios from "axios";
 import router from "./router.js";
+import store from "./store/modules/store";
 
 let app = createApp(App);
 

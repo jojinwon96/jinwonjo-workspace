@@ -1,6 +1,6 @@
 <template>
-  <custom_header />
-  <custom_nav />
+  <custom_header/>
+  <custom_nav/>
   <section class="content">
     <div class="goods-wrap">
       <div class="search-nav">
@@ -10,48 +10,48 @@
       </div>
       <h3 class="goods-title">지금 이 순간</h3>
       <div class="goods-thumbs">
-        <img src="../../assets/img/bouquet1.jpg" alt="" />
+        <img src="../../assets/img/bouquet1.jpg" alt=""/>
       </div>
       <div class="goods-spec">
         <div class="goods-price">
           <span class="sale">{{ product.discount }}%</span>
           <span
-            class="num"
-            :innerHTML="comma(discount(product.price, product.discount))"
+              class="num"
+              :innerHTML="comma(discount(product.price, product.discount))"
           ></span>
           <span class="won">원</span>
           <span class="origin-price">{{ comma(product.price) }}원</span>
         </div>
         <table class="spec">
           <tbody>
-            <tr>
-              <td class="spec-title">적립해택</td>
-              <td class="spec-content">회원가입시 4,000원 적립</td>
-            </tr>
-            <tr>
-              <td class="spec-title">상품후기</td>
-              <td class="spec-content">
-                <span class="ratings-num">XX명</span>
-                <div class="star-ratings">
-                  <div
+          <tr>
+            <td class="spec-title">적립해택</td>
+            <td class="spec-content">회원가입시 4,000원 적립</td>
+          </tr>
+          <tr>
+            <td class="spec-title">상품후기</td>
+            <td class="spec-content">
+              <span class="ratings-num">XX명</span>
+              <div class="star-ratings">
+                <div
                     class="star-ratings-fill"
                     :style="{ width: 별점평균 + '%' }"
-                  >
-                    <span>★</span><span>★</span><span>★</span><span>★</span
-                    ><span>★</span>
-                  </div>
-                  <div class="star-ratings-base">
-                    <span>★</span><span>★</span><span>★</span><span>★</span
-                    ><span>★</span>
-                  </div>
+                >
+                  <span>★</span><span>★</span><span>★</span><span>★</span
+                ><span>★</span>
                 </div>
-                <span class="ratings-avg">({{ 별점평균 }}/5)</span>
-              </td>
-            </tr>
-            <tr>
-              <td class="spec-title">상품코드</td>
-              <td class="spec-content">FA00091</td>
-            </tr>
+                <div class="star-ratings-base">
+                  <span>★</span><span>★</span><span>★</span><span>★</span
+                ><span>★</span>
+                </div>
+              </div>
+              <span class="ratings-avg">({{ 별점평균 }}/5)</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="spec-title">상품코드</td>
+            <td class="spec-content">FA00091</td>
+          </tr>
           </tbody>
         </table>
         <div class="option-wrap">
@@ -59,10 +59,10 @@
           <select name="" id="" @change="selectOption">
             <option value="0" selected>사이즈 선택</option>
             <option
-              v-for="item in optionList"
-              :key="item"
-              :value="JSON.stringify(item)"
-              :innerHTML="item.optName"
+                v-for="item in optionList"
+                :key="item"
+                :value="JSON.stringify(item)"
+                :innerHTML="item.optName"
             ></option>
           </select>
         </div>
@@ -80,10 +80,10 @@
                         -
                       </button>
                       <input
-                        type="text"
-                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                        :value="`${item.count}`"
-                        @input="
+                          type="text"
+                          oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                          :value="`${item.count}`"
+                          @input="
                           [
                             countControl(
                               (item.count = $event.target.value),
@@ -99,18 +99,18 @@
                     </div>
                     <div class="select-pay-side">
                       <span class="side-num"
-                        >{{
+                      >{{
                           comma(
-                            discount(
-                              (product.price + item.optPrice) * item.count,
-                              product.discount
-                            )
+                              discount(
+                                  (product.price + item.optPrice) * item.count,
+                                  product.discount
+                              )
                           )
                         }}원</span
                       >
                       <button
-                        type="button"
-                        @click="[deleteProduct(idx), totalPrice()]"
+                          type="button"
+                          @click="[deleteProduct(idx), totalPrice()]"
                       >
                         &#10005;
                       </button>
@@ -136,11 +136,11 @@
     <div class="goods-detail-wrap">
       <ul class="tab-list" :class="{ tabFixed: isFixed }">
         <a
-          class="tab-button"
-          v-for="item in list"
-          :key="item.id"
-          :class="{ tabActive: item.active }"
-          @click="moveStage(item.id)"
+            class="tab-button"
+            v-for="item in list"
+            :key="item.id"
+            :class="{ tabActive: item.active }"
+            @click="moveStage(item.id)"
         >
           <li>{{ item.label }}</li>
         </a>
@@ -151,7 +151,8 @@
       <div class="tab-content">
         <div class="review-top-wrap">
           <ul>
-            <li>
+            <li>http://localhost:3000/
+
               <select name="" id="">
                 <option value="0" selected>평점전체</option>
                 <option value="1">★</option>
@@ -162,45 +163,45 @@
               </select>
             </li>
             <li>
-              <input type="text" placeholder="제목,상품명,작성자" />
+              <input type="text" placeholder="제목,상품명,작성자"/>
               <button type="button">검색</button>
             </li>
           </ul>
         </div>
         <table class="table review-table">
           <thead class="table-light">
-            <tr class="text-center">
-              <th class="col-1">번호</th>
-              <th class="col-5">후기</th>
-              <th>평가</th>
-              <th>작성자</th>
-              <th>등록일</th>
-              <th class="col-1">조회</th>
-            </tr>
+          <tr class="text-center">
+            <th class="col-1">번호</th>
+            <th class="col-5">후기</th>
+            <th>평가</th>
+            <th>작성자</th>
+            <th>등록일</th>
+            <th class="col-1">조회</th>
+          </tr>
           </thead>
           <tbody>
-            <tr class="text-center align-middle">
-              <td class="col-1">1</td>
-              <td class="col-5">
-                <div class="review-img-wrap">
-                  <img src="../../assets/img/bouquet1.jpg" alt="" />
-                  <ul>
-                    <li>상품 : 지금 이 순간</li>
-                    <li class="fw-bold">제목 : 사진과 많이 달라요..</li>
-                    <li>
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Blanditiis numquam maxime praesentium sint neque error
-                      voluptatem totam quis cum nihil ab aliquid facilis
-                      laudantium perspiciatis vero ut officiis, nulla quod.
-                    </li>
-                  </ul>
-                </div>
-              </td>
-              <td>★★★★★</td>
-              <td>wls****</td>
-              <td>2023-08-01 09:10</td>
-              <td class="col-1">7</td>
-            </tr>
+          <tr class="text-center align-middle">
+            <td class="col-1">1</td>
+            <td class="col-5">
+              <div class="review-img-wrap">
+                <img src="../../assets/img/bouquet1.jpg" alt=""/>
+                <ul>
+                  <li>상품 : 지금 이 순간</li>
+                  <li class="fw-bold">제목 : 사진과 많이 달라요..</li>
+                  <li>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Blanditiis numquam maxime praesentium sint neque error
+                    voluptatem totam quis cum nihil ab aliquid facilis
+                    laudantium perspiciatis vero ut officiis, nulla quod.
+                  </li>
+                </ul>
+              </div>
+            </td>
+            <td>★★★★★</td>
+            <td>wls****</td>
+            <td>2023-08-01 09:10</td>
+            <td class="col-1">7</td>
+          </tr>
           </tbody>
         </table>
         <button class="review-btn" @click="isOpenReview = true">
@@ -208,8 +209,8 @@
         </button>
         <!-- 리뷰 모달 -->
         <ReviewModal
-          :isOpenReview="isOpenReview"
-          @closeModal="isOpenReview = false"
+            :isOpenReview="isOpenReview"
+            @closeModal="isOpenReview = false"
         ></ReviewModal>
 
         <div style="clear: both"></div>
@@ -233,42 +234,42 @@
               </select>
             </li>
             <li>
-              <input type="text" placeholder="제목,상품명,작성자" />
+              <input type="text" placeholder="제목,상품명,작성자"/>
               <button type="button">검색</button>
             </li>
           </ul>
         </div>
         <table class="table review-table">
           <thead class="table-light">
-            <tr class="text-center">
-              <th class="col-1">번호</th>
-              <th>상태</th>
-              <th>분류</th>
-              <th class="col-5">문의</th>
-              <th>작성자</th>
-              <th>등록일</th>
-              <th class="col-1">조회</th>
-            </tr>
+          <tr class="text-center">
+            <th class="col-1">번호</th>
+            <th>상태</th>
+            <th>분류</th>
+            <th class="col-5">문의</th>
+            <th>작성자</th>
+            <th>등록일</th>
+            <th class="col-1">조회</th>
+          </tr>
           </thead>
           <tbody>
-            <tr class="text-center align-middle">
-              <td class="col-1">1</td>
-              <td>답변완료</td>
-              <td>[색상 문의]</td>
-              <td class="col-5">
-                <div class="review-img-wrap">
-                  <img src="../../assets/img/bouquet1.jpg" alt="" />
-                  <ul>
-                    <li>상품 : 지금 이 순간</li>
-                    <li class="fw-bold">제목 : 색상문의</li>
-                    <li>비밀글입니다.</li>
-                  </ul>
-                </div>
-              </td>
-              <td>wls****</td>
-              <td>2023-08-01 09:10</td>
-              <td class="col-1">2</td>
-            </tr>
+          <tr class="text-center align-middle">
+            <td class="col-1">1</td>
+            <td>답변완료</td>
+            <td>[색상 문의]</td>
+            <td class="col-5">
+              <div class="review-img-wrap">
+                <img src="../../assets/img/bouquet1.jpg" alt=""/>
+                <ul>
+                  <li>상품 : 지금 이 순간</li>
+                  <li class="fw-bold">제목 : 색상문의</li>
+                  <li>비밀글입니다.</li>
+                </ul>
+              </div>
+            </td>
+            <td>wls****</td>
+            <td>2023-08-01 09:10</td>
+            <td class="col-1">2</td>
+          </tr>
           </tbody>
         </table>
         <button class="review-btn">문의작성하기</button>
@@ -325,9 +326,9 @@ export default {
       isStaging: false,
       isOpenReview: false,
       list: [
-        { id: 1, label: "상세설명", content: "콘텐츠1", active: true },
-        { id: 2, label: "상품후기", content: "콘텐츠2", active: false },
-        { id: 3, label: "상품문의", content: "콘텐츠3", active: false },
+        {id: 1, label: "상세설명", content: "콘텐츠1", active: true},
+        {id: 2, label: "상품후기", content: "콘텐츠2", active: false},
+        {id: 3, label: "상품문의", content: "콘텐츠3", active: false},
       ],
     };
   },
@@ -377,17 +378,17 @@ export default {
 
     selectOption(e) {
       let obj = JSON.parse(e.target.value),
-        cartItem = {
-          pId: this.product.pId,
-          pName: this.product.pName,
-          price: this.product.price,
-          pDiscount: this.product.discount,
-          optId: obj.optId,
-          optName: obj.optName,
-          optPrice: obj.optPrice,
-          count: 1,
-        },
-        hasItem = false;
+          cartItem = {
+            pId: this.product.pId,
+            pName: this.product.pName,
+            price: this.product.price,
+            pDiscount: this.product.discount,
+            optId: obj.optId,
+            optName: obj.optName,
+            optPrice: obj.optPrice,
+            count: 1,
+          },
+          hasItem = false;
 
       if (this.cartList.length == 0) {
         this.cartList.push(cartItem);
@@ -414,25 +415,25 @@ export default {
       this.total = 0;
       this.cartList.forEach((item) => {
         this.total += this.discount(
-          (item.price + item.optPrice) * item.count,
-          item.pDiscount
+            (item.price + item.optPrice) * item.count,
+            item.pDiscount
         );
       });
     },
 
     moveStage(id) {
       let location =
-        document.querySelectorAll(".tab-content")[id - 1].offsetTop - 200;
-      window.scrollTo({ top: location, behavior: "smooth" });
+          document.querySelectorAll(".tab-content")[id - 1].offsetTop - 200;
+      window.scrollTo({top: location, behavior: "smooth"});
     },
     scroll() {
       let currentScroll = window.scrollY,
-        location1 =
-          document.querySelectorAll(".tab-content")[0].offsetTop - 200,
-        location2 =
-          document.querySelectorAll(".tab-content")[1].offsetTop - 200,
-        location3 =
-          document.querySelectorAll(".tab-content")[2].offsetTop - 200;
+          location1 =
+              document.querySelectorAll(".tab-content")[0].offsetTop - 200,
+          location2 =
+              document.querySelectorAll(".tab-content")[1].offsetTop - 200,
+          location3 =
+              document.querySelectorAll(".tab-content")[2].offsetTop - 200;
 
       console.log(currentScroll);
       if (currentScroll > 767) {
