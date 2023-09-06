@@ -22,6 +22,8 @@ public class ProductDTO {
     private int stock;
     private int maxCount;
     private String main;
+    private String status;
+    private String addStatus;
 
     private String img1;
     private String img2;

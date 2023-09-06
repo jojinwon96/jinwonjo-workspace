@@ -4,8 +4,9 @@
       <div class="filter-panel">
         <span class="filter-title">카테고리</span>
         <select @change="this.pageInfo.category_id = $event.target.value"
+                v-model="pageInfo.category_id"
                 class="filter-content">
-          <option selected disabled value="0">선택</option>
+          <option selected disabled :value="pageInfo.category_id">선택</option>
           <option v-for="item in this.categoryList" :key="item" :value="item.category_id">{{ item.category_name }}</option>
         </select>
       </div>
@@ -14,6 +15,7 @@
         <span class="filter-title">상품명</span>
         <div class="filter-content ">
           <input @keyup.enter="onPageSearch()"
+                 v-model="pageInfo.keyword"
                  @input="pageInfo.keyword = $event.target.value" class="pm-serach-input"/>
         </div>
       </div>
@@ -21,13 +23,16 @@
       <div class="filter-panel">
         <span class="filter-title">상품번호</span>
         <input @keyup.enter="onPageSearch()"
+               v-model="pageInfo.product_id"
                @input="pageInfo.product_id = $event.target.value" class="filter-content"/>
       </div>
     </div>
     <div class="pm-content-sub">
       <button @click="onPageSearch()"
               class="pm-search" type="button">검색하기</button>
-      <button class="pm-reset" type="button">초기화</button>
+      <button class="pm-reset"
+              @click="onReset()"
+              type="button">초기화</button>
     </div>
   </div>
 
@@ -90,7 +95,7 @@ export default {
       pageInfo: {
         page: 1,
         range: 1,
-        category_id: '',
+        category_id: '0',
         keyword: '',
         product_id: '',
         target: '0',
@@ -103,7 +108,17 @@ export default {
   },
 
   methods: {
+    onReset(){
+      this.pageInfo.category_id = '';
+      this.pageInfo.keyword = '';
+      this.pageInfo.product_id = '';
+    },
+
     onPageSearch(){
+      if (this.pageInfo.category_id == '0'){
+        this.pageInfo.category_id = '';
+      }
+
       if (this.pageInfo.product_id != '' || this.pageInfo.keyword != '' || this.pageInfo.category_id !=''){
         this.pageInfo.page = 1;
         this.pageInfo.range = 1;
@@ -135,6 +150,10 @@ export default {
     },
 
     postProduct() {
+      if (this.pageInfo.category_id == '0'){
+        this.pageInfo.category_id = '';
+      }
+
       const axiosConfig = {
         headers: {
           "Content-Type": "application/json"

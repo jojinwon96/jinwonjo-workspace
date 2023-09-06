@@ -4,8 +4,9 @@
       <div class="filter-panel">
         <span class="filter-title">카테고리</span>
         <select @change="this.pageInfo.category_id = $event.target.value"
+                v-model="pageInfo.category_id"
                 class="filter-content">
-          <option selected disabled value="0">선택</option>
+          <option selected disabled :value="pageInfo.category_id">선택</option>
           <option v-for="item in this.categoryList" :key="item" :value="item.category_id">{{ item.category_name }}</option>
         </select>
       </div>
@@ -14,6 +15,7 @@
         <span class="filter-title">상품명</span>
         <div class="filter-content">
           <input @keyup.enter="onPageSearch()"
+                 v-model="pageInfo.keyword"
                  @input="pageInfo.keyword = $event.target.value" class="pm-serach-input"/>
         </div>
       </div>
@@ -21,12 +23,16 @@
       <div class="filter-panel">
         <span class="filter-title">상품번호</span>
         <input @keyup.enter="onPageSearch()"
+               v-model="pageInfo.product_id"
                @input="pageInfo.product_id = $event.target.value" class="filter-content"/>
       </div>
     </div>
     <div class="pm-content-sub">
-      <button class="pm-search" type="button">검색하기</button>
-      <button class="pm-reset" type="button">초기화</button>
+      <button class="pm-search" type="button"
+              @click="onPageChange()">검색하기</button>
+      <button class="pm-reset"
+              @click="onReset()"
+              type="button">초기화</button>
     </div>
   </div>
 
@@ -46,7 +52,9 @@
       <tbody>
       <tr v-for="(item) in this.products" :key="item">
         <th>{{ item.product_id }}</th>
-        <th><img :src="require(`@/assets/product/uploadfile/${item.img1}`)"></th>
+        <th>
+          <img :src="require(`@/assets/product/uploadfile/${item.img1}`)">
+        </th>
         <th>
           <div>
             {{ item.category_name }} / {{ item.product_name }}
@@ -54,15 +62,15 @@
         </th>
         <th>{{ item.price }}</th>
         <th>{{ item.stock }}</th>
-        <th><span @click="setModal(!isOpenModal)" class="modify-btn">수정</span></th>
+        <th><span @click="[setModal(!isOpenModal), this.product_id = item.product_id]" class="modify-btn">수정</span></th>
       </tr>
       </tbody>
     </table>
   </div>
+  <modifyModal :id="this.product_id" :toggle="this.toggle" @changeOption="changeOption"/>
   <Pagination :pagination="this.pagination"
               :onPageChange="this.onPageChange"
               :pages="pages"/>
-  <modifyModal/>
 </template>
 
 <script>
@@ -79,6 +87,8 @@ export default {
   },
   data() {
     return {
+      toggle: false,
+      product_id:'',
       categoryList: [],
       products: [],
       pagination: {},
@@ -86,7 +96,7 @@ export default {
       pageInfo: {
         page: 1,
         range: 1,
-        category_id: '',
+        category_id: '0',
         keyword: '',
         product_id: '',
         target: '0',
@@ -99,17 +109,31 @@ export default {
   },
 
   computed: {
-    ...mapState(['product', 'isOpenModal']),
+    ...mapState(['seller', 'product', 'isOpenModal']),
   },
 
   methods: {
-    ...mapMutations(['setProduct', 'setModal']),
+    ...mapMutations(['setSeller','setProduct', 'setModal']),
+
+    changeOption(){
+      this.postProduct();
+    },
 
     modalControl() {
       this.isOpen = true;
     },
 
+    onReset(){
+      this.pageInfo.category_id = '';
+      this.pageInfo.keyword = '';
+      this.pageInfo.product_id = '';
+    },
+
     onPageSearch(){
+      if (this.pageInfo.category_id == '0'){
+        this.pageInfo.category_id = '';
+      }
+
       if (this.pageInfo.product_id != '' || this.pageInfo.keyword != '' || this.pageInfo.category_id !=''){
         this.pageInfo.page = 1;
         this.pageInfo.range = 1;
@@ -141,6 +165,10 @@ export default {
     },
 
     postProduct() {
+      if (this.pageInfo.category_id == '0'){
+        this.pageInfo.category_id = '';
+      }
+
       const axiosConfig = {
         headers: {
           "Content-Type": "application/json"

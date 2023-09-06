@@ -222,7 +222,8 @@ header {
   width: 500px;
   margin-left: 1rem;
   margin-right: 3rem;
-  border: 3px solid #3385f096;
+  border: 2px solid #3385f096;
+  border-radius: 2px;
 }
 
 .serach-category {

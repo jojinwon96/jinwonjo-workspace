@@ -3,78 +3,223 @@
 
 <mapper namespace="com.me.backend.product.mapper.ProductMapper">
 
+    <select id="findAllModifyProducts" parameterType="hashmap" resultType="ProductDTO">
+        select p.product_id
+             , product_name
+             , option_id
+             , option_name1
+             , option_content1
+             , option_name2
+             , option_content2
+             , option_price
+             , discount
+             , price
+             , maxCount
+             , stock
+             , main
+             , img1
+             , img2
+             , img3
+             , img4
+             , img5
+             , o.status as 'status'
+        from foryou.seller s
+                 join foryou.product p on s.seller_id = p.seller_id
+                 join foryou.category c on p.category_id = c.category_id
+                 join foryou.option o on p.product_id = o.product_id
+        where p.seller_id = #{id}
+          and p.status = 'Y'
+          and p.product_id = #{product_id}
+    </select>
+
     <select id="productCount" parameterType="hashmap" resultType="_int">
         <choose>
             <when test="target == '0'">
                 select count(*)
                 from foryou.option o
                 join foryou.product p on o.product_id = p.product_id
-                where seller_id = #{id}
+                where seller_id = #{id} and and p.status = 'Y'
             </when>
             <otherwise>
                 select count(*)
                 from foryou.seller s
-                        join foryou.product p on (s.seller_id = p.seller_id)
-                        join foryou.category c on (p.category_id = c.category_id)
-                        join foryou.option o on (p.product_id = o.product_id)
+                join foryou.product p on (s.seller_id = p.seller_id)
+                join foryou.category c on (p.category_id = c.category_id)
+                join foryou.option o on (p.product_id = o.product_id)
                 where p.seller_id = #{id}
-                    and p.status = 'Y'
-                    and p.category_id like CONCAT('%',#{category_id},'%')
-                    and product_name like CONCAT('%',#{keyword},'%')
-                    and p.product_id like CONCAT('%',#{product_id},'%')
+                and p.status = 'Y'
+                and p.category_id like CONCAT('%',#{category_id},'%')
+                and product_name like CONCAT('%',#{keyword},'%')
+                and p.product_id like CONCAT('%',#{product_id},'%')
             </otherwise>
         </choose>
     </select>
 
-    <select id="findProduct" parameterType="hashmap"  resultType="ProductDTO">
-        select p.product_id, product_name, option_id, option_name1, option_name2, option_content1, option_content2, category_name, option_price, discount, price, stock, img1
+    <select id="findProduct" parameterType="hashmap" resultType="ProductDTO">
+        select p.product_id,
+               product_name,
+               option_id,
+               option_name1,
+               option_name2,
+               option_content1,
+               option_content2,
+               category_name,
+               option_price,
+               discount,
+               price,
+               stock,
+               img1,
+               o.status as 'status'
         from foryou.seller s
                  join foryou.product p on (s.seller_id = p.seller_id)
                  join foryou.category c on (p.category_id = c.category_id)
                  join foryou.option o on (p.product_id = o.product_id)
         where p.seller_id = #{id}
-              and p.status = 'Y'
-              and p.category_id like CONCAT('%',#{category_id},'%')
-              and product_name like CONCAT('%',#{keyword},'%')
-              and p.product_id like CONCAT('%',#{product_id},'%')
+          and p.status = 'Y'
+          and p.category_id like CONCAT('%', #{category_id}, '%')
+          and product_name like CONCAT('%', #{keyword}, '%')
+          and p.product_id like CONCAT('%', #{product_id}, '%')
         order by product_id
-        limit #{pageInfo.startList}, #{pageInfo.listSize}
+            limit #{pageInfo.startList}, #{pageInfo.listSize}
+    </select>
+
+    <select id="modifyProductsCount" parameterType="hashmap" resultType="_int">
+        <choose>
+            <when test="target == '0'">
+                select count(*)
+                from foryou.seller s
+                join foryou.product p on s.seller_id = p.seller_id
+                join foryou.category c on p.category_id = c.category_id
+                join foryou.option o on p.product_id = o.product_id
+                where p.seller_id = #{id}
+                and p.status = 'Y'
+                and main = 'Y'
+            </when>
+            <otherwise>
+                select count(*)
+                from foryou.seller s
+                join foryou.product p on s.seller_id = p.seller_id
+                join foryou.category c on p.category_id = c.category_id
+                join foryou.option o on p.product_id = o.product_id
+                where p.seller_id = 'seller01'
+                and p.status = 'Y'
+                and main = 'Y'
+                and p.category_id like CONCAT('%',#{category_id},'%')
+                and product_name like CONCAT('%',#{keyword},'%')
+                and p.product_id like CONCAT('%',#{product_id},'%')
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findModifyProducts" parameterType="hashmap" resultType="ProductDTO">
+        select p.product_id, product_name, img1, c.category_name, price, stock, o.status as 'status'
+        from foryou.seller s
+                 join foryou.product p on s.seller_id = p.seller_id
+                 join foryou.category c on p.category_id = c.category_id
+                 join foryou.option o on p.product_id = o.product_id
+        where p.seller_id = #{id}
+          and p.status = 'Y'
+          and main = 'Y'
+          and p.category_id like CONCAT('%', #{category_id}, '%')
+          and product_name like CONCAT('%', #{keyword}, '%')
+          and p.product_id like CONCAT('%', #{product_id}, '%')
+        order by product_id
+            limit #{pageInfo.startList}, #{pageInfo.listSize}
     </select>
 
     <select id="categoryList" resultType="ProductDTO">
         select category_id, category_name
         from foryou.category
         where category_id2 IS NOT NULL
-        order by cast(REGEXP_REPLACE(category_id,'[_a-z]','') as unsigned )
+        order by cast(REGEXP_REPLACE(category_id, '[_a-z]', '') as unsigned)
     </select>
 
     <insert id="inputProduct">
         insert
-            into foryou.product
-            (
-                product_name,
-                img1,
-                img2,
-                img3,
-                img4,
-                img5,
-                category_id,
-                seller_id
-            )
-            values
-            (
-                #{product_name},
+        into foryou.product
+        (product_name,
+         img1,
+         img2,
+         img3,
+         img4,
+         img5,
+         category_id,
+         seller_id)
+        values (#{product_name},
                 #{img1},
                 #{img2},
                 #{img3},
                 #{img4},
                 #{img5},
                 #{category_id},
-                #{seller_id}
-            )
+                #{seller_id})
     </insert>
-    
+
     <insert id="inputOptions" parameterType="java.util.List">
+        insert
+        into foryou.option
+        (
+        product_id,
+        option_name1,
+        option_content1,
+        option_name2,
+        option_content2,
+        option_price,
+        discount,
+        price,
+        stock,
+        maxCount,
+        main,
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            (select max(product_id) from foryou.product),
+            #{item.option_name1},
+            #{item.option_content1},
+            #{item.option_name2},
+            #{item.option_content2},
+            #{item.option_price},
+            #{item.discount},
+            #{item.price},
+            #{item.stock},
+            #{item.maxCount},
+            #{item.main}
+            )
+        </foreach>
+    </insert>
+
+    <update id="modifyProduct" parameterType="ProductDTO">
+        update foryou.product
+        set product_name = #{product_name},
+            img1         = #{img1},
+            img2         = #{img2},
+            img3         = #{img3},
+            img4         = #{img4},
+            img5         = #{img5}
+        where product_id = #{product_id}
+    </update>
+
+    <update id="modifyOptions" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            <if test='item.addStatus != "Y"'></if>
+            update foryou.option
+            set option_name1 = #{item.option_name1},
+            option_name2 = #{item.option_name2},
+            option_content1 = #{item.option_content1},
+            option_content2 = #{item.option_content2},
+            option_price = #{item.option_price},
+            discount = #{item.discount},
+            price = #{item.price},
+            stock = #{item.stock},
+            maxCount = #{item.maxCount},
+            main = #{item.main},
+            status = #{item.status}
+            where option_id = #{item.option_id}
+        </foreach>
+    </update>
+
+    <insert id="inputModifyProducts">
         insert
             into foryou.option
             (
@@ -89,41 +234,39 @@
                 stock,
                 maxCount,
                 main
-            )
-            values
-             <foreach collection="list" item="item" separator=",">
-                (
-                    (select max(product_id) from foryou.product),
-                    #{item.option_name1},
-                    #{item.option_content1},
-                    #{item.option_name2},
-                    #{item.option_content2},
-                    #{item.option_price},
-                    #{item.discount},
-                    #{item.price},
-                    #{item.stock},
-                    #{item.maxCount},
-                    #{item.main}
                 )
-             </foreach>
+            values
+            <foreach collection="list" item="item" separator=",">
+                <if test='item.addStatus == "Y"'>
+                    (
+                        #{item.product_id},
+                        #{item.option_name1},
+                        #{item.option_content1},
+                        #{item.option_name2},
+                        #{item.option_content2},
+                        #{item.option_price},
+                        #{item.discount},
+                        #{item.price},
+                        #{item.stock},
+                        #{item.maxCount},
+                        #{item.main}
+                    )
+                </if>
+            </foreach>
     </insert>
 
-    <select id="modifyProductCount" parameterType="hashmap" resultType="_int">
-        select count(*)
-        from foryou.product p
-                 join foryou.seller s on p.seller_id = s.seller_id
-        where p.seller_id = #{id}
+    <update id="modifyProductImg" parameterType="hashmap">
+        update foryou.product
+        set img1 = #{img1}
+        where product_id = #{id}
+    </update>
+
+
+    <select id="modifyImg" parameterType="String" resultType="ProductDTO">
+        select img1
+        from foryou.product
+        where product_id = '${id}';
     </select>
 
-    <select id="findModifyProduct" parameterType="hashmap" resultType="ProductDTO">
-        select p.product_id, product_name, img1, c.category_name, price, stock
-        from foryou.seller s
-                 join foryou.product p on s.seller_id = p.seller_id
-                 join foryou.category c on p.category_id = c.category_id
-                 join foryou.option o on p.product_id = o.product_id
-        where p.seller_id = #{id}
-          and main = 'Y'
-        limit #{pageInfo.startList}, #{pageInfo.listSize}
-    </select>
 
 </mapper>

@@ -20,7 +20,7 @@ public class JwtServiceImpl implements JwtService{
 
         // 토큰 유효시간 5분 설정
         Date exapTime = new Date();
-        exapTime.setTime(exapTime.getTime() * 1000 * 60 * 5);
+        exapTime.setTime(exapTime.getTime() * 1000 * 60 * 60);
 
         // 랜덤키를 바이트로 변환
         byte[] secretByteKey = DatatypeConverter.parseBase64Binary(secretKey);

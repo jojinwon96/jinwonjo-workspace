@@ -42,12 +42,42 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public int modifyProductCount(Map<String, String> map) {
-        return productMapper.modifyProductCount(map);
+    public int modifyProductsCount(Map<String, String> map) {
+        return productMapper.modifyProductsCount(map);
     }
 
     @Override
-    public List<ProductDTO> findModifyProduct(Map<String, Object> map) {
-        return productMapper.findModifyProduct(map);
+    public List<ProductDTO> findModifyProducts(Map<String, Object> map) {
+        return productMapper.findModifyProducts(map);
+    }
+
+    @Override
+    public List<ProductDTO> findAllModifyProducts(Map<String, String> map) {
+        return productMapper.findAllModifyProducts(map);
+    }
+
+    @Override
+    public int modifyProduct(ProductDTO product) {
+        return productMapper.modifyProduct(product);
+    }
+
+    @Override
+    public int modifyOptions(List<ProductDTO> options) {
+        return productMapper.modifyOptions(options);
+    }
+
+    @Override
+    public int inputModifyProducts(List<ProductDTO> products) {
+        return productMapper.inputModifyProducts(products);
+    }
+
+    @Override
+    public int modifyProductImg(Map<String, String> map) {
+        return productMapper.modifyProductImg(map);
+    }
+
+    @Override
+    public ProductDTO modifyImg(String id) {
+        return productMapper.modifyImg(id);
     }
 }

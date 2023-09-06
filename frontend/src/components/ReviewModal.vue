@@ -77,9 +77,7 @@ export default {
   data() {
     return { score: 0, imgUrl: "", isUpload: false };
   },
-  props: {
-    isOpenReview: Boolean,
-  },
+
 
   watch: {
     isOpenReview(value) {
@@ -144,6 +142,10 @@ export default {
         this.clearImage();
       }
     },
+  },
+
+  props: {
+    isOpenReview: Boolean,
   },
 };
 </script>
