@@ -1,12 +1,11 @@
 package com.me.backend.product.service;
 
-import com.me.backend.common.Pagination;
 import com.me.backend.product.dto.ProductDTO;
 
 import java.util.List;
 import java.util.Map;
 
-public interface ProductService {
+public interface ProductManagedService {
 
     int productCount(Map<String, String> map);
 
@@ -33,4 +32,8 @@ public interface ProductService {
     int modifyProductImg (Map<String, String> map);
 
     ProductDTO modifyImg (String id);
+
+    int goodsCount (String id);
+
+    public List<ProductDTO> goods (Map<String, Object> map);
 }

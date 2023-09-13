@@ -15,10 +15,10 @@ const store = createStore({
                 email: '',
                 tel: '',
                 mileage: 0,
-                seller_id:'',
-                seller_name:'',
-                seller_number:'',
-                seller_tel:'',
+                seller_id: '',
+                seller_name: '',
+                seller_number: '',
+                seller_tel: '',
             },
 
             product: {
@@ -37,15 +37,21 @@ const store = createStore({
                 status: '',
             },
 
+            isCategoryOpen: false,
             isOpenModal: false,
 
-            seller:{
-              currentPage : 0,
+            seller: {
+                currentPage: 0,
             },
+
         }
     },
 
     mutations: {
+        setCategory(state, payload) {
+            this.state.isCategoryOpen = payload;
+        },
+
         setSignupState(state, payload) {
             this.state.signUpState.isChose = payload.isChose;
             this.state.signUpState.isCust = payload.isCust;
@@ -85,8 +91,8 @@ const store = createStore({
             this.state.isOpenModal = payload;
         },
 
-        setSeller(state, payload){
-          this.state.seller.currentPage = payload;
+        setSeller(state, payload) {
+            this.state.seller.currentPage = payload;
         },
     }
 

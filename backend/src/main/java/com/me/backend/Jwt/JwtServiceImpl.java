@@ -13,7 +13,7 @@ import java.util.Map;
 @Service
 public class JwtServiceImpl implements JwtService{
 
-    private String secretKey = "BulEy1542d13dVBsYt9V7zq57!@MnV%!YcfPQye08f7@#%a1!9X27456541321654!qqkHS";
+    private String secretKey = "BulEy1542d13dVBsYt9Vzq57!@MnV%!YcfPQye08f7@#%a1!9X27456541321654!qqkHS";
 
     @Override
     public String getToken(String key, Object value) {

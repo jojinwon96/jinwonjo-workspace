@@ -1,6 +1,5 @@
 package com.me.backend.product.service;
 
-import com.me.backend.common.Pagination;
 import com.me.backend.product.dto.ProductDTO;
 import com.me.backend.product.mapper.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class ProductServiceImpl implements ProductService {
+public class ProductManagedServiceImpl implements ProductManagedService {
 
     @Autowired
     private ProductMapper productMapper;
@@ -80,4 +79,16 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO modifyImg(String id) {
         return productMapper.modifyImg(id);
     }
+
+    @Override
+    public int goodsCount(String id) {
+        return productMapper.goodsCount(id);
+    }
+
+    @Override
+    public List<ProductDTO> goods(Map<String, Object> map) {
+        return productMapper.goods(map);
+    }
+
+
 }

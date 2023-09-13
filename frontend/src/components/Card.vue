@@ -1,57 +1,131 @@
 <template>
-  <div class="card-img">
-    <span class="best">BEST</span>
-    <span class="like-btn-panel fade">
-      <img src="../assets/img/like.png" class="like-btn" />
-    </span>
+  <div v-show="product != null">
+    <div @mouseover="isHover=true"
+         @mouseleave="isHover=false"
+         v-if="product.uploadFile != 'Y'" class="card-img-wrap"
+         :style="{ backgroundImage: `url(${product.img1})`}">
+      <span @click="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
+        <img v-if="product.like_id == null || product.like_id == 0" src="@/assets/img/like.png" class="like-btn"/>
+        <img v-else src="@/assets/img/like-red.png" class="like-btn"/>
+      </span>
+    </div>
+    <div @mouseover="isHover=true"
+         @mouseleave="isHover=false"
+         v-else class="card-img-wrap"
+         :style="{'background-image': 'url(' + require('@/assets/product/uploadfile/' + product.img1) + ')'}">
+      <span @click="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
+        <img v-if="product.like_id == null || product.like_id == 0" src="@/assets/img/like.png" class="like-btn"/>
+        <img v-else src="@/assets/img/like-red.png" class="like-btn"/>
+      </span>
+    </div>
+    <div class="product-title">
+      {{ product.product_name }}
+    </div>
+    <div class="price-panel">
+      <span class="discount" v-if="product.discount != 0">{{ product.discount }}%</span>
+      <span class="price">{{ this.comma(product.price) }}</span><span class="card-won">원</span>
+      <span class="origin-price" v-if="product.discount != 0">{{ product.price }}</span>
+    </div>
+    <star-rating :rating="(3.5)"
+                 :read-only="true"
+                 :increment="0.01"
+                 :show-rating="false"
+                 :inline="true"
+                 v-bind:star-size="20"/>
+    <span>(3.5)</span>
   </div>
-  <div class="product-title">
-    개업 화분 배달 식당 사무실 전국 꽃배달 서비스 개업식 축하화분
-  </div>
-  <div class="price-panel">
-    <span class="discount">10%</span>
-    <span class="price">15,000</span>원~
-    <span class="origin-price">16,500원</span>
-  </div>
-  <span class="star">
-    ★★★★★
-    <span>★★★★★</span>
-    <input
-      type="range"
-      oninput="drawStar(this)"
-      value="1"
-      step="1"
-      min="0"
-      max="10"
-    />
-  </span>
-  <span class="review-count">(13)</span>
 </template>
 
 <script>
+import StarRating from 'vue-star-rating'
+import {mapState} from "vuex";
+import axios from "axios";
+
 export default {
   name: "Card",
+
+  data() {
+    return {
+      isHover: false,
+    }
+  },
+
+  created() {
+    console.log(this.product);
+  },
+
+  computed: {
+    ...mapState(['account'])
+  },
+
+  methods: {
+    comma(val) {
+      if (val == 0) {
+        return 0;
+      } else {
+        return String(val).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+    },
+
+    onChangeLike() {
+      let info = {
+        cust_id: this.account.id,
+        product_id: this.product.product_id,
+        like_id: 0,
+        idx: this.idx
+      }
+
+      let url = '',
+          msg = '';
+
+      if (this.product.like_id == 0 || this.product.like_id == null) {
+        url = '/api/account/like';
+        msg = '[' + this.product.product_name + '] 상품을 찜';
+      } else {
+        url = '/api/account/delete-like';
+        msg = '[' + this.product.product_name + '] 상품 찜 취소';
+        info.like_id = this.product.like_id;
+      }
+
+
+      axios.post(url, info).then(({data}) => {
+        console.log(msg);
+        console.log(data);
+        // alert(msg);
+        info.like_id = data;
+        this.$emit('setLikeId', info);
+      })
+    },
+  },
+
+  components: {
+    StarRating
+  },
+
+  props: {
+    product: Object,
+    idx: Number,
+  }
 };
 </script>
 
 <style scoped>
-.card-img {
+.card-img-wrap {
+  width: 100%;
   height: 200px;
-  vertical-align: middle;
-  background-image: url("../assets/img/bouquet1.jpg");
-  background-size: cover;
   background-repeat: no-repeat;
+  background-size: cover;
   background-position: center;
   transition: all 0.1s linear;
 }
 
-.card-img:hover {
+.card-img-wrap:hover {
   transform: scale(1.02);
 }
 
 .product-title {
-  font-size: 12px;
-  font-weight: bolder !important;
+  color: #333333;
+  font-size: 14px;
   line-height: 2;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -65,8 +139,13 @@ export default {
 }
 
 .price {
-  font-size: 20px;
+  color: #3385f096;
+  font-size: 18px;
   font-weight: bold;
+}
+
+.card-won {
+  font-weight: bolder;
 }
 
 .origin-price {
@@ -76,9 +155,8 @@ export default {
 }
 
 .star {
-  position: relative;
-  font-size: 20px;
-  color: #ddd;
+  font-size: 14px;
+  color: white;
 }
 
 .star input {
@@ -116,34 +194,30 @@ export default {
 }
 
 .like-btn-panel {
-  position: absolute;
+  display: block;
+  position: relative;
   background-color: rgb(255, 255, 255);
   border-radius: 50%;
   width: 50px;
   height: 50px;
-  top: 170px;
-  left: 0;
-  right: 0;
+  top: 120px;
   margin: auto;
   cursor: pointer;
   opacity: 0;
-  transition: 0.2s;
+  transition: 0.5s;
 }
 
 .like-btn {
-  position: absolute;
-  width: 30px;
-  height: 30px;
+  display: block;
+  position: relative;
   top: 10px;
   left: 10px;
+  width: 30px;
+  height: 30px;
 }
 
-.fade-in {
+.like-show {
   opacity: 1;
-}
-
-.fade-out {
-  opacity: 0;
 }
 
 @media screen and (max-width: 1000px) {

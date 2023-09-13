@@ -83,7 +83,7 @@
       </div>
       <ul>
         <li class="card-panel" v-for="item in 4" :key="item">
-          <custom_card />
+          <custom_card :product="this.product"/>
         </li>
       </ul>
     </div>
@@ -112,6 +112,7 @@ export default {
   data() {
     return {
       isOpen: false,
+      product: {},
     };
   },
   components: { custom_header, custom_nav, custom_card },
@@ -121,7 +122,7 @@ export default {
 
 <style scoped>
 .card-wrap {
-  margin: 0 2.5rem;
+
 }
 .carousel-item-wrap {
   filter: brightness(100%);

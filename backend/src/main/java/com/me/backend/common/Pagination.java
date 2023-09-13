@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class Pagination {
-    private int listSize = 3; // 한페이지당 보여질 리스트 개수
-    private int rangeSize = 3; // 한 페이지 범위
+    private int listSize = 8; // 한페이지당 보여질 리스트 개수
+    private int rangeSize = 5; // 한 페이지 범위
     private int page; // 현재 페이지 번호
     private int range; // 각 페이지 범위 시작
     private int listCnt; // 전체 게시물 개수
@@ -22,7 +22,7 @@ public class Pagination {
         this.listCnt = listCnt;
 
         //전체 페이지수
-        this.pageCnt = (int) Math.ceil(listCnt / listSize);
+        this.pageCnt = (int) Math.ceil(listCnt / (listSize * 1.0));
 
         //시작 페이지
         this.startPage = (range - 1) * rangeSize + 1;
@@ -40,7 +40,6 @@ public class Pagination {
         this.next = endPage >= pageCnt ? false : true;
 
         if (this.endPage > this.pageCnt) {
-
             this.endPage = this.pageCnt;
             this.next = false;
 

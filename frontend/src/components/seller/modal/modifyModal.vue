@@ -283,7 +283,13 @@ export default {
           this.orignProducts.push({...data[i]});
         }
         this.products = data;
-        this.mainUrl = require(`@/assets/product/uploadfile/${this.products[0].img1}`);
+
+        if (this.products[0].uploadFile == 'Y'){
+          this.mainUrl = require(`@/assets/product/uploadfile/${this.products[0].img1}`);
+        } else {
+          this.mainUrl = this.products[0].img1;
+        }
+
 
         console.log(this.products);
       })

@@ -23,13 +23,13 @@
         <choose>
             <when test='cust_id neq ""'>
                 select
-                    cust_id,
-                    cust_pwd,
-                    cust_name,
-                    cust_email,
-                    cust_tel,
-                    mileage,
-                    status
+                cust_id,
+                cust_pwd,
+                cust_name,
+                cust_email,
+                cust_tel,
+                mileage,
+                status
                 from foryou.customer
                 where cust_id = #{cust_id} and cust_pwd = #{cust_pwd} and status = 'N'
             </when>
@@ -49,24 +49,24 @@
         <choose>
             <when test="target == 'user'">
                 select
-                    cust_id,
-                    cust_pwd,
-                    cust_name,
-                    cust_email,
-                    cust_tel,
-                    mileage,
-                    status
+                cust_id,
+                cust_pwd,
+                cust_name,
+                cust_email,
+                cust_tel,
+                mileage,
+                status
                 from foryou.customer
                 where cust_id = #{id}
             </when>
             <otherwise>
                 select
-                    seller_id,
-                    seller_pwd,
-                    seller_number,
-                    company_name,
-                    seller_tel,
-                    seller_name
+                seller_id,
+                seller_pwd,
+                seller_number,
+                company_name,
+                seller_tel,
+                seller_name
                 from foryou.seller
                 where seller_id = #{id}
             </otherwise>
@@ -155,5 +155,61 @@
             </otherwise>
         </choose>
     </insert>
+
+    <insert id="like" parameterType="hashMap">
+        insert into
+            foryou.like
+            (
+                cust_id,
+                product_id
+            )
+            values
+            (
+                #{cust_id},
+                #{product_id}
+            )
+    </insert>
+
+    <delete id="deleteLike" parameterType="hashMap">
+        delete
+        from foryou.like
+        where like_id = #{like_id}
+    </delete>
+
+    <select id="findLike" parameterType="_int" resultType="_int">
+        select like_id
+        from foryou.`like`
+        where like_id = #{id}
+        union all
+        select 0
+        from dual
+        where not exists(
+                select like_id
+                from foryou.`like`
+                where like_id = #{id}
+        )
+    </select>
+
+    <select id="findInputLike" resultType="_int">
+        select max(like_id) as 'like_id'
+        from foryou.`like`
+    </select>
+
+    <select id="likeList" parameterType="String" resultType="ProductDTO">
+        select l.product_id,  product_name, img1, price, uploadFile, like_id
+        from foryou.`like` l
+                 left join foryou.product p on p.product_id = l.product_id
+                 join foryou.option o on p.product_id = o.product_id
+        where cust_id = #{id} and main = 'Y'
+    </select>
+
+    <delete id="deleteLikeList" parameterType="java.util.List">
+        delete from foryou.like
+        <where>
+            <foreach collection="list" item="item" open="" close="" separator="OR">
+                (like_id = #{item.like_id} AND cust_id = #{item.seller_id})
+            </foreach>
+        </where>
+    </delete>
 
 </mapper>

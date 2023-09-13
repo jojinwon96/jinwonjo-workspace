@@ -1,19 +1,14 @@
 package com.me.backend.product.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.me.backend.common.Pagination;
 import com.me.backend.common.pasingProduct;
 import com.me.backend.member.dto.MemberDTO;
 import com.me.backend.product.dto.ProductDTO;
-import com.me.backend.product.service.ProductServiceImpl;
-import jakarta.servlet.http.HttpServletRequest;
+import com.me.backend.product.service.ProductManagedServiceImpl;
 import jakarta.servlet.http.HttpSession;
 
-import org.json.JSONException;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +22,39 @@ import java.util.*;
 
 
 @RestController
-public class ProductController {
+public class ProductManagedController {
 
     // 파일 저장 경로
     private static final String uploadFiePath = System.getProperty("user.dir") + "\\frontend\\src\\assets\\product\\uploadfile\\";
 
     @Autowired
-    private ProductServiceImpl productService;
+    private ProductManagedServiceImpl productService;
+
+    @PostMapping("/api/goods")
+    public ResponseEntity goods(@RequestBody Map<String, String> params){
+
+        int count = productService.goodsCount(params.get("category_id"));
+
+        // 페이징
+        Pagination pagination = new Pagination();
+        pagination.pageInfo(Integer.parseInt(params.get("page")), Integer.parseInt(params.get("range")), count);
+
+        // 페이징정보
+        Map<String, Object> map = new HashMap<>();
+        map.put("pageInfo", pagination);
+        map.put("category_id", params.get("category_id"));
+        map.put("sortTarget", params.get("sortTarget"));
+
+        // 카테고리 상품
+        List<ProductDTO> goods = productService.goods(map);
+
+        // 게시물 + 페이징 정보 + 옵션 리스트
+        pasingProduct goodsInfo = new pasingProduct();
+        goodsInfo.setProducts(goods);
+        goodsInfo.setPagination(pagination);
+
+        return new ResponseEntity(goodsInfo, HttpStatus.OK);
+    }
 
     @GetMapping("/api/seller/category")
     public ResponseEntity getOption() {
@@ -183,6 +204,7 @@ public class ProductController {
 
         ProductDTO[] products = objectMapper.readValue(data, new TypeReference<ProductDTO[]>() {
         });
+
         List<ProductDTO> productList = new ArrayList(Arrays.asList(products));
 
 

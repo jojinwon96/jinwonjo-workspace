@@ -1,32 +1,32 @@
 <template>
   <header>
     <Transition name="fade">
-      <div class="category-bg-black" v-if="isShow">
+      <div class="category-bg-black" v-if="$store.state.isCategoryOpen">
         <div class="category-bg-white"></div>
       </div>
     </Transition>
-    <div class="category" :class="isShow ? 'openCategory' : 'closeCategory'">
+    <div class="category" :class="$store.state.isCategoryOpen ? 'openCategory' : 'closeCategory'">
       <div class="category-header">
         <ul>
           <li v-if="!$store.state.account.id">
-            <a @click="isShow=false">
+            <a @click="setCategory">
               <router-link to="/signIn" class="default-border"
               >로그인
-              </router-link
-              >
+              </router-link>
             </a>
-            <a @click="[loadSignUp(), this.isShow=false]">
+            <a @click="[loadSignUp(), setCategory()]">
               <router-link to="/signUp" class="default-border"
               >회원가입
-              </router-link
-              >
+              </router-link>
             </a>
           </li>
           <li v-else>
-            <router-link to="/myPage" class="default-border "
-            >{{ $store.state.account.name }}<span class="user-sub">님 안녕하세요</span></router-link
+            <router-link to="/myPage" class="default-border"
+            >{{
+                $store.state.account.name
+              }}<span class="user-sub">님 안녕하세요</span></router-link
             >
-            <a class="logOut" @click="[logOut(), this.isShow=false]">
+            <a class="logOut" @click="[logOut(), (this.isShow = false)]">
               로그아웃
             </a>
           </li>
@@ -54,52 +54,52 @@
           <h2>카테고리</h2>
         </div>
         <ul>
-          <li><a href="">꽃바구니</a><span>&#10095;</span></li>
-          <li><a href="">꽃다발</a><span>&#10095;</span></li>
-          <li><a href="">축하화환</a><span>&#10095;</span></li>
-          <li><a href="">근조화환</a><span>&#10095;</span></li>
-          <li><a href="">동양란</a><span>&#10095;</span></li>
-          <li><a href="">서양란</a><span>&#10095;</span></li>
-          <li><a href="">분재</a><span>&#10095;</span></li>
-          <li><a href="">공기정화</a><span>&#10095;</span></li>
-          <li><a href="">비누꽃</a><span>&#10095;</span></li>
+          <li v-for="item in categories" :key="item">
+            <router-link :to="{name: 'category', params: {category_id:`${item.category_id}`, category_name:`${item.category_name}`}}" class="default-border">
+              {{ item.category_name }}<span>&#10095;</span>
+            </router-link>
+          </li>
         </ul>
       </div>
     </div>
     <div></div>
-    <div class="header-wrap">
-      <div
-          class="category-panel"
-          @click="[setCategory(), $emit('openCategory')]"
-      >
-        <img src="../assets/img/hamburger.png"/>
-      </div>
+    <div class="header__wrap">
+      <div class="header-wrap">
+        <div
+            class="category-panel"
+            @click="[setCategory(), $emit('openCategory')]"
+        >
+          <img src="../assets/img/hamburger.png"/>
+        </div>
 
-      <div class="main-logo">
-        <router-link to="/" class="default-border"
-        ><img src="../assets/img/logo.png"
-        /></router-link>
-      </div>
+        <div class="main-logo" @click="resetSore()">
+          <router-link to="/" class="default-border"
+          ><img src="../assets/img/logo.png"
+          /></router-link>
+        </div>
 
-      <div class="search-wrap">
-        <select class="serach-category">
-          <option value="">전체</option>
-          <option value="">꽃바구니</option>
-          <option value="">꽃다발</option>
-          <option value="">꽃박스</option>
-        </select>
-        <input type="text" class="search-text"/>
-        <button class="search-btn"></button>
-      </div>
+        <div class="search-wrap">
+          <select class="serach-category" @change="onChangeCategory($event.target.value)">
+            <option selected value="">전체</option>
+            <option v-for="item in this.categories" :key="item" :value="item.category_id">
+              {{ item.category_name }}
+            </option>
+          </select>
+          <input type="text" class="search-text"/>
+          <button class="search-btn"></button>
+        </div>
 
-      <div class="user-panel" v-if="$store.state.account.id">
-        <router-link to="/myPage" class="default-border user-panel">
+        <!-- <div class="user-panel" v-if="$store.state.account.id"> -->
+        <router-link to="/myPage/home" class="default-border user-panel">
           <span class="user-myPage"></span>
         </router-link>
         <router-link to="/cart" class="default-border user-panel">
           <span class="user-cart"></span>
         </router-link>
-        <span class="user-like"></span>
+        <router-link to="/myPage/wishList" class="default-border user-panel">
+          <span class="user-like"></span>
+        </router-link>
+        <!-- </div> -->
       </div>
     </div>
   </header>
@@ -109,57 +109,69 @@
 import store from "@/store/modules/store.js";
 import router from "@/router";
 import axios from "axios";
+import {onMounted, ref} from "vue";
 
 export default {
   name: "Header",
-  data() {
-    return {
-      isShow: false,
-    };
-  },
-
   setup() {
+    let categories = ref([]);
+
+    onMounted(() => {
+      axios.get('/api/seller/category').then(({data}) => {
+        categories.value = data;
+      });
+    });
+
     const loadSignUp = () => {
       const state = {
         isChose: true,
         isCust: false,
-        isSeller: false
-      }
+        isSeller: false,
+      };
 
       store.commit("setSignupState", state);
-    }
-
+    };
 
     const logOut = () => {
       const logOutUser = {
-        id: '',
-        name: '',
-        email: '',
-        tel: '',
-        mileage: 0
-      }
-      axios.get("api/account/logout").then(({status}) => {
+        id: "",
+        name: "",
+        email: "",
+        tel: "",
+        mileage: 0,
+      };
+      axios.get("/api/account/logout").then(({status}) => {
         if (status == 200) {
-          store.commit('setAccount', logOutUser);
+          alert('성공적으로 로그아웃 되었습니다.');
+          store.commit("setAccount", logOutUser);
           sessionStorage.removeItem("loginUser");
-          router.go(0);
+          store.commit("setCategory", false);
           router.replace({path: "/"});
         }
-      })
+      });
+    };
+
+    const setCategory = () => {
+
+      if (!store.state.isCategoryOpen) {
+        store.commit("setCategory", true);
+      } else {
+        store.commit("setCategory", false);
+      }
     }
 
-    return {loadSignUp, logOut}
+    const onChangeCategory = (e) =>{
+      console.log(e);
+    }
+
+    const resetSore = () => {
+      localStorage.removeItem('pageInfo');
+    }
+
+
+    return {categories, loadSignUp, logOut, setCategory, onChangeCategory, resetSore};
   },
 
-  methods: {
-    setCategory() {
-      if (!this.isShow) {
-        this.isShow = true;
-      } else {
-        this.isShow = false;
-      }
-    },
-  },
 };
 </script>
 
@@ -187,14 +199,19 @@ header {
   left: 0;
   right: 0;
   border-bottom: 1px #d0d0d0 solid;
-  z-index: 60;
+  background: white;
+  z-index: 999;
+}
+
+.header__wrap {
+  margin: 0 auto;
+  width: 1060px;
 }
 
 .header-wrap {
   padding: 1rem 0;
   display: flex;
-  justify-content: center;
-  background: white;
+  justify-content: space-between;
 }
 
 .category-panel:active {
@@ -208,7 +225,6 @@ header {
 }
 
 .main-logo {
-  margin: 0 2rem;
 }
 
 .main-logo img {
@@ -220,8 +236,8 @@ header {
 
 .search-wrap {
   width: 500px;
-  margin-left: 1rem;
-  margin-right: 3rem;
+  margin-left: 0rem;
+  margin-right: 6%;
   border: 2px solid #3385f096;
   border-radius: 2px;
 }
@@ -234,17 +250,16 @@ header {
 }
 
 .search-text {
-  width: 65%;
   outline: 0;
   border: 0;
 }
 
 .search-btn {
   background-image: url(../assets/img/search.png);
-  margin-top: 2px;
-  width: 30px;
-  height: 30px;
-  background-size: 30px;
+  margin: 5px 5px;
+  width: 23px;
+  height: 23px;
+  background-size: 23px;
   background-repeat: no-repeat;
   vertical-align: middle;
   background-color: white;
@@ -261,11 +276,12 @@ header {
   display: none;
 }
 
-.user-panel span {
-  margin-left: 20px;
-  width: 45px;
-  height: 45px;
-  background-size: 45px;
+.user-panel span,
+.user-like {
+  /* margin-left: 20px; */
+  width: 40px;
+  height: 40px;
+  background-size: 40px;
   background-repeat: no-repeat;
   cursor: pointer;
 }
@@ -300,7 +316,7 @@ header {
   height: 100%;
   z-index: 998;
   transform: translateX(-350px);
-  transition: all 1s;
+  transition: all 0.3s;
   z-index: 990;
 }
 
@@ -449,23 +465,13 @@ header {
 .content {
   margin: 0 auto;
   max-width: 1240px;
-  padding-left: 40px;
-  padding-right: 40px;
-}
-
-.card-wrap {
-  font-size: 0;
 }
 
 .card-panel {
-  display: inline-block;
-  box-sizing: border-box;
-  width: 24%;
-  vertical-align: top;
+  width: calc(25% - 16px);
+  margin: 16px 0 0 16px;
   padding: 10px;
-  margin: 1% 0 0 1%;
   font-size: 13px;
-  line-height: 1.4;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.16), 0 1px 1px rgba(0, 0, 0, 0.23);
   cursor: default;
 }

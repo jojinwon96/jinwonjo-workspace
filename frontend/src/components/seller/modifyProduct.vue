@@ -52,9 +52,8 @@
       <tbody>
       <tr v-for="(item) in this.products" :key="item">
         <th>{{ item.product_id }}</th>
-        <th>
-          <img :src="require(`@/assets/product/uploadfile/${item.img1}`)">
-        </th>
+        <th v-if="item.uploadFile != 'Y'"><img :src="item.img1"></th>
+        <th v-else><img :src="require(`@/assets/product/uploadfile/${item.img1}`)"></th>
         <th>
           <div>
             {{ item.category_name }} / {{ item.product_name }}

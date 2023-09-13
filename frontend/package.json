@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@coders-tm/vue-number-format": "^3.30.0",
+    "@fortawesome/fontawesome-free": "^6.4.2",
     "axios": "^1.4.0",
     "bootstrap": "^5.3.0",
     "bootstrap-icons": "^1.10.5",
@@ -19,9 +20,11 @@
     "vue-carousel": "^0.18.0",
     "vue-daum-postcode": "^1.2.1",
     "vue-router": "^4.2.4",
+    "vue-star-rating": "^2.1.0",
     "vuex": "^4.0.2"
   },
   "devDependencies": {
+    "@fortawesome/vue-fontawesome": "^3.0.3",
     "@vue/cli-plugin-babel": "~4.5.11",
     "@vue/cli-plugin-eslint": "~4.5.11",
     "@vue/cli-service": "~4.5.11",

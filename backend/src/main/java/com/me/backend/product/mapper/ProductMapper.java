@@ -36,4 +36,8 @@ public interface ProductMapper {
     int modifyProductImg (Map<String, String> map);
 
     ProductDTO modifyImg (String id);
+
+    int goodsCount (String id);
+
+    List<ProductDTO> goods (Map<String, Object> map);
 }

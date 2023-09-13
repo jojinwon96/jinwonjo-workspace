@@ -30,4 +30,7 @@ public class ProductDTO {
     private String img3;
     private String img4;
     private String img5;
+    private String uploadFile;
+
+    private String like_id;
 }
