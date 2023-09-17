@@ -1,11 +1,15 @@
-package com.me.backend.product.dto;
+package com.me.backend.member.dto;
 
 import lombok.Data;
 
 @Data
-public class optionDTO {
-    private String option_id;
+public class CartDTO {
+    private String cart_id;
+    private String cust_id;
     private String product_id;
+    private String option_id;
+    private String company_name;
+    private String product_name;
     private String option_name1;
     private String option_content1;
     private String option_name2;
@@ -13,9 +17,8 @@ public class optionDTO {
     private int option_price;
     private int discount;
     private int price;
-    private int stock;
+    private int count;
     private int maxCount;
-    private String main;
-    private int maxPrice;
-    private int minPrice;
+    private String img;
+    private String uploadFile;
 }

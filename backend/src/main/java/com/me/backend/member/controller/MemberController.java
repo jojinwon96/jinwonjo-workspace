@@ -5,7 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.me.backend.Jwt.JwtService;
 import com.me.backend.Jwt.JwtServiceImpl;
-import com.me.backend.member.dto.likeDTO;
+import com.me.backend.member.dto.AddressDTO;
+import com.me.backend.member.dto.CartDTO;
 import com.me.backend.member.service.MemberServiceImpl;
 import com.me.backend.member.dto.MemberDTO;
 import com.me.backend.product.dto.ProductDTO;
@@ -212,6 +213,134 @@ public class MemberController {
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    @PostMapping("/api/account/input-cart")
+    public ResponseEntity inputCart(@RequestBody String data) throws JsonProcessingException {
+        // JSON Array 맵핑
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        CartDTO[] cartList = objectMapper.readValue(data, new TypeReference<CartDTO[]>() {
+        });
+
+        List<CartDTO> inputCartList = new ArrayList(Arrays.asList(cartList));
+
+        int result1 = 0,
+            result2  = 0;
+
+        for (CartDTO cart : inputCartList){
+            result1 = memberService.findCart(cart);
+
+            if (result1 > 0){ // 장바구니 기존 상품 수정
+                result2 = memberService.modifyCartCount(cart);
+            } else { // 장바구니 새로 삽입
+                result2 = memberService.inputCart(cart);
+            }
+        }
+
+        return new ResponseEntity<>(result2, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/account/cart")
+    public ResponseEntity findCartList(HttpSession session){
+
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+
+        List<CartDTO> cart = memberService.findCartList(member.getCust_id());
+
+        return new ResponseEntity<>(cart, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/modify-cart")
+    public ResponseEntity modifyCart(@RequestBody Map<String, String> params){
+
+        int result1 = 0;
+        CartDTO cart = null;
+        result1 = memberService.modifyCart(params);
+
+        if (result1 > 0){
+            cart = memberService.findCartCount(params);
+        }
+
+        return new ResponseEntity<>(cart.getCount(), HttpStatus.OK);
+    }
+
+    @PostMapping("/api/delete-cart")
+    public ResponseEntity deleteCart(@RequestBody String data, HttpSession session) throws JsonProcessingException {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        CartDTO[] cartList = objectMapper.readValue(data, new TypeReference<CartDTO[]>() {
+        });
+
+        List<CartDTO> deleteCartList = new ArrayList(Arrays.asList(cartList));
+
+        int result = memberService.deleteCart(deleteCartList);
+
+        List<CartDTO> findCartList = null;
+
+        if (result > 0){
+            MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+            findCartList = memberService.findCartList(member.getCust_id());
+        }
+
+        return new ResponseEntity<>(findCartList, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/account/address")
+    public ResponseEntity findAddress(HttpSession session){
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+
+        List<AddressDTO> findAddressList = memberService.findAddressList(member.getCust_id());
+
+        return new ResponseEntity<>(findAddressList, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/account/input-address")
+    public ResponseEntity inputAddress(@RequestBody AddressDTO address, HttpSession session){
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+
+        address.setCust_id(member.getCust_id());
+
+        int result1 = 0,
+            result2 = 0;
+
+        if (address.getAddr_default().equals("Y")){
+            result2 = memberService.modifyAddressMain(member.getCust_id());
+        }
+
+        result1 = memberService.inputAddress(address);
+
+        return new ResponseEntity<>(result1, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/account/modify-address")
+    public ResponseEntity modifyAddress(@RequestBody AddressDTO address, HttpSession session){
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+
+        address.setCust_id(member.getCust_id());
+
+        int result1 = 0,
+            result2 = 0;
+
+        System.out.println(address);
+
+        if (address.getAddr_default().equals("Y")){
+            result2 = memberService.modifyAddressMain(member.getCust_id());
+        }
+
+        result1 = memberService.modifyAddress(address);
+
+        return new ResponseEntity<>(result1, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/account/delete-address")
+    public ResponseEntity deleteAddress(@RequestBody AddressDTO address){
+
+        int result = memberService.deleteAddress(address);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
 }
 
 

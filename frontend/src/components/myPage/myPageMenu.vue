@@ -10,8 +10,12 @@
       <router-link to="/myPage/wishList">
         <li>위시리스트</li>
       </router-link>
-      <li>장바구니</li>
-      <li>배송주소록</li>
+      <router-link to="/cart">
+        <li>장바구니</li>
+      </router-link>
+      <router-link to="/myPage/addressList">
+        <li>배송주소록</li>
+      </router-link>
     </ul>
     <h5 class="menu-title">해택</h5>
     <ul class="sub-menu">

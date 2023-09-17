@@ -141,8 +141,6 @@ export default {
           this.pages.push(i);
         }
 
-        console.log(this.products);
-
       })
     },
 
@@ -205,6 +203,10 @@ export default {
   display: flex;
   margin: 2rem auto;
   width: 1060px;
+}
+
+.card-wrap{
+  z-index: 888;
 }
 
 .cate-wrap span {

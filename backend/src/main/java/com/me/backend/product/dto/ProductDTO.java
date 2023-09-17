@@ -10,6 +10,7 @@ public class ProductDTO {
     private String category_id;
     private String product_id;
     private String option_id;
+    private String company_name;
     private String category_name;
     private String product_name;
     private String option_name1;

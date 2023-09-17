@@ -1,32 +1,33 @@
 <template>
   <custom_header/>
   <custom_nav/>
-  <section class="content">
+  <section class="content" v-if="this.goods.length > 0">
     <div class="goods-wrap">
       <div class="search-nav">
         <span><a href="/" class="home">Home</a></span>
         <span>&#10095;</span>
-        <span>꽃다발</span>
+        <span>{{ this.goods[0].category_name }}</span>
       </div>
-      <h3 class="goods-title">지금 이 순간</h3>
+      <h3 class="goods-title">{{ this.goods[0].product_name }}</h3>
       <div class="goods-thumbs">
-        <img src="../../assets/img/bouquet1.jpg" alt=""/>
+        <img v-if="this.goods[0].uploadFile != 'Y'" :src="this.goods[0].img1" alt=""/>
+        <img v-else :src="require(`@/assets/product/uploadfile/${this.goods[0].img1}`)" alt=""/>
       </div>
       <div class="goods-spec">
         <div class="goods-price">
-          <span class="sale">{{ product.discount }}%</span>
+          <span class="sale">{{ this.goods[0].discount }}%</span>
           <span
               class="num"
-              :innerHTML="comma(discount(product.price, product.discount))"
+              :innerHTML="comma(this.goods[0].price)"
           ></span>
           <span class="won">원</span>
-          <span class="origin-price">{{ comma(product.price) }}원</span>
+          <span class="origin-price">{{ comma(this.goods[0].option_price) }}원</span>
         </div>
         <table class="spec">
           <tbody>
           <tr>
             <td class="spec-title">적립해택</td>
-            <td class="spec-content">회원가입시 4,000원 적립</td>
+            <td class="spec-content">4,000원 적립</td>
           </tr>
           <tr>
             <td class="spec-title">상품후기</td>
@@ -56,21 +57,42 @@
         </table>
         <div class="option-wrap">
           <span>상품옵션</span>
-          <select name="" id="" @change="selectOption">
-            <option value="0" selected>사이즈 선택</option>
-            <option
-                v-for="item in optionList"
-                :key="item"
-                :value="JSON.stringify(item)"
-                :innerHTML="item.optName"
-            ></option>
-          </select>
+
+            <select name="" id="" @change="selectOption(1,$event)">
+              <option value="0" selected disabled>{{ this.goods[0].option_name1 }}</option>
+              <option
+                  v-for="item in this.options"
+                  :key="item"
+                  :value="item.option_content1">
+                <span v-if="item.maxPrice == item.minPrice">{{
+                    `${item.option_content1} (${comma(discount(item.minPrice, this.goods[0].discount))}원)`
+                  }}</span>
+                <span v-else>{{ `${item.option_content1} (${comma(discount(item.minPrice, this.goods[0].discount))}~${comma(discount(item.maxPrice, this.goods[0].discount))}원)` }}</span>
+              </option>
+            </select>
+
+            <select v-if="this.goods[0].option_name2 != ''" name="" id="" @change="selectOption(2, $event)">
+              <option value="0" selected disabled>{{ this.goods[0].option_name2 }}</option>
+              <option v-show="optionList.length > 0"
+                      class="cart-option"
+                      v-for="item in this.optionList"
+                      :key="item"
+                      :value="JSON.stringify(item)">
+                <div class="cart-option">
+                  <div>{{ `` }}</div>
+                  <div>{{  }}</div>
+                  {{`${item.option_content2} +(${comma(item.price)}원)&#160;/&#160;남은수량(${item.stock}개)`}}
+                </div>
+              </option>
+            </select>
+
         </div>
         <div class="pay-wrap">
           <div class="pay-content" v-for="(item, idx) in cartList" :key="idx">
             <table>
               <tr>
-                <td>상품 : {{ item.optName }}</td>
+                <td v-if="this.goods[0].option_name2 != ''">{{ `${item.option_content1} : ${item.option_content2}` }}</td>
+                <td v-else>{{ item.option_content1 }}</td>
               </tr>
               <tr>
                 <td>
@@ -96,14 +118,15 @@
                       <button @click="[countIncrease(item), totalPrice()]">
                         +
                       </button>
+                      <span class="goods-maxCount">최대구매수량:{{item.maxCount}}</span>
                     </div>
                     <div class="select-pay-side">
                       <span class="side-num"
                       >{{
                           comma(
                               discount(
-                                  (product.price + item.optPrice) * item.count,
-                                  product.discount
+                                  item.price * item.count,
+                                  item.discount
                               )
                           )
                         }}원</span
@@ -126,8 +149,8 @@
             <span class="pay-won">원</span>
           </div>
           <div class="pay-bottom">
-            <button>장바구니</button>
-            <button>구매하기</button>
+            <button @click="addMyCart">장바구니</button>
+            <button @click="orderGoods">구매하기</button>
           </div>
         </div>
       </div>
@@ -145,9 +168,6 @@
           <li>{{ item.label }}</li>
         </a>
       </ul>
-      <div class="tab-content">
-        <p>1번</p>
-      </div>
       <div class="tab-content">
         <div class="review-top-wrap">
           <ul>
@@ -204,7 +224,7 @@
           </tr>
           </tbody>
         </table>
-        <button class="review-btn" @click="isOpenReview = true">
+        <button class="review-btn" @click="openModal">
           리뷰작성하기
         </button>
         <!-- 리뷰 모달 -->
@@ -291,52 +311,40 @@
 import custom_header from "../../components/Header.vue";
 import custom_nav from "../../components/Nav.vue";
 import ReviewModal from "../../components/ReviewModal.vue";
+import axios from "axios";
+import {mapMutations, mapState} from "vuex";
+import router from "@/router";
 
 export default {
   name: "goodsView",
   data() {
     return {
       별점평균: 49.7,
+      reset: 0,
       total: 0,
-      product: {
-        pId: "1",
-        pName: "지금 이 순간",
-        price: 70000,
-        discount: 5,
-      },
-      optionList: [
-        {
-          optId: "opt1",
-          optName: "기본형",
-          optPrice: 0,
-        },
-        {
-          optId: "opt2",
-          optName: "고급형(+20,000원)",
-          optPrice: 20000,
-        },
-        {
-          optId: "opt3",
-          optName: "특별형(+40,000원)",
-          optPrice: 40000,
-        },
-      ],
+      goods: [],
+
+      options: [],
+      optionList: [],
+
       cartList: [],
       isFixed: false,
       isStaging: false,
       isOpenReview: false,
       list: [
-        {id: 1, label: "상세설명", content: "콘텐츠1", active: true},
-        {id: 2, label: "상품후기", content: "콘텐츠2", active: false},
-        {id: 3, label: "상품문의", content: "콘텐츠3", active: false},
+        {id: 1, label: "상품후기", content: "콘텐츠1", active: true},
+        {id: 2, label: "상품문의", content: "콘텐츠2", active: false},
       ],
     };
   },
 
-  watch: {},
+  computed:{
+    ...mapState(['account', 'isHeaderFixed'])
+  },
 
   mounted() {
     document.addEventListener("scroll", this.scroll);
+    this.postGoods();
   },
 
   beforeUnmount() {
@@ -344,6 +352,16 @@ export default {
   },
 
   methods: {
+    ...mapMutations(['setFixed']),
+
+    postGoods() {
+      axios.post("/api/goods/view", this.product_id).then(({data}) => {
+        this.goods = data.goods;
+        this.options = data.options;
+      })
+
+    },
+
     comma(val) {
       if (val == 0) {
         return 0;
@@ -361,7 +379,9 @@ export default {
     },
 
     countIncrease(value) {
-      value.count++;
+      if (value.maxCount > value.count){
+        value.count++;
+      }
     },
 
     countDecrease(value) {
@@ -376,25 +396,62 @@ export default {
       }
     },
 
-    selectOption(e) {
-      let obj = JSON.parse(e.target.value),
-          cartItem = {
-            pId: this.product.pId,
-            pName: this.product.pName,
-            price: this.product.price,
-            pDiscount: this.product.discount,
-            optId: obj.optId,
-            optName: obj.optName,
-            optPrice: obj.optPrice,
-            count: 1,
-          },
+    selectOption(target, e) {
+
+      if (target == 1) {
+        this.optionList = [];
+        if (this.goods[0].option_name2 == '') { // 옵션 1개일때
+          this.goods.forEach((item) => {
+            if (item.option_content1 == e.target.value) {
+              this.addCartList(JSON.stringify(item));
+            }
+          })
+          e.target.value = 0;
+        } else {
+          this.goods.forEach((item) => {
+            if (item.option_content1 == e.target.value) {
+              this.optionList.push(item);
+            }
+
+          })
+        }
+
+      } else { // 옵션 2개일때
+        this.addCartList(e.target.value);
+        e.target.value = 0;
+      }
+
+    },
+
+    addCartList(value) {
+      let tmp = JSON.parse(value),
+          obj = {},
           hasItem = false;
 
+      obj = {
+        cust_id : this.account.id,
+        product_id : tmp.product_id,
+        option_id : tmp.option_id,
+        company_name : tmp.company_name,
+        product_name : tmp.product_name,
+        option_name1 : tmp.option_name1,
+        option_content1 : tmp.option_content1,
+        option_name2 : tmp.option_name2,
+        option_content2 : tmp.option_content2,
+        option_price : tmp.option_price,
+        discount : tmp.discount,
+        maxCount : tmp.maxCount,
+        price : tmp.price,
+        count : 1,
+      }
+
+      obj.count = 1;
+
       if (this.cartList.length == 0) {
-        this.cartList.push(cartItem);
+        this.cartList.push(obj);
       } else {
         this.cartList.forEach((item) => {
-          if (item.optId == obj.optId) {
+          if (item.option_id == obj.option_id) {
             alert("이미 선택한 상품입니다.");
             hasItem = true;
             return;
@@ -402,21 +459,57 @@ export default {
         });
 
         if (!hasItem) {
-          this.cartList.push(cartItem);
+          this.cartList.push(obj);
         }
       }
 
-      e.target.value = 0;
+      value = 0;
 
       this.totalPrice();
+    },
+
+    addMyCart() {
+      console.log(this.account.id);
+      if(this.account.id == undefined){
+        alert('로그인이 필요한 기능입니다.');
+        return;
+      }
+
+      if (this.cartList.length == 0) {
+        alert('상품을 선택해주세요.');
+        return;
+      }
+
+      this.cartList.forEach((item)=>{
+        delete item.maxCount;
+      })
+
+      axios.post("/api/account/input-cart", JSON.stringify(this.cartList),
+          { headers: { 'Content-Type': 'application/json' } }).then(({data})=>{
+        if (data > 0){
+          if(confirm('장바구니로 이동 하시겠습니까?')){
+            router.replace({path: "/cart"});
+          } else {
+            this.cartList = [];
+          }
+        }
+
+      })
+
+    },
+
+    orderGoods() {
+      if (this.cartList.length == 0) {
+        alert('상품을 선택해주세요.');
+      }
     },
 
     totalPrice() {
       this.total = 0;
       this.cartList.forEach((item) => {
         this.total += this.discount(
-            (item.price + item.optPrice) * item.count,
-            item.pDiscount
+            item.price * item.count,
+            item.discount
         );
       });
     },
@@ -431,11 +524,8 @@ export default {
           location1 =
               document.querySelectorAll(".tab-content")[0].offsetTop - 200,
           location2 =
-              document.querySelectorAll(".tab-content")[1].offsetTop - 200,
-          location3 =
-              document.querySelectorAll(".tab-content")[2].offsetTop - 200;
+              document.querySelectorAll(".tab-content")[1].offsetTop - 200;
 
-      console.log(currentScroll);
       if (currentScroll > 767) {
         this.isFixed = true;
       } else {
@@ -446,17 +536,16 @@ export default {
         if (currentScroll > location1 && currentScroll < location2) {
           this.list[0].active = true;
           this.list[1].active = false;
-          this.list[2].active = false;
-        } else if (currentScroll > location2 && currentScroll < location3) {
+        } else if (currentScroll >= location2) {
           this.list[0].active = false;
           this.list[1].active = true;
-          this.list[2].active = false;
-        } else if (currentScroll > location3) {
-          this.list[0].active = false;
-          this.list[1].active = false;
-          this.list[2].active = true;
         }
       }
+    },
+
+    openModal(){
+      this.isOpenReview = true;
+      this.setFixed(false);
     },
 
     ratingToPercent() {
@@ -469,13 +558,27 @@ export default {
     custom_nav,
     ReviewModal,
   },
+  props: {
+    product_id: {
+      type: String,
+    },
+  }
 };
 </script>
 
 <style>
+
+.cart-option{
+  display: flex;
+}
+
+.cart-option>p{
+  display: block;
+}
+
 .goods-wrap {
-  margin-top: 2rem;
-  margin-left: 3rem;
+  margin: 3rem auto;
+  width: 1060px;
 }
 
 .search-nav a {
@@ -500,7 +603,7 @@ export default {
 }
 
 .goods-thumbs > img {
-  max-width: 100%;
+  width: 100%;
   height: 450px;
 }
 
@@ -602,7 +705,8 @@ export default {
   font-weight: bolder;
 }
 
-.option-wrap > select {
+.option-wrap select {
+  width: 100%;
   margin-top: 0.5rem;
   padding: 0.3rem;
 }
@@ -638,7 +742,7 @@ export default {
   border: 1px #ccc solid;
   background: #fff;
   font-size: 19px;
-  padding: 1rem 5.1rem;
+  padding: 1rem 4.5rem;
 }
 
 .pay-bottom > :last-child {
@@ -684,6 +788,14 @@ export default {
   width: 40px;
   border-left: none;
   border-right: none;
+}
+
+.goods-maxCount{
+  border:none;
+  margin: 0 5px;
+  font-size: 14px;
+  font-weight: bolder;
+  color: cornflowerblue;
 }
 
 .side-num {

@@ -1,44 +1,42 @@
 <template>
-  <custom_header />
-  <custom_nav />
+  <custom_header/>
+  <custom_nav/>
   <section class="content">
     <h3 class="cart-title">장바구니</h3>
-    <div class="cart-wrap">
+    <div class="cart-wrap" v-if="cartList.length > 0">
       <div class="cart-content">
         <div class="allCheck-wrap">
           <input
-            type="checkbox"
-            class="allCheck"
-            id="allCheck"
-            v-model="isAllCheck"
-            @input="allCheck"
+              type="checkbox"
+              id="allCheck"
+              checked
+              v-model="allSelected"
           />
           <label for="allCheck">모두선택</label>
-          <span @click="[deleteSelection(), totalPrice()]">선택삭제</span>
+          <span @click="deleteSelection">선택삭제</span>
         </div>
-        <ul class="cart-main" v-for="(item, idx) in cartList" :key="idx">
+        <ul class="cart-main" v-for="(item,index) in cartList" :key="item">
           <li>
             <input
-              type="checkbox"
-              class="check"
-              id="check"
-              v-model="item.selected"
-              @change="[totalPrice(), oneCheck()]"
+                type="checkbox"
+                :value="item"
+                v-model="selectList"
             />
-            <label for="check">{{ item.pName }}</label>
-            <span @click="[deleteProduct(idx), totalPrice()]">&#10005;</span>
+            <label for="check">{{ item.product_name }}</label>
+            <span @click="deleteProduct(index)">&#10005;</span>
             <div class="cart-img-wrap">
-              <img src="../assets/img/bouquet1.jpg" alt="" />
+              <img v-if="item.uploadFile != 'Y'" :src="item.img" alt=""/>
+              <img v-else :src="require(`@/assets/product/uploadfile/${item.img}`)" alt=""/>
               <ul>
                 <li>
                   <span>상품금액 </span
-                  >{{ comma((item.price + item.optPrice) * item.count) }}원
+                  >{{ comma(item.option_price * item.count) }}원
                 </li>
                 <li>
                   <span>할인금액 </span
                   >{{
                     comma(
-                      sale(item.price + item.optPrice, item.pDiscount) *
+                        (item.option_price - item.price) *
                         item.count
                     )
                   }}원
@@ -47,8 +45,7 @@
                   <span>할인적용금액</span
                   >{{
                     comma(
-                      discount(item.price + item.optPrice, item.pDiscount) *
-                        item.count
+                        item.price * item.count
                     )
                   }}원
                 </li>
@@ -57,19 +54,19 @@
           </li>
           <li>
             <div class="count-wrap">
-              <span>옵션 : {{ item.optName }}</span>
+              <span>{{ item.option_content1 }} : {{ item.option_content2 }}</span>
               <div class="count-content">
                 <div class="count-top">
                   <button @click="[countDecrease(item), totalPrice()]">
                     -
                   </button>
                   <input
-                    type="text"
-                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                    :value="`${item.count}`"
-                    @input="
+                      type="text"
+                      oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');"
+                      :value="`${item.count}`"
+                      @input="
                       [
-                        countControl((item.count = $event.target.value), item),
+                        countControl(item.count = $event.target.value, item),
                         totalPrice(),
                       ]
                     "
@@ -80,13 +77,10 @@
                 </div>
                 <div class="count-bottom">
                   <label class="pay-num">{{
-                    comma(
-                      discount(
-                        (item.price + item.optPrice) * item.count,
-                        item.pDiscount
+                      comma(
+                          item.price * item.count
                       )
-                    )
-                  }}</label>
+                    }}</label>
                   <label class="pay-won">원</label>
                 </div>
               </div>
@@ -107,17 +101,22 @@
             <span>총 상품금액</span><span>{{ comma(total) }}원</span>
           </li>
         </ul>
-        <button class="buy-button">구매하기</button>
+        <button class="buy-button" @click="buyCartList">구매하기</button>
       </div>
     </div>
+    <div class="empty-cart" v-else>
+      <span>장바구니에 담긴 상품이 없습니다...</span>
+    </div>
 
-    <br /><br /><br /><br /><br />
+    <br/><br/><br/><br/><br/>
   </section>
 </template>
 
 <script>
 import custom_header from "../components/Header.vue";
 import custom_nav from "../components/Nav.vue";
+import axios from "axios";
+
 export default {
   name: "cart",
   data() {
@@ -125,51 +124,45 @@ export default {
       total: 0,
       originTotal: 0,
       saleTotal: 0,
-      checkedList: [],
-      isAllCheck: true,
-      cartList: [
-        {
-          pId: "pId1",
-          pName: "지금 이 순간",
-          price: 70000,
-          pDiscount: 5,
-          optId: "opt1",
-          optName: "기본형",
-          optPrice: 0,
-          count: 2,
-          selected: true,
-        },
-        {
-          pId: "pId2",
-          pName: "지금 이 순간",
-          price: 70000,
-          pDiscount: 5,
-          optId: "opt2",
-          optName: "고급형",
-          optPrice: 20000,
-          count: 2,
-          selected: true,
-        },
-        {
-          pId: "pId3",
-          pName: "지금 이 순간",
-          price: 70000,
-          pDiscount: 5,
-          optId: "opt3",
-          optName: "특별형",
-          optPrice: 40000,
-          count: 1,
-          selected: true,
-        },
-      ],
+      cartList: [],
+      selectList: [],
     };
   },
 
   mounted() {
-    this.totalPrice();
+    this.getCartList();
+  },
+
+  computed: {
+
+    allSelected: {
+      //getter
+      get: function () {
+        this.totalPrice();
+        return this.cartList.length == this.selectList.length;
+      },
+      //setter
+      set: function (e) {
+        this.selectList = e ? this.cartList : [];
+      },
+    },
+
   },
 
   methods: {
+    getCartList() {
+      axios.get("/api/account/cart").then(({data}) => {
+        this.cartList = data;
+        this.selectList = data;
+
+        console.log(this.cartList);
+      })
+    },
+
+    buyCartList() {
+      console.log(this.selectList);
+    },
+
     comma(val) {
       if (val == 0) {
         return 0;
@@ -186,41 +179,62 @@ export default {
       return value - value * (0.01 * percent);
     },
 
-    deleteProduct(index) {
-      this.cartList.splice(index, 1);
-      if (this.cartList.length == 1) {
-        this.cartList[0].selected = true;
-        this.isAllCheck = true;
+    modifyCart(value, target, count){
+      let info = {
+        cart_id: value.cart_id,
+        count : count,
+        target : target
       }
+      axios.post("/api/modify-cart", info).then(({data})=>{
+        if (data > 0){
+          value.count = data;
+        } else {
+          console.log('수정실패');
+        }
+      })
+
+    },
+
+    postDeleteCart(value){
+      axios.post('/api/delete-cart', value,
+          { headers: { 'Content-Type': 'application/json' } }).then(({data})=>{
+            if (data != null){
+              this.cartList = data;
+              this.selectList = data;
+            } else {
+              console.log('삭제 실패');
+            }
+      })
+    },
+
+    deleteProduct(index) {
+      let deleteList = [];
+      deleteList.push(this.selectList[index]);
+      this.postDeleteCart(JSON.stringify(deleteList));
     },
 
     deleteSelection() {
-      let search = this.cartList.filter((item) => {
-        return item.selected != true;
-      });
-
-      this.cartList = [...search];
-
-      if (this.cartList.length == 1) {
-        this.cartList[0].selected = true;
-        this.isAllCheck = true;
-      }
+      let value = JSON.stringify(this.selectList);
+      this.postDeleteCart(value);
     },
 
     countDecrease(value) {
       if (value.count > 1) {
-        value.count--;
+        this.modifyCart(value, 'decrease');
       }
     },
 
     countControl(value, item) {
       if (value <= 0) {
-        item.count = 1;
+        this.modifyCart(item, 'one');
+      } else {
+        this.modifyCart(item, 'custom', value);
       }
+
     },
 
     countIncrease(value) {
-      value.count++;
+      this.modifyCart(value, 'increase');
     },
 
     totalPrice() {
@@ -228,50 +242,15 @@ export default {
       this.saleTotal = 0;
       this.total = 0;
 
-      this.cartList.forEach((item) => {
-        if (item.selected) {
-          this.total +=
-            this.discount(item.price + item.optPrice, item.pDiscount) *
-            item.count;
+      this.selectList.forEach((item) => {
+        this.total += item.count * item.price;
 
-          this.originTotal += (item.price + item.optPrice) * item.count;
+        this.originTotal += item.option_price * item.count;
 
-          this.saleTotal +=
-            this.sale(item.price + item.optPrice, item.pDiscount) * item.count;
-        }
+        this.saleTotal += (item.option_price - item.price) * item.count;
       });
     },
 
-    oneCheck() {
-      let result = 0;
-      this.cartList.forEach((value) => {
-        if (value.selected) {
-          result++;
-        }
-      });
-
-      if (result == this.cartList.length) {
-        this.isAllCheck = false;
-        this.allCheck();
-      } else if (result == 0) {
-        this.isAllCheck = true;
-        this.allCheck();
-      }
-    },
-
-    allCheck() {
-      if (this.isAllCheck) {
-        this.isAllCheck = false;
-      } else {
-        this.isAllCheck = true;
-      }
-
-      this.cartList.forEach((item) => {
-        item.selected = this.isAllCheck;
-      });
-
-      this.totalPrice();
-    },
   },
   components: {
     custom_header,
@@ -281,6 +260,18 @@ export default {
 </script>
 
 <style>
+.empty-cart{
+  margin: 0 auto;
+  width: 1060px;
+  border: 1px solid #aaa9a9;
+}
+
+.empty-cart span{
+  display: block;
+  padding: 10rem;
+  text-align: center;
+}
+
 .cart-title {
   margin: 3rem 0;
   font-weight: 500;
@@ -290,7 +281,8 @@ export default {
 }
 
 .cart-wrap {
-  margin-left: 3rem;
+  margin: 0 auto;
+  width: 1060px;
   display: flex;
   justify-content: space-between;
 }
@@ -385,7 +377,7 @@ label {
 
 .count-wrap span {
   font-weight: normal;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .count-top {
@@ -397,15 +389,14 @@ label {
   border: none;
   background: white;
   text-align: center;
-  font-size: 16px;
-  height: 30px;
+  height: 20px;
   outline: none;
 }
 
 .count-wrap button {
   font-size: 24px;
   font-weight: bolder;
-  width: 30px;
+  width: 20px;
   padding-bottom: 0.5rem;
 }
 

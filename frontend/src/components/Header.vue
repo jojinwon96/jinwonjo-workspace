@@ -1,5 +1,5 @@
 <template>
-  <header>
+  <header :class="{'fixed' : $store.state.isHeaderFixed}">
     <Transition name="fade">
       <div class="category-bg-black" v-if="$store.state.isCategoryOpen">
         <div class="category-bg-white"></div>
@@ -176,6 +176,10 @@ export default {
 </script>
 
 <style>
+.fixed{
+  position: fixed;
+}
+
 .show {
   display: block;
 }
@@ -194,13 +198,12 @@ a {
 }
 
 header {
-  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   border-bottom: 1px #d0d0d0 solid;
   background: white;
-  z-index: 999;
+  z-index: 998;
 }
 
 .header__wrap {

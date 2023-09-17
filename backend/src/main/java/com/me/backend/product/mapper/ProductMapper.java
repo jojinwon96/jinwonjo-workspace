@@ -2,6 +2,7 @@ package com.me.backend.product.mapper;
 
 import com.me.backend.common.Pagination;
 import com.me.backend.product.dto.ProductDTO;
+import com.me.backend.product.dto.optionDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -40,4 +41,8 @@ public interface ProductMapper {
     int goodsCount (String id);
 
     List<ProductDTO> goods (Map<String, Object> map);
+
+    List<ProductDTO> findGoods(String id);
+
+    List<optionDTO> goodsPriceRange(String id);
 }

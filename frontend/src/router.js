@@ -16,6 +16,7 @@ import productManage from "./pages/seller/prodcutManage.vue"
 import myPage from "./pages/myPage/myPage.vue";
 import myPageHome from "./pages/myPage/home";
 import wishList from "@/pages/myPage/wishList";
+import addressList from "@/pages/myPage/addressList";
 
 // store
 import store from "@/store/modules/store";
@@ -48,6 +49,11 @@ const router = createRouter({
                     path: "wishList",
                     component: wishList,
                     name: 'wishList',
+                },
+                {
+                    path: "addressList",
+                    component: addressList,
+                    name: 'addressList',
                 },
             ]
         },
@@ -84,9 +90,10 @@ const router = createRouter({
                     props: true,
                 },
                 {
-                    path: "view",
+                    path: "view/:product_id",
                     component: view,
                     name: 'view',
+                    props: true,
                 },
             ],
         },

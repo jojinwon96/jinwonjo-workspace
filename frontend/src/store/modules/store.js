@@ -39,6 +39,7 @@ const store = createStore({
 
             isCategoryOpen: false,
             isOpenModal: false,
+            isHeaderFixed: true,
 
             seller: {
                 currentPage: 0,
@@ -94,6 +95,10 @@ const store = createStore({
         setSeller(state, payload) {
             this.state.seller.currentPage = payload;
         },
+
+        setFixed(state, payload){
+            this.state.isHeaderFixed = payload;
+        }
     }
 
 })

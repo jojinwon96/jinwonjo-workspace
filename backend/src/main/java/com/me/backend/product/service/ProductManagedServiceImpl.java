@@ -1,6 +1,7 @@
 package com.me.backend.product.service;
 
 import com.me.backend.product.dto.ProductDTO;
+import com.me.backend.product.dto.optionDTO;
 import com.me.backend.product.mapper.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,5 +91,14 @@ public class ProductManagedServiceImpl implements ProductManagedService {
         return productMapper.goods(map);
     }
 
+    @Override
+    public List<ProductDTO> findGoods(String id) {
+        return productMapper.findGoods(id);
+    }
+
+    @Override
+    public List<optionDTO> goodsPriceRange(String id) {
+        return productMapper.goodsPriceRange(id);
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.me.backend.member.service;
 
-import com.me.backend.member.dto.likeDTO;
+import com.me.backend.member.dto.AddressDTO;
+import com.me.backend.member.dto.CartDTO;
 import com.me.backend.member.mapper.MemberMapper;
 import com.me.backend.member.dto.MemberDTO;
 import com.me.backend.product.dto.ProductDTO;
@@ -66,6 +67,65 @@ public class MemberServiceImpl implements MemberService {
         return memberMapper.deleteLikeList(deleteLikeList);
     }
 
+    @Override
+    public int findCart(CartDTO product) {
+        return memberMapper.findCart(product);
+    }
+
+    @Override
+    public int inputCart(CartDTO product) {
+        return memberMapper.inputCart(product);
+    }
+
+    @Override
+    public int modifyCartCount(CartDTO product) {
+        return memberMapper.modifyCartCount(product);
+    }
+
+    @Override
+    public List<CartDTO> findCartList(String id) {
+        return memberMapper.findCartList(id);
+    }
+
+    @Override
+    public int modifyCart(Map<String, String> map) {
+        return memberMapper.modifyCart(map);
+    }
+
+    @Override
+    public CartDTO findCartCount(Map<String, String> map) {
+        return memberMapper.findCartCount(map);
+    }
+
+    @Override
+    public int deleteCart(List<CartDTO> cartList) {
+        return memberMapper.deleteCart(cartList);
+    }
+
+    @Override
+    public List<AddressDTO> findAddressList(String id) {
+        return memberMapper.findAddressList(id);
+    }
+
+    @Override
+    public int inputAddress(AddressDTO address) {
+        return memberMapper.inputAddress(address);
+    }
+
+    @Override
+    public int modifyAddressMain(String id) {
+        return memberMapper.modifyAddressMain(id);
+    }
+
+    @Override
+    public int modifyAddress(AddressDTO address) {
+        return memberMapper.modifyAddress(address);
+    }
+
+    @Override
+    public int deleteAddress(AddressDTO address) {
+        return memberMapper.deleteAddress(address);
+    }
 
 }
 

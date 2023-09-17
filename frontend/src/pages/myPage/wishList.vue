@@ -1,7 +1,7 @@
 <template>
   <h4 class="myPage-content-title">위시리스트</h4>
-  <div class="myPage-content">
-    <div class="wish-head">
+  <div class="myPage-content" v-if="checkList.length > 0 ">
+    <div class="myPage-head">
       <input type="checkbox" value="all" v-model="allSelected">
       <label for="all">전체</label>
       <button class="checked-delete" @click="checkedDelete">선택삭제</button>
@@ -51,7 +51,6 @@ export default {
       //setter
       set: function (e) {
         this.selectList = e ? this.checkList : [];
-        // this.selectList = e ? console.log(e) : console.log(e);
       },
     },
 
@@ -68,7 +67,6 @@ export default {
 
     postLikeList(){
       axios.get('/api/account/likeList').then(({data})=>{
-        console.log(data);
         this.checkList = data;
       })
     },
@@ -92,8 +90,9 @@ export default {
 </script>
 
 <style scoped>
-.wish-head {
-  padding: 5px;
+.myPage-head {
+  padding-bottom: 10px;
+  padding-left: 5px;
   margin: 1rem 0;
 }
 
@@ -115,7 +114,7 @@ export default {
 .wish-product-wrap {
   width: calc(25% - 16px);
   margin: 16px 0 0 16px;
-  padding: 10px;
+  padding: 0px 5px;
   font-size: 14px;
 }
 

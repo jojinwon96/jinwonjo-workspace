@@ -1,6 +1,7 @@
 package com.me.backend.product.service;
 
 import com.me.backend.product.dto.ProductDTO;
+import com.me.backend.product.dto.optionDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -35,5 +36,9 @@ public interface ProductManagedService {
 
     int goodsCount (String id);
 
-    public List<ProductDTO> goods (Map<String, Object> map);
+    List<ProductDTO> goods (Map<String, Object> map);
+
+    List<ProductDTO> findGoods(String id);
+
+    List<optionDTO> goodsPriceRange(String id);
 }

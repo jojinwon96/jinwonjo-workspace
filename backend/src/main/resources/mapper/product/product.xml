@@ -280,7 +280,7 @@
     </select>
 
     <select id="goods" parameterType="hashmap" resultType="ProductDTO">
-        select p.product_id, p.product_name, img1, uploadFile, price, discount, like_id
+        select p.product_id, p.product_name, img1, uploadFile, option_price, price, discount, like_id
         from foryou.product p
         inner
             join foryou.option o on (p.product_id = o.product_id)
@@ -302,4 +302,44 @@
         limit #{pageInfo.startList}, #{pageInfo.listSize}
     </select>
 
+    <select id="findGoods" parameterType="String" resultType="ProductDTO">
+        select
+               p.product_id
+             , p.product_name
+             , option_id
+             , option_name1
+             , option_content1
+             , option_name2
+             , option_content2
+             , option_price
+             , discount
+             , price
+             , maxCount
+             , stock
+             , main
+             , img1
+             , img2
+             , img3
+             , img4
+             , img5
+             , category_name
+             , company_name
+             , uploadFile
+        from foryou.product p
+                 join foryou.option o on (p.product_id = o.product_id)
+                 join foryou.seller s on (p.seller_id = s.seller_id)
+                 join foryou.category c on (p.category_id = c.category_id)
+        where p.product_id = #{id} and p.status = 'Y'
+    </select>
+
+    <select id="goodsPriceRange" parameterType="String" resultType="optionDTO">
+        select
+            option_content1,
+            max(option_price) as 'maxPrice',
+            min(option_price) as 'minPrice'
+        from foryou.product p
+                 join foryou.option o on (p.product_id = o.product_id)
+        where p.product_id = #{id} and p.status = 'Y' and o.status = 'Y'
+        group by option_content1
+    </select>
 </mapper>

@@ -77,55 +77,35 @@
         <choose>
             <when test='cust_id neq ""'>
                 insert
-                into
+                    into
                 foryou.customer
                 (
-                cust_id,
-                cust_pwd,
-                cust_name,
-                cust_email,
-                cust_tel,
-                mileage,
-                banned,
-                status,
-                enroll_date,
-                delete_date,
-                token
+                    cust_id,
+                    cust_pwd,
+                    cust_name,
+                    cust_email,
+                    cust_tel,
+                    mileage,
+                    banned,
+                    status,
+                    enroll_date,
+                    delete_date,
+                    token
                 )
                 values
                 (
-                #{cust_id},
-                #{cust_pwd},
-                #{cust_name},
-                #{cust_email},
-                #{cust_tel},
-                default,
-                default,
-                default,
-                default,
-                default,
-                default
-                );
-                insert
-                into
-                foryou.address
-                (
-                cust_id,
-                name,
-                post,
-                addr,
-                addr_detail,
-                addr_default
+                    #{cust_id},
+                    #{cust_pwd},
+                    #{cust_name},
+                    #{cust_email},
+                    #{cust_tel},
+                    default,
+                    default,
+                    default,
+                    default,
+                    default,
+                    default
                 )
-                values
-                (
-                #{cust_id},
-                #{cust_name},
-                #{post},
-                #{address1},
-                #{address2},
-                default
-                );
             </when>
             <otherwise>
                 insert
@@ -212,4 +192,170 @@
         </where>
     </delete>
 
+    <select id="findCartList" parameterType="String" resultType="cartDTO">
+        select
+                cart_id,
+                cust_id,
+                o.product_id,
+                o.option_id,
+                company_name,
+                product_name,
+                option_name1,
+                option_content1,
+                option_name2,
+                option_content2,
+                option_price,
+                discount,
+                c.count,
+                maxCount,
+                price,
+                img1 as 'img',
+                uploadFile
+        from foryou.cart c
+                 join foryou.option o on (c.option_id = o.option_id)
+                 join foryou.product p on (o.product_id = p. product_id)
+                 join foryou.seller s on (p.seller_id = s.seller_id)
+        where cust_id = #{id}
+    </select>
+
+    <select id="findCart" parameterType="cartDTO">
+        select option_id
+        from foryou.cart
+        where cust_id = #{cust_id} and option_id = #{option_id}
+        union
+        select 0
+        from dual
+        where not exists(
+                select option_id
+                from foryou.cart
+                where cust_id = #{cust_id} and option_id = #{option_id})
+    </select>
+
+    <insert id="inputCart" parameterType="cartDTO">
+        insert
+            into foryou.cart
+            (
+                cust_id,
+                option_id,
+                count
+            )
+            value
+                (
+                    #{cust_id},
+                    #{option_id},
+                    #{count}
+                )
+    </insert>
+
+    <update id="modifyCartCount" parameterType="cartDTO">
+        update foryou.cart
+            set count = count + #{count}
+        where cust_id = #{cust_id} and option_id = #{option_id}
+    </update>
+
+    <update id="modifyCart" parameterType="hashMap">
+        update foryou.cart
+            <choose>
+                <when test="target.equals('decrease')">
+                    set count = count - 1
+                </when>
+                <when test="target.equals('increase')">
+                    set count = count + 1
+                </when>
+                <when test="target.equals('custom')">
+                    set count = #{count}
+                </when>
+                <otherwise>
+                    set count = 1
+                </otherwise>
+            </choose>
+        where cart_id = #{cart_id}
+    </update>
+
+    <select id="findCartCount" parameterType="hashMap" resultType="cartDTO">
+        select count
+        from foryou.cart
+        where cart_id = #{cart_id}
+    </select>
+
+    <delete id="deleteCart" parameterType="java.util.List">
+        delete from foryou.cart
+        <where>
+            <foreach collection="list" item="item" open="" close="" separator="OR">
+                (cart_id = #{item.cart_id})
+            </foreach>
+        </where>
+    </delete>
+
+
+    <select id="findAddressList" parameterType="String" resultType="AddressDTO">
+        select address_id, cust_id, addr_name, name, post, addr, addr_detail, addr_default, phone
+            from foryou.address
+        where cust_id = #{id}
+        order by addr_default desc
+    </select>
+
+    <insert id="inputAddress" parameterType="AddressDTO">
+        insert
+            into foryou.address
+        (
+            cust_id,
+            addr_name,
+            name,
+            post,
+            addr,
+            addr_detail,
+            addr_default,
+            phone
+        )
+        values
+        (
+            #{cust_id},
+            #{addr_name},
+            #{name},
+            #{post},
+            #{addr},
+            #{addr_detail},
+            #{addr_default},
+            #{phone}
+        )
+    </insert>
+
+    <update id="modifyAddressMain" parameterType="AddressDTO">
+        update foryou.address
+            set addr_default = 'N'
+        where cust_id = #{id}
+    </update>
+
+    <update id="modifyAddress" parameterType="AddressDTO">
+        <choose>
+            <when test='addr_default == "Y"'>
+                update foryou.address
+                    set addr_name = #{addr_name},
+                        name = #{name},
+                        post = #{post},
+                        addr = #{addr},
+                        addr_detail = #{addr_detail},
+                        phone = #{phone},
+                        addr_default = 'Y'
+                where address_id = #{address_id}
+            </when>
+            <otherwise>
+                update foryou.address
+                set addr_name = #{addr_name},
+                    name = #{name},
+                    post = #{post},
+                    addr = #{addr},
+                    addr_detail = #{addr_detail},
+                    phone = #{phone}
+                where address_id = #{address_id}
+            </otherwise>
+        </choose>
+    </update>
+
+    <delete id="deleteAddress" parameterType="AddressDTO">
+        delete
+        from foryou.address
+        where address_id = #{address_id}
+    </delete>
 </mapper>

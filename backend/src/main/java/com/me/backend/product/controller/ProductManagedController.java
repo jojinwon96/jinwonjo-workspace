@@ -6,6 +6,8 @@ import com.me.backend.common.Pagination;
 import com.me.backend.common.pasingProduct;
 import com.me.backend.member.dto.MemberDTO;
 import com.me.backend.product.dto.ProductDTO;
+import com.me.backend.product.dto.goodsView;
+import com.me.backend.product.dto.optionDTO;
 import com.me.backend.product.service.ProductManagedServiceImpl;
 import jakarta.servlet.http.HttpSession;
 
@@ -256,6 +258,23 @@ public class ProductManagedController {
         return new ResponseEntity(result2, HttpStatus.OK);
 
     }
+
+    @PostMapping("/api/goods/view")
+    public ResponseEntity findGoods(@RequestBody String id){
+
+        String product_id =id.substring(0, id.length() - 1);
+
+        List<ProductDTO> goods = productService.findGoods(product_id);
+
+        List<optionDTO> priceRange = productService.goodsPriceRange(product_id);
+
+        goodsView data = new goodsView();
+        data.setGoods(goods);
+        data.setOptions(priceRange);
+
+        return new ResponseEntity(data, HttpStatus.OK);
+    }
+
 
     private String saveFile(MultipartFile file) throws IOException {
 

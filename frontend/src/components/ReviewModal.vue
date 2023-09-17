@@ -72,6 +72,8 @@
 </template>
 
 <script>
+import {mapMutations} from "vuex";
+
 export default {
   name: "reviewModal",
   data() {
@@ -87,8 +89,12 @@ export default {
         this.$emit("closeModal");
         document.body.classList.remove("oh");
         this.isUpload = false;
+        this.setFixed(true);
       }
     },
+  },
+
+  computed: {
   },
 
   mounted() {
@@ -99,6 +105,8 @@ export default {
     document.removeEventListener("keyup", this.keyControl);
   },
   methods: {
+    ...mapMutations(['setFixed']),
+
     clearImage() {
       this.isUpload = false;
       // this.$nextTick(() => {
@@ -124,7 +132,7 @@ export default {
       if (e.keyCode === 27) {
         this.$emit("closeModal");
         document.body.classList.remove("oh");
-        this.clearImage;
+        this.clearImage();
       }
     },
 

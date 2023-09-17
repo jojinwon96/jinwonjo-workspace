@@ -8,6 +8,6 @@ import java.util.List;
 @Data
 public class pasingProduct {
     private List<ProductDTO> products;
-    private Pagination pagination;
     private List<ProductDTO> options;
+    private Pagination pagination;
 }

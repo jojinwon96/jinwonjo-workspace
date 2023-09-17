@@ -1,39 +1,47 @@
 <template>
-  <div v-show="product != null">
-    <div @mouseover="isHover=true"
-         @mouseleave="isHover=false"
-         v-if="product.uploadFile != 'Y'" class="card-img-wrap"
-         :style="{ backgroundImage: `url(${product.img1})`}">
+  <router-link
+      :to="{name: 'view', params: {product_id:`${product.product_id}`}}">
+    <div v-show="product != null">
+      <div @mouseover="isHover=true"
+           @mouseleave="isHover=false"
+           v-if="product.uploadFile != 'Y'" class="card-img-wrap"
+           :style="{ backgroundImage: `url(${product.img1})`}">
       <span @click="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
         <img v-if="product.like_id == null || product.like_id == 0" src="@/assets/img/like.png" class="like-btn"/>
         <img v-else src="@/assets/img/like-red.png" class="like-btn"/>
       </span>
-    </div>
-    <div @mouseover="isHover=true"
-         @mouseleave="isHover=false"
-         v-else class="card-img-wrap"
-         :style="{'background-image': 'url(' + require('@/assets/product/uploadfile/' + product.img1) + ')'}">
+      </div>
+      <div @mouseover="isHover=true"
+           @mouseleave="isHover=false"
+           v-else class="card-img-wrap"
+           :style="{'background-image': 'url(' + require('@/assets/product/uploadfile/' + product.img1) + ')'}">
       <span @click="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
         <img v-if="product.like_id == null || product.like_id == 0" src="@/assets/img/like.png" class="like-btn"/>
         <img v-else src="@/assets/img/like-red.png" class="like-btn"/>
       </span>
+      </div>
+      <div class="product-title">
+        {{ product.product_name }}
+      </div>
+      <div class="price-panel">
+        <div v-if="product.discount == 0">
+          <span class="price">{{ comma(product.price) }}</span><span class="card-won">원</span>
+        </div>
+        <div v-else>
+          <span class="discount" v-if="product.discount != 0">{{ product.discount }}%</span>
+          <span class="price">{{ comma(product.price) }}</span><span class="card-won">원</span>
+          <span class="origin-price">{{ comma(product.option_price) }}원</span>
+        </div>
+      </div>
+      <star-rating :rating="(3.5)"
+                   :read-only="true"
+                   :increment="0.01"
+                   :show-rating="false"
+                   :inline="true"
+                   v-bind:star-size="20"/>
+      <span>(3.5)</span>
     </div>
-    <div class="product-title">
-      {{ product.product_name }}
-    </div>
-    <div class="price-panel">
-      <span class="discount" v-if="product.discount != 0">{{ product.discount }}%</span>
-      <span class="price">{{ this.comma(product.price) }}</span><span class="card-won">원</span>
-      <span class="origin-price" v-if="product.discount != 0">{{ product.price }}</span>
-    </div>
-    <star-rating :rating="(3.5)"
-                 :read-only="true"
-                 :increment="0.01"
-                 :show-rating="false"
-                 :inline="true"
-                 v-bind:star-size="20"/>
-    <span>(3.5)</span>
-  </div>
+  </router-link>
 </template>
 
 <script>
@@ -48,10 +56,6 @@ export default {
     return {
       isHover: false,
     }
-  },
-
-  created() {
-    console.log(this.product);
   },
 
   computed: {
@@ -205,6 +209,7 @@ export default {
   cursor: pointer;
   opacity: 0;
   transition: 0.5s;
+  z-index: 999;
 }
 
 .like-btn {
