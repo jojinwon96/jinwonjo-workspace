@@ -116,6 +116,7 @@
 import custom_header from "../components/Header.vue";
 import custom_nav from "../components/Nav.vue";
 import axios from "axios";
+import router from "@/router";
 
 export default {
   name: "cart",
@@ -160,7 +161,9 @@ export default {
     },
 
     buyCartList() {
-      console.log(this.selectList);
+      localStorage.removeItem('orderList');
+      localStorage.setItem('orderList', JSON.stringify(this.selectList));
+      router.replace({path: "/order"});
     },
 
     comma(val) {

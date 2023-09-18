@@ -17,6 +17,7 @@ import myPage from "./pages/myPage/myPage.vue";
 import myPageHome from "./pages/myPage/home";
 import wishList from "@/pages/myPage/wishList";
 import addressList from "@/pages/myPage/addressList";
+import orderList from "@/pages/myPage/orderList";
 
 // store
 import store from "@/store/modules/store";
@@ -55,6 +56,11 @@ const router = createRouter({
                     component: addressList,
                     name: 'addressList',
                 },
+                {
+                    path: "orderList",
+                    component: orderList,
+                    name: 'orderList',
+                },
             ]
         },
         {
@@ -69,6 +75,7 @@ const router = createRouter({
             path: "/cart",
             component: cart,
             beforeEnter: (to, from, next) => {
+                console.log(store.state.account);
                 if (store.state.account.id != undefined) {
                     return next();
                 }
@@ -79,6 +86,14 @@ const router = createRouter({
         {
             path: "/order",
             component: order,
+            beforeEnter: (to, from, next) => {
+                let orderList = JSON.parse(localStorage.getItem('orderList'));
+                if (orderList.length > 0) {
+                    return next();
+                }
+                alert('잘못된 접근 입니다.');
+                next("/");
+            }
         },
         {
             path: "/goods",

@@ -1,8 +1,6 @@
 package com.me.backend.member.service;
 
-import com.me.backend.member.dto.AddressDTO;
-import com.me.backend.member.dto.MemberDTO;
-import com.me.backend.member.dto.CartDTO;
+import com.me.backend.member.dto.*;
 import com.me.backend.product.dto.ProductDTO;
 
 import java.util.List;
@@ -14,6 +12,8 @@ public interface MemberService{
 
     MemberDTO member(MemberDTO loginMember);
 
+    List<CouponDTO> couponList (String id);
+
     int signUp(MemberDTO signUpMember);
 
     MemberDTO loginMember (Map<String, String> params);
@@ -21,6 +21,7 @@ public interface MemberService{
     int like (Map<String, String> map);
 
     int deleteLike (Map<String, String> map);
+
     int findLike(int id);
 
     int findInputLike();
@@ -52,4 +53,15 @@ public interface MemberService{
 
     int deleteAddress (AddressDTO address);
 
+    int inputOrder (OrderDTO order);
+
+    int inputOrderDetail (List<CartDTO> cartList);
+
+    int deleteCoupon (int id);
+
+    int stockModify (List<CartDTO> cartList);
+
+    int modifyMileage (OrderDTO order);
+
+    List<OrderDTO> orderList (String id);
 }

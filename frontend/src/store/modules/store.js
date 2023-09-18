@@ -15,6 +15,7 @@ const store = createStore({
                 email: '',
                 tel: '',
                 mileage: 0,
+                couponList:[],
                 seller_id: '',
                 seller_name: '',
                 seller_number: '',
@@ -36,7 +37,6 @@ const store = createStore({
                 option_price: 0,
                 status: '',
             },
-
             isCategoryOpen: false,
             isOpenModal: false,
             isHeaderFixed: true,
@@ -65,6 +65,7 @@ const store = createStore({
             this.state.account.email = payload.cust_email;
             this.state.account.tel = payload.cust_tel;
             this.state.account.mileage = payload.mileage;
+            this.state.account.couponList = payload.couponList;
 
             this.state.account.seller_id = payload.seller_id;
             this.state.account.seller_name = payload.seller_name;

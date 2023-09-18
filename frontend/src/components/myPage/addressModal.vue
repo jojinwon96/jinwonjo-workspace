@@ -12,7 +12,7 @@
           <span v-else>배송지 수정</span>
         </div>
         <div class="review-body">
-          <div class="addr-content">
+          <div class="addr-content-wrap">
             <ul>
               <li class="addr-td-title">대표설정</li>
               <li>
@@ -98,13 +98,11 @@ export default {
   },
 
   watch: {
-    isOpenReview(value) {
+    isOpenModal(value) {
       if (value) {
-        document.body.classList.add("oh");
+        document.body.style = `overflow: hidden`;
       } else {
-        this.$emit("closeModal");
-        document.body.classList.remove("oh");
-        this.setFixed(true);
+        document.body.style = `overflow: auto`;
       }
     },
 
@@ -301,11 +299,6 @@ export default {
   padding: 1rem 1.5rem;
 }
 
-.oh {
-  overflow: hidden;
-  padding-right: 17px;
-}
-
 .review-close {
   text-align: right;
   font-size: 24px;
@@ -324,21 +317,20 @@ export default {
 .review-body {
   margin: 1rem 0;
   width: 100%;
-  border: 1px solid #bbbbbb;
 }
 
-.addr-content {
+.addr-content-wrap {
   display: table;
   border-spacing: 10px;
 }
 
-.addr-content ul {
+.addr-content-wrap ul {
   display: table-row;
   font-size: 14px;
   width: 100%;
 }
 
-.addr-content li {
+.addr-content-wrap li {
   display: table-cell;
 }
 

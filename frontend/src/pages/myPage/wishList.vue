@@ -101,10 +101,6 @@ export default {
   accent-color: #3385f096;
 }
 
-.myPage-content{
-  width: 100%;
-}
-
 .wish-content {
   display: flex;
   flex-wrap: wrap;

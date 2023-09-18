@@ -1,9 +1,7 @@
 package com.me.backend.member.service;
 
-import com.me.backend.member.dto.AddressDTO;
-import com.me.backend.member.dto.CartDTO;
+import com.me.backend.member.dto.*;
 import com.me.backend.member.mapper.MemberMapper;
-import com.me.backend.member.dto.MemberDTO;
 import com.me.backend.product.dto.ProductDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberDTO member(MemberDTO loginMember) {
         return memberMapper.member(loginMember);
+    }
+
+    @Override
+    public List<CouponDTO> couponList(String id) {
+        return memberMapper.couponList(id);
     }
 
     @Override
@@ -125,6 +128,36 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public int deleteAddress(AddressDTO address) {
         return memberMapper.deleteAddress(address);
+    }
+
+    @Override
+    public int inputOrder(OrderDTO order) {
+        return memberMapper.inputOrder(order);
+    }
+
+    @Override
+    public int inputOrderDetail(List<CartDTO> cartList) {
+        return memberMapper.inputOrderDetail(cartList);
+    }
+
+    @Override
+    public int deleteCoupon(int id) {
+        return memberMapper.deleteCoupon(id);
+    }
+
+    @Override
+    public int stockModify(List<CartDTO> cartList) {
+        return memberMapper.stockModify(cartList);
+    }
+
+    @Override
+    public int modifyMileage(OrderDTO order) {
+        return memberMapper.modifyMileage(order);
+    }
+
+    @Override
+    public List<OrderDTO> orderList(String id) {
+        return memberMapper.orderList(id);
     }
 
 }

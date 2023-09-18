@@ -73,6 +73,13 @@
         </choose>
     </select>
 
+    <select id="couponList" resultType="CouponDTO">
+        select coupon_id, coupon_list_id, coupon_name, coupon_price
+        from foryou.coupon
+        join foryou.coupon_list using (coupon_id)
+        where cust_id = #{id}
+    </select>
+
     <insert id="signUp">
         <choose>
             <when test='cust_id neq ""'>
@@ -358,4 +365,96 @@
         from foryou.address
         where address_id = #{address_id}
     </delete>
+
+    <insert id="inputOrder" parameterType="OrderDTO">
+        insert into foryou.order
+        (
+            cust_id,
+            order_name,
+            phone,
+            email,
+            recipient,
+            recipient_phone,
+            post,
+            addr,
+            addr_detail,
+            price
+        )
+        values
+        (
+            #{cust_id},
+            #{order_name},
+            #{phone},
+            #{email},
+            #{recipient},
+            #{recipient_phone},
+            #{post},
+            #{addr},
+            #{addr_detail},
+            #{price}
+        );
+    </insert>
+
+    <insert id="inputOrderDetail" parameterType="java.util.List">
+        insert into foryou.order_detail
+        (
+            order_id,
+            option_id,
+            count
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+                (select max(order_id) from foryou.order),
+                #{item.option_id},
+                #{item.count}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteCoupon" parameterType="_int">
+        delete
+        from foryou.coupon_list
+        where coupon_list_id = #{id}
+    </delete>
+
+    <update id="stockModify" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            update foryou.option
+                set stock = stock - #{item.count}
+            where option_id = #{item.option_id}
+        </foreach>
+    </update>
+
+    <update id="modifyMileage" parameterType="OrderDTO">
+        update foryou.customer
+            set mileage = mileage - #{mileage}
+        where cust_id = #{cust_id}
+    </update>
+
+    <select id="orderList" parameterType="String" resultType="OrderDTO">
+        select
+                od.order_id,
+                od.order_detail_id,
+                op.product_id,
+                op.option_id,
+                company_name,
+                product_name,
+                option_name1,
+                option_content1,
+                option_name2,
+                option_content2,
+                o.status,
+                od.count,
+                o.price,
+                op.price as 'option_price',
+                img1 as 'img',
+                uploadFile
+        from foryou.`order` o
+                 join foryou.order_detail od on o.order_id = od.order_id
+                 join foryou.option op on od.option_id = op.option_id
+                 join foryou.product p on op.product_id = p.product_id
+                 join foryou.seller s on p.seller_id = s.seller_id
+        where cust_id = #{id}
+    </select>
 </mapper>

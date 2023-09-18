@@ -76,20 +76,18 @@ export default {
         if (data == 2) {
           msg = "존재하지 않는 회원입니다.";
         } else if (data == 1) {
-          msg = "비밀번호를 다시 확인해주세요."
+          msg = '비밀번호를 다시 확인해주세요.';
         } else {
           msg = "성공적으로 로그인 되었습니다."
           store.commit('setAccount', data);
           sessionStorage.setItem("loginUser", JSON.stringify(data));
-
-          if (state.form.target == 'user'){
-            router.replace({path: "/"});
-          } else {
-            router.replace({path: "/seller"});
-          }
+          router.replace({path: "/"});
         }
+
         alert(msg);
 
+        console.log('---------------스토어---------------------');
+        console.log(store.state.account);
       }).catch(() => {
         alert("야이디와 비밀번호를 확인해주세요.")
       })
@@ -133,7 +131,7 @@ export default {
   margin-bottom: 30px;
 }
 
-.target-wrap{
+.target-wrap {
   display: flex;
   justify-content: space-around;
   margin-bottom: 10px;

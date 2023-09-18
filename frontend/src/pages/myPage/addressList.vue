@@ -84,6 +84,7 @@ export default {
       } else {
         this.isOpenModal = true;
         document.body.style = `overflow: hidden`;
+
       }
     },
 

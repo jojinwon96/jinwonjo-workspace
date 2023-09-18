@@ -5,7 +5,9 @@
     </router-link>
     <h5 class="menu-title">쇼핑</h5>
     <ul class="sub-menu">
-      <li>주문내역</li>
+      <router-link to="/myPage/orderList">
+        <li>주문내역</li>
+      </router-link>
       <li>취소/환불</li>
       <router-link to="/myPage/wishList">
         <li>위시리스트</li>

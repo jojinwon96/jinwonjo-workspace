@@ -21,6 +21,7 @@ export default {
       email: "",
       tel: "",
       mileage: 0,
+      couponList: [],
 
       seller_id: "",
       seller_name: "",

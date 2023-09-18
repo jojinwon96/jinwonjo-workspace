@@ -1,6 +1,6 @@
 <template>
-  <custom_header />
-  <custom_nav />
+  <custom_header/>
+  <custom_nav/>
   <section class="content">
     <h3 class="order-title">주문/결제</h3>
     <div class="order-wrap">
@@ -9,13 +9,13 @@
           <h4 class="content-title">주문자</h4>
           <div class="order-input-panel">
             <label for="name">이름</label>
-            <input type="text" />
+            <input type="text" v-model="info.order_name"/>
           </div>
           <div class="order-input-panel">
             <label for="email">이메일</label>
-            <input type="text" />
+            <input type="text" v-model="email[0]"/>
             <span class="ordrer-input-separator">@</span>
-            <select class="input-email-domain sign-up-input" id="domain">
+            <select class="input-email-domain sign-up-input" id="domain" v-model="email[1]">
               <option selected value="0">선택해주세요</option>
               <option value="naver.com">naver.com</option>
               <option value="hanmail.net">hanmail.net</option>
@@ -25,56 +25,56 @@
               <option value="hotmail.com">hotmail.com</option>
               <option value="outlook.com">outlook.com</option>
               <option value="icloud.com">icloud.com</option>
-              <option value="1">직접입력</option>
             </select>
           </div>
           <div class="order-input-panel">
             <label for="phone">휴대전화</label>
-            <input class="order-input-phone" type="text" />
+            <input class="order-input-phone" type="text" v-model="phone[0]"/>
             <span class="ordrer-input-separator">-</span>
-            <input class="input-phone" type="text" />
+            <input class="order-input-phone" type="text" v-model="phone[1]"/>
             <span class="ordrer-input-separator">-</span>
-            <input class="input-phone" type="text" />
+            <input class="order-input-phone" type="text" v-model="phone[2]"/>
           </div>
         </div>
 
         <div class="order-content">
           <div class="delivery-title">
             <h4 class="">배송지</h4>
-            <span>배송지 불러오기</span>
+            <span @click="this.isOpenModal = true">배송지 불러오기</span>
           </div>
           <div class="order-input-panel">
             <label for="">받는사람</label>
-            <input type="text" />
+            <input type="text" v-model="info.recipient"/>
           </div>
           <div class="order-input-panel">
             <label for="">연락처</label>
-            <input class="input-phone" type="text" />
+            <input class="order-input-phone" type="text" v-model="recipient_phone[0]"/>
             <span class="ordrer-input-separator">-</span>
-            <input class="input-phone" type="text" />
+            <input class="order-input-phone" type="text" v-model="recipient_phone[1]"/>
             <span class="ordrer-input-separator">-</span>
-            <input class="input-phone" type="text" />
+            <input class="order-input-phone" type="text" v-model="recipient_phone[2]"/>
           </div>
           <div class="order-input-panel">
             <label for="" class="address-title">주소</label>
             <div class="custom-input-wrap">
               <div class="custom-input-top">
                 <input
-                  type="text"
-                  class="sign-up-input input-post"
-                  name="post"
-                  readonly
+                    type="text"
+                    class="sign-up-input input-post read-only"
+                    name="post"
+                    v-model="info.post"
+                    readonly
                 />
                 <button
-                  type="button"
-                  class="sign-up-input sign-up-btn find-address-btn"
+                    type="button"
+                    class="sign-up-input sign-up-btn find-address-btn"
                 >
                   주소찾기
                 </button>
               </div>
               <div class="custom-input-bottom">
-                <input type="text" />
-                <input type="text" />
+                <input class="read-only" type="text" readonly v-model="info.addr"/>
+                <input type="text" v-model="info.addr_detail"/>
               </div>
             </div>
           </div>
@@ -82,16 +82,20 @@
 
         <div class="order-content">
           <h4 class="content-title">주문상품</h4>
-          <div class="products-wrap">
+
+          <div class="products-wrap" v-for="item in this.orderList" :key="item">
             <div class="order-product-title">
-              <span>(주)엔케이</span>
+              <span>{{ item.company_name }} </span>
             </div>
             <div class="order-product-content">
-              <img src="../assets/img/bouquet1.jpg" alt="" />
+              <img v-if="item.uploadFile == 'Y'" :src="require('@/assets/product/uploadfile/' + item.img)" alt=""/>
+              <img v-else :src="item.img">
               <div class="op-content">
-                <span>지금 이 순간</span>
-                <span>옵션 : 기본형</span>
-                <span>66,500원 / 1개</span>
+                <span>{{ item.product_name }}</span>
+                <span v-if="item.option_name2 != ''">{{ `${item.option_content1} : ${item.option_content2}` }}</span>
+                <span v-else>옵션명 : {{ item.option_content1 }}</span>
+                <span>{{ comma(item.price) }}원 / {{ item.count }}개</span>
+                <span class="sub-total">{{ comma(item.price * item.count) }}원</span>
               </div>
             </div>
           </div>
@@ -99,20 +103,30 @@
 
         <div class="order-content">
           <h4 class="content-title">쿠폰</h4>
-          <select name="" id="" class="order-coupon-wrap">
-            <option value="0" selected>쿠폰을 선택해 주세요</option>
-            <option value="">신규 회원 쿠폰</option>
+          <select class="order-coupon-wrap" v-model="info.coupon">
+            <option :value="info.coupon" selected disabled>쿠폰을 선택해 주세요</option>
+            <option v-for="item in this.account.couponList" :key="item" :value="item">
+              {{ `${item.coupon_name} (${comma(item.coupon_price)}원 할인)` }}
+            </option>
           </select>
+          <div v-if="info.coupon.coupon_list_id > 0" class="coupon-item">
+            <span>{{ `${info.coupon.coupon_name} (${comma(info.coupon.coupon_price)}원 할인)` }}</span>
+            <span class="coupon-item-close" @click="info.coupon = {coupon_list_id:0, coupon_price:0}">&#10005;</span>
+          </div>
         </div>
 
         <div class="order-content">
           <h4 class="content-title">마일리지</h4>
           <div class="order-point-wrap">
-            <input type="text" />
-            <button>전액사용</button>
+            <input type="text"
+                   @input="mileageControl($event)"
+                   v-model="info.mileage"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');"
+            />
+            <button @click="info.mileage = this.account.mileage">전액사용</button>
           </div>
           <span class="test"
-            >사용 가능 마일리지 <span class="point">1,000 P</span></span
+          >사용 가능 마일리지 <span class="point">{{ comma(this.account.mileage) }} P</span></span
           >
         </div>
       </div>
@@ -126,41 +140,170 @@
               <span>마일리지 사용</span>
             </div>
             <div class="opc-content">
-              <span>70,000원</span>
-              <span>0원</span>
-              <span>0원</span>
+              <span>{{ comma(info.optionTotal) }}원</span>
+              <span>{{ comma(info.coupon.coupon_price) }}원</span>
+              <span>{{ comma(info.mileage) }}원</span>
             </div>
           </div>
           <div class="op-result">
             <span>최종 결제 금액</span>
-            <span class="op-num">70,000원</span>
+            <input class="op-num" readonly v-model="totalPrice"/>
           </div>
         </div>
-        <button type="button">결제하기</button>
+        <button type="button" @click="requestPay">결제하기</button>
       </div>
     </div>
   </section>
+  <AddressListModal
+      :isOpenModal="isOpenModal"
+      @closeModal="modalControl"
+      @getAddress="getAddress"/>
 </template>
 
 <script>
 import custom_header from "../components/Header.vue";
 import custom_nav from "../components/Nav.vue";
+import AddressListModal from "@/components/AddressListModal";
+import {mapMutations, mapState} from "vuex";
+import axios from "axios";
+// import router from "@/router";
 
 export default {
   data() {
-    return {};
+    return {
+      isOpenModal: false,
+      email: [],
+      phone: [],
+      recipient_phone: [],
+      orderList: [],
+      info: {
+        orderList: [],
+        cust_id:'',
+        order_name: '',
+        email: '',
+        phone: '',
+        recipient: '',
+        recipient_phone: '',
+        post: '',
+        addr: '',
+        addr_detail: '',
+        coupon: {
+          coupon_list_id: 0,
+          coupon_price: 0,
+        },
+        mileage: 0,
+        optionTotal: 0,
+        price: 0,
+      },
+    };
   },
 
-  methods: {},
+  computed: {
+    ...mapState(['account']),
+
+    totalPrice: {
+      get: function () {
+        return this.comma(this.info.optionTotal - this.info.coupon.coupon_price - this.info.mileage) + '원';
+      },
+    },
+
+  },
+
+  mounted() {
+    this.orderList = JSON.parse(localStorage.getItem('orderList'));
+
+    this.orderList.forEach((item) => {
+      this.info.optionTotal += (item.price * item.count);
+    })
+  },
+
+  methods: {
+    ...mapMutations(['setFixed']),
+
+    comma(val) {
+      if (val == 0) {
+        return 0;
+      } else {
+        return String(val).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+    },
+
+    modalControl() {
+      if (this.isOpenModal) {
+        this.isOpenModal = false;
+      } else {
+        this.isOpenModal = true;
+      }
+    },
+
+    getAddress(address) {
+      this.info.recipient = address.name;
+      this.info.post = address.post;
+      this.info.addr = address.addr;
+      this.info.addr_detail = address.addr_detail;
+      this.recipient_phone = address.phone.split("-");
+    },
+
+    mileageControl(e) {
+      if (this.account.mileage < e.target.value) {
+        this.info.mileage = this.account.mileage;
+      }
+
+      if (e.target.value == '') {
+        e.target.value = 0;
+      }
+    },
+
+    requestPay() {
+      this.info.cust_id = this.account.id;
+      this.info.email = this.email[0] + '@' + this.email[1];
+      this.info.phone = this.phone[0] + '-' + this.phone[1] + '-' + this.phone[2];
+      this.info.recipient_phone = this.recipient_phone[0] + '-' + this.recipient_phone[1] + '-' + this.recipient_phone[2];
+      this.info.price = this.info.optionTotal - this.info.coupon.coupon_price - this.info.mileage;
+      this.info.orderList = this.orderList;
+
+      //결제 성공 시 로직,
+      axios.post('/api/account/input-order', this.info).then(({data}) => {
+        if (data > 0){
+          console.log(data);
+        }
+      })
+
+      // const IMP = window.IMP; // 생략 가능
+      // IMP.init("imp86778202"); // 예: imp00000000
+      // IMP.request_pay({ // param
+      //   pg: 'html5_inicis',
+      //   pay_method: "card",
+      //   merchant_uid: 'merchant_' + new Date().getTime(),
+      //   name: "상품",
+      //   amount: this.info.price,
+      //   buyer_email: this.info.email,
+      //   buyer_name: this.info.order_name,
+      // }, rsp => { // callback
+      //   if (rsp.success) {
+      //     console.log(rsp.success)
+      //     console.log(rsp)
+      //   } else {
+      //     // 결제 실패 시 로직,
+      //     console.log("실패")
+      //   }
+      // });
+    },
+  },
 
   components: {
     custom_header,
     custom_nav,
+    AddressListModal,
   },
 };
 </script>
 
 <style>
+.read-only {
+  background: #cfcdcd;
+}
+
 .order-title {
   margin: 3rem 0;
   font-weight: 500;
@@ -170,7 +313,8 @@ export default {
 }
 
 .order-wrap {
-  margin-left: 3rem;
+  margin: 0 auto;
+  width: 1060px;
   display: flex;
   justify-content: space-between;
 }
@@ -269,10 +413,11 @@ export default {
 .products-wrap {
   margin-top: 1rem;
   border: 1px solid #ddd;
+  font-size: 14px;
 }
 
 .order-product-title {
-  padding: 1rem;
+  padding: 10px 14px;
   background: #ddd;
 }
 
@@ -297,6 +442,13 @@ export default {
   margin: 0 10px;
 }
 
+.sub-total {
+  display: block;
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px solid #eaebef;
+}
+
 .op-content span:last-child {
   font-weight: 700;
 }
@@ -307,6 +459,18 @@ export default {
   border: 1px solid #ccc;
   padding: 8px;
   outline: none;
+}
+
+.coupon-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 0;
+  padding: 7px 14px;
+  border: 1px solid #bbbbbb;
+}
+
+.coupon-item-close {
+  cursor: pointer;
 }
 
 .order-point-wrap * {
@@ -340,9 +504,9 @@ export default {
 }
 
 .order-pay {
-  position: sticky;
-  bottom: 60%;
-  min-width: 38%;
+  position: fixed;
+  width: 20%;
+  right: 22%;
   height: 250px;
   border: 1px solid #ccc;
 }
@@ -371,6 +535,12 @@ export default {
 }
 
 .opc-content {
+  text-align: right;
+}
+
+.op-num {
+  border: none;
+  outline: none;
   text-align: right;
 }
 

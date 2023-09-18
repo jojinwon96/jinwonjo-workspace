@@ -5,10 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.me.backend.Jwt.JwtService;
 import com.me.backend.Jwt.JwtServiceImpl;
-import com.me.backend.member.dto.AddressDTO;
-import com.me.backend.member.dto.CartDTO;
+import com.me.backend.member.dto.*;
 import com.me.backend.member.service.MemberServiceImpl;
-import com.me.backend.member.dto.MemberDTO;
 import com.me.backend.product.dto.ProductDTO;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -77,6 +75,7 @@ public class MemberController {
         String getPwd = "";
 
         int result = 0;
+        List<CouponDTO> couponList = null;
 
         MemberDTO member = memberService.loginMember(params);
 
@@ -97,6 +96,7 @@ public class MemberController {
                 String token = "";
                 if (target.equals("user")){
                     token = jwtService.getToken("id", member.getCust_id());
+                    couponList = memberService.couponList(member.getCust_id());
                 } else {
                     token = jwtService.getToken("id", member.getSeller_id());
                 }
@@ -114,6 +114,7 @@ public class MemberController {
         if (result > 0) {
             return new ResponseEntity<>(result, HttpStatus.OK);
         } else {
+            member.setCouponList(couponList);
             return new ResponseEntity<>(member, HttpStatus.OK);
         }
 
@@ -135,15 +136,25 @@ public class MemberController {
 
         MemberDTO loginMember = (MemberDTO) session.getAttribute("loginMember");
 
+        ResponseEntity responseEntity = null;
+
+        if (loginMember == null){
+            responseEntity = new ResponseEntity<>(null, HttpStatus.OK);
+            return responseEntity;
+        }
+
+        List<CouponDTO> couponList = memberService.couponList(loginMember.getCust_id());
+
         if (loginMember != null) {
             Claims claims = jwtService.getClaims(loginMember.getToken());
 
             if (claims != null) {
-                return new ResponseEntity<>(loginMember, HttpStatus.OK);
+                loginMember.setCouponList(couponList);
+                responseEntity = new ResponseEntity<>(loginMember, HttpStatus.OK);
             }
         }
 
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return responseEntity;
     }
 
     @PostMapping("/api/account/like")
@@ -341,6 +352,42 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @PostMapping("/api/account/input-order")
+    public ResponseEntity inputOrder(@RequestBody OrderDTO order){
+
+        int orderSuccess = 0,
+            orderDetailSuccess = 0,
+            stockModifySuccess = 0;
+
+        orderSuccess = memberService.inputOrder(order);
+
+        if (orderSuccess > 0){
+            orderDetailSuccess = memberService.inputOrderDetail(order.getOrderList());
+        }
+
+        if (orderDetailSuccess > 0){
+            if (order.getCoupon().getCoupon_id() > 0){
+                memberService.deleteCoupon(order.getCoupon().getCoupon_list_id());
+            }
+
+            if (order.getMileage() > 0){
+                memberService.modifyMileage(order);
+            }
+
+            stockModifySuccess = memberService.stockModify(order.getOrderList());
+        }
+
+        return new ResponseEntity<>(stockModifySuccess, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/account/order")
+    public ResponseEntity order(HttpSession session){
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+
+        List<OrderDTO> orderList = memberService.orderList(member.getCust_id());
+
+        return new ResponseEntity<>(orderList, HttpStatus.OK);
+    }
 }
 
 

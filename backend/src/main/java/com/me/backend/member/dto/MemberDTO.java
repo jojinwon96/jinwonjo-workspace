@@ -3,6 +3,7 @@ package com.me.backend.member.dto;
 import lombok.Data;
 
 import java.sql.Date;
+import java.util.List;
 
 @Data
 public class MemberDTO {
@@ -20,6 +21,7 @@ public class MemberDTO {
     private Date enroll_date;
     private Date delete_date;
     private String token;
+    private List<CouponDTO> couponList;
 
     private String seller_id;
     private String seller_pwd;

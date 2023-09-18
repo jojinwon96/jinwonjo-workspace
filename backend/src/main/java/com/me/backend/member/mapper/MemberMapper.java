@@ -1,8 +1,6 @@
 package com.me.backend.member.mapper;
 
-import com.me.backend.member.dto.AddressDTO;
-import com.me.backend.member.dto.MemberDTO;
-import com.me.backend.member.dto.CartDTO;
+import com.me.backend.member.dto.*;
 import com.me.backend.product.dto.ProductDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
@@ -18,6 +16,8 @@ public interface MemberMapper {
     MemberDTO member(MemberDTO loginMember);
     int signUp(MemberDTO signUpMember);
     MemberDTO loginMember (Map<String, String> params);
+
+    List<CouponDTO> couponList (String id);
 
     int like (Map<String, String> map);
 
@@ -54,4 +54,16 @@ public interface MemberMapper {
     int modifyAddress (AddressDTO address);
 
     int deleteAddress (AddressDTO address);
+
+    int inputOrder (OrderDTO order);
+
+    int inputOrderDetail (List<CartDTO> cartList);
+
+    int deleteCoupon (int id);
+
+    int stockModify (List<CartDTO> cartList);
+
+    int modifyMileage (OrderDTO order);
+
+    List<OrderDTO> orderList (String id);
 }
