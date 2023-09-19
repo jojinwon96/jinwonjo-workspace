@@ -81,13 +81,16 @@ export default {
           msg = "성공적으로 로그인 되었습니다."
           store.commit('setAccount', data);
           sessionStorage.setItem("loginUser", JSON.stringify(data));
-          router.replace({path: "/"});
+
+          if (data.seller_id != ''){
+            router.replace({path: "/seller"});
+          } else {
+            router.replace({path: "/"});
+          }
         }
 
         alert(msg);
 
-        console.log('---------------스토어---------------------');
-        console.log(store.state.account);
       }).catch(() => {
         alert("야이디와 비밀번호를 확인해주세요.")
       })

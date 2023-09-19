@@ -310,7 +310,7 @@
 <script>
 import custom_header from "../../components/Header.vue";
 import custom_nav from "../../components/Nav.vue";
-import ReviewModal from "../../components/ReviewModal.vue";
+import ReviewModal from "../../components/modal/ReviewModal.vue";
 import axios from "axios";
 import {mapMutations, mapState} from "vuex";
 import router from "@/router";
@@ -443,6 +443,7 @@ export default {
         maxCount : tmp.maxCount,
         price : tmp.price,
         count : 1,
+        img : tmp.img1,
       }
 
       obj.count = 1;
@@ -501,7 +502,12 @@ export default {
     orderGoods() {
       if (this.cartList.length == 0) {
         alert('상품을 선택해주세요.');
+        return;
       }
+
+      localStorage.removeItem('orderList');
+      localStorage.setItem('orderList', JSON.stringify(this.cartList));
+      router.replace({path: "/order"});
     },
 
     totalPrice() {

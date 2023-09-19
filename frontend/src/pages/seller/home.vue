@@ -6,7 +6,7 @@
         <div class="s-home-items">
           <div class="s-home-item">
             <span class="s-item-title">처리해야 할 주문건</span>
-            <span class="s-item-count">0건</span>
+            <span class="s-item-count">{{ orderCount }}건</span>
           </div>
 
           <div class="s-home-item">
@@ -15,7 +15,7 @@
           </div>
 
           <div class="s-home-item">
-            <span class="s-item-title">처리해야 할 취소건</span>
+            <span class="s-item-title">처리해야 할 교환건</span>
             <span class="s-item-count">0건</span>
           </div>
 
@@ -30,12 +30,25 @@
 
 <script>
 import sellerHeader from "@/components/seller/sellerHeader";
+import axios from "axios";
 
 export default {
   name: "sellerHome",
-  setup() {
-    console.log("판매자 관리센터");
+
+  data(){
+    return{
+       orderCount:0,
+    }
   },
+
+  mounted() {
+    // 나중에 서버에서 map으로 받아올예정 (주문건, 환불건, 교환건, qna) 수량
+    // 현재는 주문건 수량만 받아옴
+    axios.get("/api/seller/order-count").then(({data})=>{
+      this.orderCount = data;
+    })
+  },
+
   components:{
     sellerHeader,
   }

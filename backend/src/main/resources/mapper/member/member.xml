@@ -438,6 +438,11 @@
                 od.order_detail_id,
                 op.product_id,
                 op.option_id,
+                recipient,
+                recipient_phone,
+                post,
+                addr,
+                addr_detail,
                 company_name,
                 product_name,
                 option_name1,
@@ -446,10 +451,11 @@
                 option_content2,
                 o.status,
                 od.count,
-                o.price,
+                o.price as 'price',
                 op.price as 'option_price',
                 img1 as 'img',
-                uploadFile
+                uploadFile,
+                order_date
         from foryou.`order` o
                  join foryou.order_detail od on o.order_id = od.order_id
                  join foryou.option op on od.option_id = op.option_id

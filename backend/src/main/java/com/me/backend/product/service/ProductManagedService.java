@@ -1,5 +1,6 @@
 package com.me.backend.product.service;
 
+import com.me.backend.member.dto.OrderDTO;
 import com.me.backend.product.dto.ProductDTO;
 import com.me.backend.product.dto.optionDTO;
 
@@ -41,4 +42,8 @@ public interface ProductManagedService {
     List<ProductDTO> findGoods(String id);
 
     List<optionDTO> goodsPriceRange(String id);
+
+    int orderCount (String id);
+
+    List<OrderDTO> order (String id);
 }

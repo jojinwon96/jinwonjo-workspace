@@ -11,6 +11,7 @@ import view from "./pages/goods/view.vue";
 //판패자
 import sellerHome from "./pages/seller/home.vue";
 import productManage from "./pages/seller/prodcutManage.vue"
+import orderManage from "@/pages/seller/orderManage";
 
 // 마이페이지
 import myPage from "./pages/myPage/myPage.vue";
@@ -124,6 +125,11 @@ const router = createRouter({
                     path: "productManage",
                     component: productManage,
                     name: 'productManage',
+                },
+                {
+                    path: "orderManage",
+                    component: orderManage,
+                    name: 'orderManage',
                 },
             ]
         },

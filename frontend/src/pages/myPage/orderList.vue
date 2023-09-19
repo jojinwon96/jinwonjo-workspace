@@ -2,28 +2,143 @@
   <h4 class="myPage-content-title">주문내역</h4>
   <div class="myPage-content">
     <div class="myPage-head">
-
+      <select class="select-date" @change="onChangeDate($event.target.value)">
+        <option value="all">전체</option>
+        <option value="one-week">1주</option>
+        <option value="two-week">2주</option>
+        <option value="three-week">3주</option>
+        <option value="one-month">1개월</option>
+        <option value="two-month">2개월</option>
+        <option value="three-month">3개월</option>
+        <option value="direct-search">직접검색</option>
+      </select>
+      <div v-show="isSearch == true">
+        <input class="start-date"
+               type="date"
+               v-model="startDate">
+        <span>~</span>
+        <input class="end-date"
+               type="date"
+               v-model="endDate">
+        <button class="search-date" type="button" @click="searchDate">검색</button>
+      </div>
+    </div>
+    <div class="orderList-content-wrap" v-for="date in this.groupDate" :key="date">
+      <div class="orderList-content-head">
+        <span>{{ date }}</span>
+        <span class="receipt" @click="modalControl(date)">주문정보&#10095;</span>
+      </div>
+      <div class="orderList-content-body" v-for="order in this.orderList" :key="order">
+        <div class="order-item-wrap" v-if="date == order.order_date">
+          <ul class="order-item">
+            <li>
+              <img v-if="order.uploadFile != 'Y'" :src="order.img">
+              <img v-else :src="require('@/assets/product/uploadfile/' + order.img)">
+            </li>
+            <li>
+              <span>{{ order.product_name }}</span>
+              <span v-if="order.option_name2 != ''">{{ `${order.option_content1} : ${order.option_content2}` }}</span>
+              <span v-else>옵션명 : {{ order.option_content1 }}</span>
+              <span>{{ comma(order.option_price) }}원 / {{ order.count }}개</span>
+              <span class="sub-total">{{ comma(order.option_price * order.count) }}원</span>
+            </li>
+          </ul>
+          <div class="order-button-wrap">
+            <button>취소환불</button>
+            <button>후기작성</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+  <orderDetailModal
+      :isOpenModal="isOpenModal"
+      :order="order"
+      @closeModal="modalControl"/>
 </template>
 
 <script>
 import axios from "axios";
+import orderDetailModal from "@/components/modal/orderDetailModal";
 
 export default {
   name: "orderList.vue",
 
-  data(){
-    return{
-      orderList:[],
+  data() {
+    return {
+      order:[],
+      isOpenModal: false,
+      orderList: [],
+      groupDate: [],
+      isSearch: false,
+      startDate: '',
+      endDate: '',
     }
   },
 
+  components: {
+    orderDetailModal,
+  },
+
   mounted() {
-    axios.get("/api/account/order").then(({data})=>{
+    let tmp = [];
+
+    axios.get("/api/account/order").then(({data}) => {
       this.orderList = data;
+
+      this.orderList.forEach((item) => {
+        tmp.push(item.order_date);
+      })
+
+      this.groupDate = tmp.filter((element, index) => {
+        return tmp.indexOf(element) === index;
+      });
+
       console.log(this.orderList);
     })
+  },
+
+  methods: {
+    comma(val) {
+      if (val == 0) {
+        return 0;
+      } else {
+        return String(val).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+    },
+
+    onChangeDate(e) {
+      if (e == 'direct-search') {
+        this.isSearch = true;
+      } else {
+        this.isSearch = false;
+        this.startDate = '';
+        this.endDate = '';
+      }
+    },
+
+    searchDate() {
+      if (this.startDate > this.endDate) {
+        this.startDate = this.endDate;
+      }
+    },
+
+    modalControl(date) {
+      this.order = [];
+
+      this.orderList.forEach((item)=>{
+        if (date == item.order_date){
+          this.order.push(item);
+        }
+      })
+
+      if (this.isOpenModal) {
+        this.isOpenModal = false;
+      } else {
+        this.isOpenModal = true;
+      }
+    },
+
   },
 }
 </script>
@@ -31,7 +146,116 @@ export default {
 <style scoped>
 .myPage-head {
   padding-bottom: 10px;
-  padding-left: 5px;
   margin: 1rem 0;
+  display: flex;
+}
+
+.select-date {
+  border: 1px solid #cfcdcd;
+  font-size: 14px;
+  outline: none;
+  padding: 5px 0;
+}
+
+.start-date, .end-date {
+  margin: 0 5px;
+}
+
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  color: #95a5a6;
+  font-family: "Helvetica", arial, sans-serif;
+  font-size: 18px;
+  border: 1px solid #ecf0f1;
+  background: #ecf0f1;
+  padding: 5px;
+  visibility: visible !important;
+}
+
+
+input[type="date"], focus {
+  color: #95a5a6;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+}
+
+.search-date {
+  border: #bbbbbb;
+  padding: 8px 12px;
+  color: white;
+  font-weight: bolder;
+  background: #3385f096;
+}
+
+.orderList-content-wrap {
+  margin: 14px 0;
+  padding: 12px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.16), 0 1px 1px rgba(0, 0, 0, 0.23);
+}
+
+.orderList-content-wrap:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.orderList-content-head {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bolder;
+  border-bottom: 1px solid #cfcdcd;
+  padding-bottom: 5px;
+}
+
+.order-item-wrap {
+  padding: 5px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.order-item {
+  display: flex;
+}
+
+.order-item li {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  margin: 0 5px;
+}
+
+.order-item img {
+  width: 100px;
+  height: 100px;
+}
+
+.order-button-wrap{
+  margin: 0 5px;
+}
+
+.order-button-wrap button{
+  border: 1px solid #eaebef;
+  margin-left: 5px;
+  padding: 5px 12px;
+  font-size: 14px;
+  color: white;
+  font-weight: bolder;
+  background: #bbbbbb;
+}
+.order-button-wrap button:hover{
+  border: 1px solid #bbbbbb;
+}
+
+.receipt {
+  color: #3385f096;
+  cursor: pointer;
+}
+
+.sub-total {
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px solid #eaebef;
+  font-size: 14px;
+  font-weight: bolder;
 }
 </style>

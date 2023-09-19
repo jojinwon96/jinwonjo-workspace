@@ -342,4 +342,40 @@
         where p.product_id = #{id} and p.status = 'Y' and o.status = 'Y'
         group by option_content1
     </select>
+
+    <select id="orderCount" parameterType="String">
+        select count(*)
+        from foryou.order o
+                 join foryou.`order_detail` od on (o.order_id = od.order_id)
+                 join foryou.`option` opt on (od.option_id = opt.option_id)
+                 join foryou.product p on (opt.product_id = p.product_id)
+                 join foryou.seller s on (p.seller_id = s.seller_id)
+        where p.seller_id = #{id} and o.status = 'N'
+    </select>
+
+    <select id="order" parameterType="String" resultType="OrderDTO">
+        select
+            od.order_detail_id,
+            p.product_id,
+            p.product_name,
+            opt.option_id,
+            opt.option_name1,
+            opt.option_content1,
+            opt.option_name2,
+            opt.option_content2,
+            opt.price,
+            od.count,
+            o.recipient,
+            o.recipient_phone,
+            od.status,
+            o.order_date,
+            img1 as 'img',
+            uploadFile
+        from foryou.order o
+                 join foryou.`order_detail` od on (o.order_id = od.order_id)
+                 join foryou.`option` opt on (od.option_id = opt.option_id)
+                 join foryou.product p on (opt.product_id = p.product_id)
+                 join foryou.seller s on (p.seller_id = s.seller_id)
+        where p.seller_id = #{id}
+    </select>
 </mapper>

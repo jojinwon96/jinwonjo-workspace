@@ -101,7 +101,6 @@ export default {
     },
   },
 
-
   props: {
     isOpenModal: Boolean,
   }

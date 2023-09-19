@@ -1,12 +1,10 @@
 <template>
-  <router-link
-      :to="{name: 'view', params: {product_id:`${product.product_id}`}}">
-    <div v-show="product != null">
+    <div v-show="product != null" @click.stop="loadView">
       <div @mouseover="isHover=true"
            @mouseleave="isHover=false"
            v-if="product.uploadFile != 'Y'" class="card-img-wrap"
            :style="{ backgroundImage: `url(${product.img1})`}">
-      <span @click="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
+      <span @click.stop="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
         <img v-if="product.like_id == null || product.like_id == 0" src="@/assets/img/like.png" class="like-btn"/>
         <img v-else src="@/assets/img/like-red.png" class="like-btn"/>
       </span>
@@ -15,7 +13,7 @@
            @mouseleave="isHover=false"
            v-else class="card-img-wrap"
            :style="{'background-image': 'url(' + require('@/assets/product/uploadfile/' + product.img1) + ')'}">
-      <span @click="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
+      <span @click.stop="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
         <img v-if="product.like_id == null || product.like_id == 0" src="@/assets/img/like.png" class="like-btn"/>
         <img v-else src="@/assets/img/like-red.png" class="like-btn"/>
       </span>
@@ -41,13 +39,14 @@
                    v-bind:star-size="20"/>
       <span>(3.5)</span>
     </div>
-  </router-link>
+
 </template>
 
 <script>
 import StarRating from 'vue-star-rating'
 import {mapState} from "vuex";
 import axios from "axios";
+import router from "@/router";
 
 export default {
   name: "Card",
@@ -69,6 +68,10 @@ export default {
       } else {
         return String(val).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
       }
+    },
+
+    loadView(){
+      router.push({name: 'view', params: {product_id:`${this.product.product_id}`}})
     },
 
     onChangeLike() {

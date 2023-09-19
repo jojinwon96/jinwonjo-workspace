@@ -33,7 +33,6 @@ export default {
       axios
         .get("/api/account/check")
         .then(({ data }) => {
-          console.log(data);
           store.commit("setAccount", data || logOutUser);
         })
         .catch(() => {

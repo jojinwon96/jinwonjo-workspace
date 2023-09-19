@@ -1,6 +1,7 @@
 package com.me.backend.product.mapper;
 
 import com.me.backend.common.Pagination;
+import com.me.backend.member.dto.OrderDTO;
 import com.me.backend.product.dto.ProductDTO;
 import com.me.backend.product.dto.optionDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -45,4 +46,8 @@ public interface ProductMapper {
     List<ProductDTO> findGoods(String id);
 
     List<optionDTO> goodsPriceRange(String id);
+
+    int orderCount (String id);
+
+    List<OrderDTO> order (String id);
 }

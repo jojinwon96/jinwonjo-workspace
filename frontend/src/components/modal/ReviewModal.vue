@@ -15,7 +15,7 @@
         <div class="review-body">
           <ul>
             <li class="review-img">
-              <img src="../assets/img/bouquet1.jpg" alt="" />
+              <img src="../../assets/img/bouquet1.jpg" alt="" />
               <span>지금 이 순간</span>
             </li>
             <li>

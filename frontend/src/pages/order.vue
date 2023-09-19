@@ -163,7 +163,7 @@
 <script>
 import custom_header from "../components/Header.vue";
 import custom_nav from "../components/Nav.vue";
-import AddressListModal from "@/components/AddressListModal";
+import AddressListModal from "@/components/modal/AddressListModal";
 import {mapMutations, mapState} from "vuex";
 import axios from "axios";
 // import router from "@/router";
@@ -283,6 +283,7 @@ export default {
       //   if (rsp.success) {
       //     console.log(rsp.success)
       //     console.log(rsp)
+      //     localStorage.removeItem('orderList');
       //   } else {
       //     // 결제 실패 시 로직,
       //     console.log("실패")

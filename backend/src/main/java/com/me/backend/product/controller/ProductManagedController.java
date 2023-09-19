@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.me.backend.common.Pagination;
 import com.me.backend.common.pasingProduct;
 import com.me.backend.member.dto.MemberDTO;
+import com.me.backend.member.dto.OrderDTO;
 import com.me.backend.product.dto.ProductDTO;
 import com.me.backend.product.dto.goodsView;
 import com.me.backend.product.dto.optionDTO;
@@ -257,6 +258,28 @@ public class ProductManagedController {
 
         return new ResponseEntity(result2, HttpStatus.OK);
 
+    }
+
+    @GetMapping("/api/seller/order-count")
+    public ResponseEntity orderCount(HttpSession session){
+
+        MemberDTO seller = (MemberDTO) session.getAttribute("loginMember");
+
+        int count = productService.orderCount(seller.getSeller_id());
+
+        System.out.println(count);
+
+        return new ResponseEntity(count, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/seller/order")
+    public ResponseEntity order(HttpSession session){
+
+        MemberDTO seller = (MemberDTO) session.getAttribute("loginMember");
+
+        List<OrderDTO> orderList = productService.order(seller.getSeller_id());
+
+        return new ResponseEntity(orderList, HttpStatus.OK);
     }
 
     @PostMapping("/api/goods/view")

@@ -3,6 +3,7 @@ package com.me.backend.member.dto;
 import com.me.backend.product.dto.ProductDTO;
 import lombok.Data;
 
+import java.sql.Date;
 import java.util.List;
 
 @Data
@@ -21,8 +22,9 @@ public class OrderDTO {
     private int mileage;
     private int optionTotal;
     private int price;
+    private int count;
+    private Date order_date;
     private List<CartDTO> orderList;
-
     private String company_name;
     private String product_name;
     private String option_name1;
@@ -32,4 +34,5 @@ public class OrderDTO {
     private String img;
     private String option_price;
     private String uploadFile;
+
 }

@@ -13,7 +13,9 @@
           <a>
             <router-link :to="{path: '/productManage'}" class="s-header-tab">상품관리</router-link>
           </a>
-          <a class="s-header-tab">주문관리</a>
+          <a>
+            <router-link :to="{path: '/orderManage'}" class="s-header-tab">주문관리</router-link>
+          </a>
           <a class="s-header-tab">문의/후기</a>
           <div class="dropdown">
             <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"

@@ -1,5 +1,6 @@
 package com.me.backend.product.service;
 
+import com.me.backend.member.dto.OrderDTO;
 import com.me.backend.product.dto.ProductDTO;
 import com.me.backend.product.dto.optionDTO;
 import com.me.backend.product.mapper.ProductMapper;
@@ -14,7 +15,6 @@ public class ProductManagedServiceImpl implements ProductManagedService {
 
     @Autowired
     private ProductMapper productMapper;
-
 
     @Override
     public int productCount(Map<String, String> map) {
@@ -99,6 +99,16 @@ public class ProductManagedServiceImpl implements ProductManagedService {
     @Override
     public List<optionDTO> goodsPriceRange(String id) {
         return productMapper.goodsPriceRange(id);
+    }
+
+    @Override
+    public int orderCount(String id) {
+        return productMapper.orderCount(id);
+    }
+
+    @Override
+    public List<OrderDTO> order(String id) {
+        return productMapper.order(id);
     }
 
 }
