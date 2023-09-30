@@ -76,14 +76,14 @@
       </button>
     </div>
   </section>
-  <section class="content">
+  <section class="content" v-if="this.bestList.length > 0">
     <div class="card-wrap">
       <div class="best-title">
         <h2>베스트</h2>
       </div>
       <ul>
-        <li class="card-panel" v-for="item in 4" :key="item">
-          <custom_card :product="this.product"/>
+        <li class="card-panel" v-for="(item,index) in this.bestList" :key="item">
+          <custom_card :product="item" :idx="index" @setLikeId="setLikeId"/>
         </li>
       </ul>
     </div>
@@ -97,9 +97,21 @@ import custom_card from "../components/Card.vue";
 
 export default {
   name: "Home",
-  created() {
-    this.isShow = false;
+
+  data() {
+    return {
+      isOpen: false,
+      bestList: [],
+    };
   },
+
+  mounted() {
+    this.axios.get("/api/home/best").then(({data})=>{
+      console.log(data);
+      this.bestList = data;
+    })
+  },
+
   methods: {
     openControl() {
       if (!this.isOpen) {
@@ -108,12 +120,11 @@ export default {
         this.isOpen = false;
       }
     },
-  },
-  data() {
-    return {
-      isOpen: false,
-      product: {},
-    };
+
+    setLikeId(info){
+      console.log(info);
+      this.bestList[info.idx].like_id = info.like_id;
+    },
   },
   components: { custom_header, custom_nav, custom_card },
 

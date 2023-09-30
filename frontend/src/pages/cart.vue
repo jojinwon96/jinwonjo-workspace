@@ -107,8 +107,6 @@
     <div class="empty-cart" v-else>
       <span>장바구니에 담긴 상품이 없습니다...</span>
     </div>
-
-    <br/><br/><br/><br/><br/>
   </section>
 </template>
 
@@ -155,8 +153,6 @@ export default {
       axios.get("/api/account/cart").then(({data}) => {
         this.cartList = data;
         this.selectList = data;
-
-        console.log(this.cartList);
       })
     },
 

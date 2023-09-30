@@ -2,66 +2,64 @@
   <!-- 리뷰 모달 시작 -->
   <Transition name="fade">
     <div
-      class="modify-modal"
-      v-show="isOpenReview == true"
-      data-modal-id="1"
-      @click="closeModal($event)"
+        class="modify-modal2"
+        v-if="isOpenReview == true"
+        data-modal-id="1"
+        @click="closeModal($event)"
     >
-      <div class="review-content">
+      <div class="review-content2">
         <div class="review-close" @click="modalControl">&#10005;</div>
         <div class="review-header">
-          <span>리뷰쓰기</span>
+          <span v-if="target=='input'">리뷰작성</span>
+          <span v-else>리뷰수정</span>
         </div>
         <div class="review-body">
           <ul>
-            <li class="review-img">
-              <img src="../../assets/img/bouquet1.jpg" alt="" />
-              <span>지금 이 순간</span>
+            <li class="review-write">
+              <span class="review-title">상품명</span>
+              <textarea rows="1" :value="reviewKey.product_name" readonly></textarea>
             </li>
             <li>
               <span class="review-title">별점</span>
               <div class="inner">
-                <div class="star-rating">
-                  <div
-                    class="star"
-                    v-for="index in 5"
-                    :key="index"
-                    @click="check(index)"
-                  >
-                    <span class="star" v-if="index >= score">★</span>
-                    <span class="star fill-star" v-if="index < score">★</span>
-                  </div>
-                </div>
+                <star-rating :show-rating="false" v-model:rating="this.info.rate"></star-rating>
               </div>
             </li>
             <li class="review-file">
               <button
-                class="file-delete"
-                v-if="isUpload == true"
-                @click="clearImage"
+                  class="file-delete2"
+                  v-if="isUpload == true"
+                  @click="clearImage"
               >
                 삭제
               </button>
               <div class="review-upload" v-if="isUpload == true">
-                <img :src="`${imgUrl}`" alt="" />
+                <img :src="imgUrl" alt=""/>
               </div>
               <span class="review-title">사진 첨부 (선택)</span>
               <label className="input-file-button" for="input-file">
                 사진첨부
               </label>
               <input
-                @change="onInputImage"
-                type="file"
-                id="input-file"
-                style="display: none"
+                  @change="onInputImage"
+                  type="file"
+                  id="input-file"
+                  style="display: none"
               />
             </li>
             <li class="review-write">
+              <span class="review-title">제목</span>
+              <textarea rows="1" v-model="info.title"></textarea>
+            </li>
+            <li class="review-write">
               <span class="review-title">리뷰 작성</span>
-              <textarea name="" id=""></textarea>
+              <textarea rows="5" v-model="info.content"></textarea>
             </li>
             <li>
-              <button class="review-button" type="button">전송</button>
+              <button v-if="this.target=='input'" class="review-button" type="button" @click="accessReview('input')">
+                전송
+              </button>
+              <button v-else class="review-button" type="button" @click="accessReview('modify')">수정</button>
             </li>
           </ul>
         </div>
@@ -77,62 +75,66 @@ import {mapMutations} from "vuex";
 export default {
   name: "reviewModal",
   data() {
-    return { score: 0, imgUrl: "", isUpload: false };
+    return {
+      imgUrl: "",
+      isUpload: false,
+      info: {
+        cust_id: this.reviewKey.cust_id,
+        product_id: this.reviewKey.product_id,
+        title: '',
+        content: '',
+        rate: 0,
+      },
+      imgFile: '',
+    };
   },
 
 
   watch: {
     isOpenReview(value) {
+      console.log(this.reviewKey);
       if (value) {
-        document.body.classList.add("oh");
+        document.body.style = `overflow: hidden`;
       } else {
-        this.$emit("closeModal");
-        document.body.classList.remove("oh");
-        this.isUpload = false;
-        this.setFixed(true);
+        document.body.style = `overflow: auto`;
+        this.info = {};
+        this.imgFile = '';
+      }
+
+      if (this.target == 'modify') {
+        this.info.product_id = this.reviewKey.product_id;
+        this.axios.post("/api/goods/find-review", this.info).then(({data}) => {
+          this.info.title = data.title;
+          this.info.content = data.content;
+          this.info.rate = data.rate;
+          if (data.img != null){
+            this.imgUrl = require(`@/assets/product/uploadfile/${data.img}`);
+            this.isUpload = true;
+          }
+        })
       }
     },
   },
 
-  computed: {
-  },
 
-  mounted() {
-    document.addEventListener("keyup", this.keyControl);
-  },
-
-  beforeUnmount() {
-    document.removeEventListener("keyup", this.keyControl);
-  },
   methods: {
     ...mapMutations(['setFixed']),
 
     clearImage() {
       this.isUpload = false;
-      // this.$nextTick(() => {
-      //   this.isUpload = true;
-      // });
+      this.imgFile = '';
+      this.imgUrl = '';
     },
 
     onInputImage(e) {
+      this.imgFile = e.target.files[0];
+
       let file = e.target.files;
       let url = URL.createObjectURL(file[0]);
       this.imgUrl = url;
 
       if (this.imgUrl != null) {
         this.isUpload = true;
-      }
-    },
-
-    check(index) {
-      this.score = index + 1;
-    },
-
-    keyControl(e) {
-      if (e.keyCode === 27) {
-        this.$emit("closeModal");
-        document.body.classList.remove("oh");
-        this.clearImage();
       }
     },
 
@@ -150,16 +152,51 @@ export default {
         this.clearImage();
       }
     },
+
+    accessReview(target) {
+      let url = ''
+
+      if (target == 'input') {
+        url = '/api/goods/input-review'
+      } else {
+        url = '/api/goods/modify-review'
+      }
+
+      const formData = new FormData();
+
+      formData.append("file", this.imgFile);
+      formData.append("review", JSON.stringify(this.info));
+
+      this.axios.post(url, formData, {
+        headers: {'Content-Type': 'multipart/form-data'}
+      }).then(({data}) => {
+        if (data > 0) {
+          if (target == 'input') {
+            alert('성공적으로 리뷰를 작성하였습니다.');
+          } else {
+            alert('성공적으로 리뷰를 수정하였습니다.');
+          }
+
+          this.modalControl();
+        }
+      })
+
+    },
   },
 
   props: {
     isOpenReview: Boolean,
+    reviewKey: Object,
+    target: String,
   },
+
+
 };
 </script>
 
 <style>
-.modify-modal {
+.modify-modal2 {
+  display: block;
   background-color: rgba(0, 0, 0, 0.5);
   position: fixed;
   top: 0;
@@ -167,23 +204,19 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
-  z-index: 70;
+  z-index: 999;
 }
 
-.review-content {
+.review-content2 {
   background-color: rgb(255, 255, 255);
   border-radius: 5px;
   box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
 
   margin: 2rem auto;
   width: 720px;
-  padding: 1rem 1.5rem;
+  padding: 3rem 1.5rem;
 }
 
-.oh {
-  overflow: hidden;
-  padding-right: 17px;
-}
 
 .review-close {
   text-align: right;
@@ -206,14 +239,15 @@ export default {
   display: flex;
 }
 
+
 .review-img img {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   border-radius: 4px;
 }
 
 .review-img span {
-  margin-left: 1rem;
+  margin: 0 !important;
   font-size: 16px;
   font-weight: 600;
 }
@@ -233,7 +267,6 @@ export default {
 .review-write textarea {
   padding: 0.5rem;
   font-size: 15px;
-  height: 110px;
   resize: none;
   outline: none;
   border: 1px solid #ccc;
@@ -245,46 +278,23 @@ export default {
   position: relative;
 }
 
-.input-file-button {
-  padding: 6px 25px;
-  border: 1px solid #3385f096;
-  border-radius: 4px;
-  color: #3385f096;
-  cursor: pointer;
-  text-align: center;
-}
-
-.star-rating {
-  display: flex;
-}
-
-.star {
-  font-size: 42px;
-  color: #ccc;
-  font-weight: bolder;
-  -webkit-text-stroke-width: 1.5px;
-  -webkit-text-stroke-color: #2b2a29;
-}
-
-.fill-star {
-  color: gold;
-}
-
 .review-upload {
   background-color: #eaebef;
+  padding: 1rem;
   border-radius: 4px;
   margin-bottom: 1rem;
 }
 
 .review-upload img {
   display: block;
-  width: 200px;
+  width: 300px;
+  height: 300px;
   margin: 0 auto;
-  height: 100%;
 }
 
-.file-delete {
+.file-delete2 {
   position: absolute;
+  padding: 5px 12px;
   top: 10px;
   right: 10px;
   border: none !important;
@@ -294,8 +304,7 @@ export default {
 
 .review-button {
   width: 100%;
-  padding-top: 1rem;
-  padding-bottom: 2.5rem;
+  padding: 1rem 0;
   background: #3385f096 !important;
   font-size: 18px !important;
   border: 1px solid #ccc;
@@ -304,7 +313,5 @@ export default {
   cursor: pointer;
   vertical-align: middle;
 }
-
-
 
 </style>

@@ -107,13 +107,14 @@ export default {
     },
 
     target(value) {
+      console.log(value);
       if (value == 'input') {
         this.addrMain = false;
         this.addressName = '';
         this.name = '';
         this.phone = [];
         this.address = ['', '', ''];
-      } else {
+      } else if (value == 'modify') {
         if (this.modifyAddress.addr_default == 'Y') {
           this.addrMain = true;
         } else {
@@ -124,7 +125,6 @@ export default {
         this.phone = this.modifyAddress.phone.split("-");
         this.address = [this.modifyAddress.post, this.modifyAddress.addr, this.modifyAddress.addr_detail];
       }
-      console.log(value);
       this.addressNameError = '';
       this.nameError = '';
       this.phoneError = '';

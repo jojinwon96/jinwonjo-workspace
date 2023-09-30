@@ -26,7 +26,7 @@
                 $store.state.account.name
               }}<span class="user-sub">님 안녕하세요</span></router-link
             >
-            <a class="logOut" @click="[logOut(), (this.isShow = false)]">
+            <a class="logOut" @click="[logOut(), $emit('openCategory')]">
               로그아웃
             </a>
           </li>
@@ -40,13 +40,11 @@
       </div>
       <div class="category-util">
         <ul>
-          <li><a href="">홈</a></li>
-          <li><a href="">찜목록</a></li>
-          <li><a href="">장바구니</a></li>
-          <li><a href="">주문조회</a></li>
-          <li><a href="">문의</a></li>
-          <li><a href="">쿠폰</a></li>
-          <li><a href="">마일리지</a></li>
+          <li @click="onLoadMenu('home')"><span class="util-home">홈</span></li>
+          <li @click="onLoadMenu('wishList')"><span class="util-wish">찜목록</span></li>
+          <li @click="onLoadMenu('cart')"><span class="util-cart">장바구니</span></li>
+          <li @click="onLoadMenu('orderList')"><span class="util-order">주문조회</span></li>
+          <li @click="onLoadMenu('home')"><span class="util-inquiry">문의</span></li>
         </ul>
       </div>
       <div class="category-content">
@@ -79,14 +77,14 @@
         </div>
 
         <div class="search-wrap">
-          <select class="serach-category" @change="onChangeCategory($event.target.value)">
-            <option selected value="">전체</option>
+          <select class="serach-category" v-model="this.info.category_id">
+            <option selected value="none">전체</option>
             <option v-for="item in this.categories" :key="item" :value="item.category_id">
               {{ item.category_name }}
             </option>
           </select>
-          <input type="text" class="search-text"/>
-          <button class="search-btn"></button>
+          <input type="text" class="search-text" v-model="this.info.content" @keyup.enter="this.searchGoods"/>
+          <button class="search-btn" @click="this.searchGoods"></button>
         </div>
 
         <!-- <div class="user-panel" v-if="$store.state.account.id"> -->
@@ -115,6 +113,7 @@ export default {
   name: "Header",
   setup() {
     let categories = ref([]);
+    let info = ref({category_id:'none', content:''});
 
     onMounted(() => {
       axios.get('/api/seller/category').then(({data}) => {
@@ -146,10 +145,21 @@ export default {
           store.commit("setAccount", logOutUser);
           sessionStorage.removeItem("loginUser");
           store.commit("setCategory", false);
-          router.replace({path: "/"});
+          router.replace({name: "home"});
         }
       });
     };
+
+    const searchGoods = () =>{
+      if (info.value.content == ''){
+        alert('검색어를 입력해주세요.');
+        return;
+      }
+      router.replace({
+        name:'search',
+        params:{category_id: `${info.value.category_id}`, content: `${info.value.content}`}
+      })
+    }
 
     const setCategory = () => {
 
@@ -160,16 +170,16 @@ export default {
       }
     }
 
-    const onChangeCategory = (e) =>{
-      console.log(e);
-    }
-
     const resetSore = () => {
       localStorage.removeItem('pageInfo');
     }
 
+    const onLoadMenu = (target) =>{
+      router.replace({name: target});
+      store.commit("setCategory", false);
+    }
 
-    return {categories, loadSignUp, logOut, setCategory, onChangeCategory, resetSore};
+    return {info, categories, loadSignUp, logOut, setCategory, resetSore, onLoadMenu, searchGoods};
   },
 
 };
@@ -239,8 +249,8 @@ header {
 
 .search-wrap {
   width: 500px;
-  margin-left: 0rem;
   margin-right: 6%;
+  font-size: 14px;
   border: 2px solid #3385f096;
   border-radius: 2px;
 }
@@ -255,6 +265,7 @@ header {
 .search-text {
   outline: 0;
   border: 0;
+  padding: 0px 5px;
 }
 
 .search-btn {
@@ -421,17 +432,24 @@ header {
   margin: 1rem;
   width: 3rem;
   text-align: center;
+  cursor: pointer;
 }
 
-.category-util a {
-  /* background-position: 50% 0px; */
-  background-image: url(../assets/img/cart.png);
+.category-util span {
+  background-position: 50% 0px;
   background-repeat: no-repeat;
   background-size: 40px;
   display: block;
   padding-top: 50px;
   font-size: 12px;
 }
+
+.util-home{background-image: url(https://img.icons8.com/?size=48&id=83326&format=png);}
+.util-wish{background-image: url(https://img.icons8.com/?size=50&id=87&format=png);}
+.util-cart{background-image: url(https://img.icons8.com/?size=48&id=0DBkCUANmgoQ&format=png);}
+.util-order{background-image: url(https://img.icons8.com/?size=32&id=16408&format=png);}
+.util-inquiry{background-image: url(https://img.icons8.com/?size=24&id=EunEmG8g2Dt8&format=png);}
+
 
 .category-content {
   background-color: white;

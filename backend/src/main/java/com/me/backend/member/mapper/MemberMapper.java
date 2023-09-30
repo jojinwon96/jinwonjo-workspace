@@ -1,7 +1,9 @@
 package com.me.backend.member.mapper;
 
 import com.me.backend.member.dto.*;
+import com.me.backend.product.dto.InquiryDTO;
 import com.me.backend.product.dto.ProductDTO;
+import com.me.backend.product.dto.ReviewDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -61,9 +63,19 @@ public interface MemberMapper {
 
     int deleteCoupon (int id);
 
-    int stockModify (List<CartDTO> cartList);
-
     int modifyMileage (OrderDTO order);
 
     List<OrderDTO> orderList (String id);
+
+    int inputRefund (RefundDTO refund);
+
+    List<RefundDTO> refundList (String id);
+
+    List<ReviewDTO> reviewList (String id);
+
+    List<InquiryDTO> inquiryList (String id);
+
+    int cartCount (String id);
+
+    int likeCount (String id);
 }

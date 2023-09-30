@@ -2,7 +2,9 @@ package com.me.backend.product.mapper;
 
 import com.me.backend.common.Pagination;
 import com.me.backend.member.dto.OrderDTO;
+import com.me.backend.product.dto.InquiryDTO;
 import com.me.backend.product.dto.ProductDTO;
+import com.me.backend.product.dto.ReviewDTO;
 import com.me.backend.product.dto.optionDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
@@ -13,6 +15,12 @@ import java.util.Map;
 @Mapper
 @Repository
 public interface ProductMapper {
+
+    List<ProductDTO> bestGoods();
+
+    int searchGoodsCount (Map<String, String> map);
+
+    List<ProductDTO> searchGoods (Map<String, Object> map);
 
     int productCount(Map<String, String> map);
     List<ProductDTO> findProduct(Map<String, Object> map);
@@ -39,7 +47,7 @@ public interface ProductMapper {
 
     ProductDTO modifyImg (String id);
 
-    int goodsCount (String id);
+    int goodsCount (Map<String, String> map);
 
     List<ProductDTO> goods (Map<String, Object> map);
 
@@ -49,5 +57,55 @@ public interface ProductMapper {
 
     int orderCount (String id);
 
-    List<OrderDTO> order (String id);
+    int orderSearchCount (Map<String, Object> map);
+
+    List<OrderDTO> order (Map<String, Object> map);
+
+    int modifyOrder (OrderDTO order);
+
+    int modifyGoodsStock (OrderDTO order);
+
+    int refundCount (String id);
+
+    int refundSearchCount (Map<String, Object> map);
+
+    List<OrderDTO> refund (Map<String, Object> map);
+
+    int modifyRefund (int id);
+
+    int checkOrder (Map<String, String> map);
+
+    String checkReview (Map<String, String> map);
+
+    int inputReview (ReviewDTO review);
+
+    List<ReviewDTO> review (String id);
+
+    ReviewDTO findReview (ReviewDTO review);
+
+    int modifyReview (ReviewDTO review);
+
+    int sellerReviewCount (Map<String, Object> map);
+
+    List<ReviewDTO> sellerReview (Map<String, Object> map);
+
+    int deleteReview (ReviewDTO review);
+
+    int goodsReviewCount (Map<String, Object> map);
+
+    List<ReviewDTO> goodsReview (Map<String, Object> map);
+
+    int inputInquiry (InquiryDTO inquiry);
+
+    int goodsInquiryCount (Map<String, Object> map);
+
+    List<InquiryDTO> goodsInquiry (Map<String, Object> map);
+
+    int sellerInquiryCount (Map<String, Object> map);
+
+    List<InquiryDTO> sellerInquiry (Map<String, Object> map);
+
+    int modifyInquiry (InquiryDTO inquiry);
+
+    int inquiryCount (String id);
 }

@@ -7,7 +7,7 @@
       <button class="checked-delete" @click="checkedDelete">선택삭제</button>
     </div>
     <ul class="wish-content">
-      <li class="wish-product-wrap" v-for="(item) in checkList" :key="item">
+      <li class="wish-product-wrap" v-for="(item) in checkList" :key="item" @click="loadView(item)">
         <img v-if="item.uploadFile == 'Y'" :src="require('@/assets/product/uploadfile/' + item.img1)">
         <img v-else :src="item.img1">
         <div class="wish-product-name">
@@ -26,6 +26,7 @@
 
 <script>
 import axios from "axios";
+import router from "@/router";
 
 export default {
   name: "wishList",
@@ -57,6 +58,13 @@ export default {
   },
 
   methods:{
+    loadView(item){
+      router.replace({
+        name:'view',
+        params:{product_id: `${item.product_id}`}
+      })
+    },
+
     comma(val) {
       if (val == 0) {
         return 0;

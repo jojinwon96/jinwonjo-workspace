@@ -25,25 +25,6 @@
 
         <button type="button" class="form-group sign-btn" @click="submit()">로그인</button>
 
-        <div class="login-util">
-          <div class="login-join">
-            <a href="#">회원가입</a>
-          </div>
-          <div class="login-find">
-            <a href="#">아이디찾기</a>
-            <span></span>
-            <a href="#" class="find-pwd">비밀번호찾기</a>
-          </div>
-        </div>
-
-        <div class="sns">
-          <a href="">
-            <img class="sns-icon" src="../assets/img/naver.png"/>
-          </a>
-          <a href="">
-            <img class="sns-icon" src="../assets/img/kakko.png"/>
-          </a>
-        </div>
       </div>
     </div>
   </div>
@@ -82,11 +63,12 @@ export default {
           store.commit('setAccount', data);
           sessionStorage.setItem("loginUser", JSON.stringify(data));
 
-          if (data.seller_id != ''){
+          if (data.seller_id != null){
             router.replace({path: "/seller"});
           } else {
-            router.replace({path: "/"});
+            router.replace({name: "home"});
           }
+          console.log(data);
         }
 
         alert(msg);

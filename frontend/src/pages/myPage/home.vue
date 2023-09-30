@@ -3,26 +3,25 @@
     <div class="profile">
       <img class="my-profile" src="../../assets/img/profile1.png"/>
       <h2>{{ $store.state.account.id }}</h2>
-      <button>설정</button>
     </div>
     <div class="profile-content">
       <ul>
         <li style="border: none">
           <a href="#">
             <span class="sub-title2">마일리지</span>
-            <span>2,000</span>
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <span class="sub-title2">쿠폰</span>
-            <span>2개</span>
+            <span>{{this.account.mileage}}</span>
           </a>
         </li>
         <li>
           <a href="#">
             <span class="sub-title2">위시리스트</span>
-            <span>0개</span>
+            <span>{{this.likeCount}}개</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <span class="sub-title2">장바구니</span>
+            <span>{{this.cartCount}}개</span>
           </a>
         </li>
       </ul>
@@ -31,8 +30,32 @@
 </template>
 
 <script>
+
+import {mapState} from "vuex";
+
 export default {
-  name: "MyPageHome"
+  name: "MyPageHome",
+  data(){
+    return{
+      mileage:0,
+      likeCount:0,
+      cartCount:0,
+    }
+  },
+
+  computed:{
+    ...mapState(['account']),
+  },
+
+  mounted() {
+    this.axios.get("/api/account/myPage-info").then(({data})=>{
+      console.log(data);
+      this.likeCount = data.likeCount;
+      this.cartCount = data.cartCount;
+    })
+  },
+
+
 }
 </script>
 

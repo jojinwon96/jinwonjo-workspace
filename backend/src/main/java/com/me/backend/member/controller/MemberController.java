@@ -7,7 +7,9 @@ import com.me.backend.Jwt.JwtService;
 import com.me.backend.Jwt.JwtServiceImpl;
 import com.me.backend.member.dto.*;
 import com.me.backend.member.service.MemberServiceImpl;
+import com.me.backend.product.dto.InquiryDTO;
 import com.me.backend.product.dto.ProductDTO;
+import com.me.backend.product.dto.ReviewDTO;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,10 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class MemberController {
@@ -79,7 +78,7 @@ public class MemberController {
 
         MemberDTO member = memberService.loginMember(params);
 
-        if (target.equals("user")){
+        if (target.equals("user")) {
             getPwd = member.getCust_pwd();
         } else {
             getPwd = member.getSeller_pwd();
@@ -94,7 +93,7 @@ public class MemberController {
 
                 JwtService jwtService = new JwtServiceImpl();
                 String token = "";
-                if (target.equals("user")){
+                if (target.equals("user")) {
                     token = jwtService.getToken("id", member.getCust_id());
                     couponList = memberService.couponList(member.getCust_id());
                 } else {
@@ -138,7 +137,7 @@ public class MemberController {
 
         ResponseEntity responseEntity = null;
 
-        if (loginMember == null){
+        if (loginMember == null) {
             responseEntity = new ResponseEntity<>(null, HttpStatus.OK);
             return responseEntity;
         }
@@ -158,13 +157,13 @@ public class MemberController {
     }
 
     @PostMapping("/api/account/like")
-    public ResponseEntity like(@RequestBody Map<String, String> params){
+    public ResponseEntity like(@RequestBody Map<String, String> params) {
 
         int result = 0;
 
         int like = memberService.like(params);
 
-        if (like > 0){
+        if (like > 0) {
             result = memberService.findInputLike();
         }
 
@@ -174,13 +173,13 @@ public class MemberController {
     }
 
     @PostMapping("/api/account/delete-like")
-    public ResponseEntity deleteLike(@RequestBody Map<String, String> params){
+    public ResponseEntity deleteLike(@RequestBody Map<String, String> params) {
 
         int result = 0;
 
         int deleteLike = memberService.deleteLike(params);
 
-        if (deleteLike > 0){
+        if (deleteLike > 0) {
             int id = Integer.parseInt(params.get("like_id"));
             System.out.println(id);
             result = memberService.findLike(id);
@@ -193,9 +192,9 @@ public class MemberController {
     }
 
     @GetMapping("/api/account/likeList")
-    public ResponseEntity likeList(HttpSession session){
+    public ResponseEntity likeList(HttpSession session) {
 
-        MemberDTO member = (MemberDTO)session.getAttribute("loginMember");
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
 
         List<ProductDTO> likeList = memberService.likeList(member.getCust_id());
 
@@ -216,7 +215,7 @@ public class MemberController {
 
         MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
 
-        for (ProductDTO like : deleteLikeList){
+        for (ProductDTO like : deleteLikeList) {
             like.setSeller_id(member.getCust_id());
         }
 
@@ -236,12 +235,12 @@ public class MemberController {
         List<CartDTO> inputCartList = new ArrayList(Arrays.asList(cartList));
 
         int result1 = 0,
-            result2  = 0;
+                result2 = 0;
 
-        for (CartDTO cart : inputCartList){
+        for (CartDTO cart : inputCartList) {
             result1 = memberService.findCart(cart);
 
-            if (result1 > 0){ // 장바구니 기존 상품 수정
+            if (result1 > 0) { // 장바구니 기존 상품 수정
                 result2 = memberService.modifyCartCount(cart);
             } else { // 장바구니 새로 삽입
                 result2 = memberService.inputCart(cart);
@@ -252,7 +251,7 @@ public class MemberController {
     }
 
     @GetMapping("/api/account/cart")
-    public ResponseEntity findCartList(HttpSession session){
+    public ResponseEntity findCartList(HttpSession session) {
 
         MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
 
@@ -262,13 +261,13 @@ public class MemberController {
     }
 
     @PostMapping("/api/modify-cart")
-    public ResponseEntity modifyCart(@RequestBody Map<String, String> params){
+    public ResponseEntity modifyCart(@RequestBody Map<String, String> params) {
 
         int result1 = 0;
         CartDTO cart = null;
         result1 = memberService.modifyCart(params);
 
-        if (result1 > 0){
+        if (result1 > 0) {
             cart = memberService.findCartCount(params);
         }
 
@@ -289,7 +288,7 @@ public class MemberController {
 
         List<CartDTO> findCartList = null;
 
-        if (result > 0){
+        if (result > 0) {
             MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
             findCartList = memberService.findCartList(member.getCust_id());
         }
@@ -298,7 +297,7 @@ public class MemberController {
     }
 
     @GetMapping("/api/account/address")
-    public ResponseEntity findAddress(HttpSession session){
+    public ResponseEntity findAddress(HttpSession session) {
         MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
 
         List<AddressDTO> findAddressList = memberService.findAddressList(member.getCust_id());
@@ -307,15 +306,15 @@ public class MemberController {
     }
 
     @PostMapping("/api/account/input-address")
-    public ResponseEntity inputAddress(@RequestBody AddressDTO address, HttpSession session){
+    public ResponseEntity inputAddress(@RequestBody AddressDTO address, HttpSession session) {
         MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
 
         address.setCust_id(member.getCust_id());
 
         int result1 = 0,
-            result2 = 0;
+                result2 = 0;
 
-        if (address.getAddr_default().equals("Y")){
+        if (address.getAddr_default().equals("Y")) {
             result2 = memberService.modifyAddressMain(member.getCust_id());
         }
 
@@ -325,17 +324,17 @@ public class MemberController {
     }
 
     @PostMapping("/api/account/modify-address")
-    public ResponseEntity modifyAddress(@RequestBody AddressDTO address, HttpSession session){
+    public ResponseEntity modifyAddress(@RequestBody AddressDTO address, HttpSession session) {
         MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
 
         address.setCust_id(member.getCust_id());
 
         int result1 = 0,
-            result2 = 0;
+                result2 = 0;
 
         System.out.println(address);
 
-        if (address.getAddr_default().equals("Y")){
+        if (address.getAddr_default().equals("Y")) {
             result2 = memberService.modifyAddressMain(member.getCust_id());
         }
 
@@ -345,7 +344,7 @@ public class MemberController {
     }
 
     @PostMapping("/api/account/delete-address")
-    public ResponseEntity deleteAddress(@RequestBody AddressDTO address){
+    public ResponseEntity deleteAddress(@RequestBody AddressDTO address) {
 
         int result = memberService.deleteAddress(address);
 
@@ -353,40 +352,103 @@ public class MemberController {
     }
 
     @PostMapping("/api/account/input-order")
-    public ResponseEntity inputOrder(@RequestBody OrderDTO order){
+    public ResponseEntity inputOrder(@RequestBody OrderDTO order) {
 
         int orderSuccess = 0,
-            orderDetailSuccess = 0,
-            stockModifySuccess = 0;
+                orderDetailSuccess = 0;
 
         orderSuccess = memberService.inputOrder(order);
 
-        if (orderSuccess > 0){
+        if (orderSuccess > 0) {
             orderDetailSuccess = memberService.inputOrderDetail(order.getOrderList());
         }
 
-        if (orderDetailSuccess > 0){
-            if (order.getCoupon().getCoupon_id() > 0){
+        if (orderDetailSuccess > 0) {
+            if (order.getCoupon().getCoupon_id() > 0) {
                 memberService.deleteCoupon(order.getCoupon().getCoupon_list_id());
             }
 
-            if (order.getMileage() > 0){
+            if (order.getMileage() > 0) {
                 memberService.modifyMileage(order);
             }
 
-            stockModifySuccess = memberService.stockModify(order.getOrderList());
         }
 
-        return new ResponseEntity<>(stockModifySuccess, HttpStatus.OK);
+        return new ResponseEntity<>(orderDetailSuccess, HttpStatus.OK);
     }
 
     @GetMapping("/api/account/order")
-    public ResponseEntity order(HttpSession session){
+    public ResponseEntity order(HttpSession session) {
         MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
 
         List<OrderDTO> orderList = memberService.orderList(member.getCust_id());
+        List<RefundDTO> refundList = memberService.refundList(member.getCust_id());
+
+        if (!refundList.isEmpty()) {
+            for (OrderDTO order : orderList) {
+                for (RefundDTO refund : refundList) {
+                    if (order.getOrder_detail_id() == refund.getOrder_detail_id()) {
+                        order.setRefundStatus(refund.getStatus());
+                    }
+                }
+            }
+        }
 
         return new ResponseEntity<>(orderList, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/account/input-refund")
+    public ResponseEntity inputRefund(@RequestBody RefundDTO refund) {
+
+        int result = memberService.inputRefund(refund);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/account/refund")
+    public ResponseEntity refund(HttpSession session){
+
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+
+        List<RefundDTO> refundList = memberService.refundList(member.getCust_id());
+
+        return new ResponseEntity<>(refundList, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/account/review")
+    public ResponseEntity review(HttpSession session){
+
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+
+        List<ReviewDTO> reviewList = memberService.reviewList(member.getCust_id());
+
+        return new ResponseEntity<>(reviewList, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/account/inquiry")
+    public ResponseEntity inquiry(HttpSession session){
+
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+
+        List<InquiryDTO> inquiryList = memberService.inquiryList(member.getCust_id());
+
+        return new ResponseEntity<>(inquiryList, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/account/myPage-info")
+    public ResponseEntity myPageInfo(HttpSession session){
+
+        MemberDTO member = (MemberDTO) session.getAttribute("loginMember");
+
+        int cartCount = memberService.cartCount(member.getCust_id());
+
+        int likeCount = memberService.likeCount(member.getCust_id());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("cartCount", cartCount);
+        map.put("likeCount", likeCount);
+
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 }
 

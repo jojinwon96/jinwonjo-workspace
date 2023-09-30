@@ -7,11 +7,15 @@ import cart from "./pages/cart.vue";
 import order from "./pages/order.vue";
 import category from "./pages/goods/category.vue";
 import view from "./pages/goods/view.vue";
+import searchView from "@/pages/goods/searchView";
 
 //판패자
 import sellerHome from "./pages/seller/home.vue";
 import productManage from "./pages/seller/prodcutManage.vue"
 import orderManage from "@/pages/seller/orderManage";
+import refundManage from "@/pages/seller/refundManage";
+import reviewManage from "@/pages/seller/reviewManage";
+import inquiryManage from "@/pages/seller/inquiryManage";
 
 // 마이페이지
 import myPage from "./pages/myPage/myPage.vue";
@@ -19,6 +23,10 @@ import myPageHome from "./pages/myPage/home";
 import wishList from "@/pages/myPage/wishList";
 import addressList from "@/pages/myPage/addressList";
 import orderList from "@/pages/myPage/orderList";
+import orderRefund from "@/pages/myPage/orderRefund";
+import reviewList from "@/pages/myPage/reviewList";
+import inquiryList from "@/pages/myPage/inquiryList";
+import modifyCustomer from "@/pages/myPage/modifyCustomer";
 
 // store
 import store from "@/store/modules/store";
@@ -30,6 +38,12 @@ const router = createRouter({
             path: "/",
             component: home,
             name: 'home'
+        },
+        {
+            path: "/search/:category_id/:content",
+            component: searchView,
+            name: 'search',
+            props: true,
         },
         {
             path: "/myPage",
@@ -62,6 +76,26 @@ const router = createRouter({
                     component: orderList,
                     name: 'orderList',
                 },
+                {
+                    path: "orderRefund",
+                    component: orderRefund,
+                    name: 'orderRefund',
+                },
+                {
+                    path: "reviewList",
+                    component: reviewList,
+                    name: 'reviewList',
+                },
+                {
+                    path: "inquiryList",
+                    component: inquiryList,
+                    name: 'inquiryList',
+                },
+                {
+                    path: "modifyCustomer",
+                    component: modifyCustomer,
+                    name: 'modifyCustomer',
+                },
             ]
         },
         {
@@ -82,7 +116,8 @@ const router = createRouter({
                 }
                 alert('로그인이 필요한 서비스입니다.');
                 next("/signIn");
-            }
+            },
+            name: 'cart',
         },
         {
             path: "/order",
@@ -127,10 +162,35 @@ const router = createRouter({
                     name: 'productManage',
                 },
                 {
-                    path: "orderManage",
-                    component: orderManage,
-                    name: 'orderManage',
+                    path: "/orderManage",
+                    children:[
+                        {
+                            path: "order",
+                            component: orderManage,
+                            name: 'orderManage',
+                        },
+                        {
+                            path: "refund",
+                            component: refundManage,
+                            name: 'refund',
+                        }
+                    ]
                 },
+                {
+                    path: "/reviewInquiryManage",
+                    children:[
+                        {
+                            path: "review",
+                            component: reviewManage,
+                            name: 'reviewManage',
+                        },
+                        {
+                            path: "inquiry",
+                            component: inquiryManage,
+                            name: 'inquiryMange',
+                        }
+                    ],
+                }
             ]
         },
     ]

@@ -44,8 +44,16 @@
             </li>
           </ul>
           <div class="order-button-wrap">
-            <button>취소환불</button>
-            <button>후기작성</button>
+            <div v-if="order.status == 'Y'">
+              <button v-if="order.refundStatus == null" type="button" @click="refundModalControl(order)">주문취소</button>
+              <button v-if="order.refundStatus == null" type="button" @click="onReview(order)">후기작성</button>
+              <div v-else-if="order.refundStatus == 'N'">
+                <button>환불처리중</button>
+              </div>
+            </div>
+            <div v-else>
+              <span>주문준비중</span>
+            </div>
           </div>
         </div>
       </div>
@@ -55,11 +63,19 @@
       :isOpenModal="isOpenModal"
       :order="order"
       @closeModal="modalControl"/>
+
+  <RefundModal
+      :isOpenRefund="isOpenRefund"
+      :refundOrder="refundOrder"
+      @closeRefundModal="refundModalControl"/>
+
 </template>
 
 <script>
 import axios from "axios";
 import orderDetailModal from "@/components/modal/orderDetailModal";
+import RefundModal from "@/components/modal/RefundModal";
+import router from "@/router";
 
 export default {
   name: "orderList.vue",
@@ -68,6 +84,8 @@ export default {
     return {
       order:[],
       isOpenModal: false,
+      refundOrder:{},
+      isOpenRefund:false,
       orderList: [],
       groupDate: [],
       isSearch: false,
@@ -78,12 +96,15 @@ export default {
 
   components: {
     orderDetailModal,
+    RefundModal,
   },
 
   mounted() {
     let tmp = [];
 
     axios.get("/api/account/order").then(({data}) => {
+      console.log(data);
+
       this.orderList = data;
 
       this.orderList.forEach((item) => {
@@ -93,8 +114,6 @@ export default {
       this.groupDate = tmp.filter((element, index) => {
         return tmp.indexOf(element) === index;
       });
-
-      console.log(this.orderList);
     })
   },
 
@@ -137,6 +156,23 @@ export default {
       } else {
         this.isOpenModal = true;
       }
+    },
+
+    refundModalControl(order){
+      if (this.isOpenRefund) {
+        this.isOpenRefund = false;
+        this.refundOrder = {};
+      } else {
+        this.isOpenRefund = true;
+        this.refundOrder = order;
+      }
+    },
+
+    onReview(order){
+      router.push({
+        name: "view",
+        params: { product_id: `${order.product_id}`},
+      })
     },
 
   },
@@ -234,17 +270,28 @@ input[type="date"], focus {
 }
 
 .order-button-wrap button{
+  font-size: 12px;
   border: 1px solid #eaebef;
   margin-left: 5px;
-  padding: 5px 12px;
-  font-size: 14px;
+  padding: 5px 10px;
   color: white;
   font-weight: bolder;
-  background: #bbbbbb;
+  background: #3385f096;
 }
 .order-button-wrap button:hover{
   border: 1px solid #bbbbbb;
 }
+
+.order-button-wrap span{
+  font-size: 12px;
+  border: 1px solid #eaebef;
+  margin-left: 5px;
+  padding: 5px 10px;
+  color: white;
+  font-weight: bolder;
+  background: #bbbbbb;
+}
+
 
 .receipt {
   color: #3385f096;

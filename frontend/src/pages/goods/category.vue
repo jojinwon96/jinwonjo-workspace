@@ -13,13 +13,12 @@
       <div class="sort-wrap">
         <div class="sort-item-wrap1">
           <ul class="sort-items">
-            <li>신규등록순</li>
             <li @click="this.changeSort('asc')">낮은가격순</li>
             <li @click="this.changeSort('desc')">높은가격순</li>
-            <li>높은상품평순</li>
-            <li>낮은상품평순</li>
-            <li>후기많은순</li>
-            <li>판매량순</li>
+            <li @click="this.changeSort('review_desc')">높은상품평순</li>
+            <li @click="this.changeSort('review_asc')">낮은상품평순</li>
+            <li @click="this.changeSort('review_count_desc')">후기많은순</li>
+            <li @click="this.changeSort('order')">판매량순</li>
           </ul>
         </div>
 
@@ -27,11 +26,11 @@
           <ul>
             <li>
               <label for="">가격</label>
-              <input type="text"/>
+              <input type="text" v-model="pageInfo.num1" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');"/>
               <label>~</label>
-              <input type="text"/>
+              <input type="text" v-model="pageInfo.num2" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');"/>
               <label>원</label>
-              <button class="price-btn">검색</button>
+              <button class="price-btn" @click="onPageChange">검색</button>
             </li>
           </ul>
         </div>
@@ -78,6 +77,8 @@ export default {
         range: 1,
         category_id: this.category_id,
         sortTarget: 'none',
+        num1:0,
+        num2:0,
       },
     }
   },
@@ -94,6 +95,8 @@ export default {
       this.pageInfo.range = 1;
       this.pageInfo.category_id = value;
       this.pageInfo.sort = '';
+      this.pageInfo.num1 = 0;
+      this.pageInfo.num2 = 0;
 
       this.setCategory(false);
 
@@ -145,6 +148,7 @@ export default {
     },
 
     onPageChange(target, num) {
+      this.setPageInfo();
       this.getPageInfo();
 
       let range = this.pageInfo.range,
@@ -162,8 +166,6 @@ export default {
         }
       }
 
-      this.setPageInfo();
-
       this.postGoods();
     },
 
@@ -175,6 +177,8 @@ export default {
         this.pageInfo.page = pageInfo.page;
         this.pageInfo.category_id = pageInfo.category_id;
         this.pageInfo.sortTarget = pageInfo.sortTarget;
+        this.pageInfo.num1 = pageInfo.num1;
+        this.pageInfo.num2 = pageInfo.num2;
       }
     },
 

@@ -32,21 +32,16 @@
           <tr>
             <td class="spec-title">상품후기</td>
             <td class="spec-content">
-              <span class="ratings-num">XX명</span>
+              <span class="ratings-num">{{ this.goods[0].count }}명</span>
               <div class="star-ratings">
-                <div
-                    class="star-ratings-fill"
-                    :style="{ width: 별점평균 + '%' }"
-                >
-                  <span>★</span><span>★</span><span>★</span><span>★</span
-                ><span>★</span>
-                </div>
-                <div class="star-ratings-base">
-                  <span>★</span><span>★</span><span>★</span><span>★</span
-                ><span>★</span>
-                </div>
+                <star-rating :rating="(this.goods[0].rate)"
+                             :read-only="true"
+                             :increment="0.01"
+                             :show-rating="false"
+                             :inline="true"
+                             v-bind:star-size="20"/>
               </div>
-              <span class="ratings-avg">({{ 별점평균 }}/5)</span>
+              <span class="ratings-avg">({{ this.goods[0].rate }})</span>
             </td>
           </tr>
           <tr>
@@ -156,153 +151,7 @@
       </div>
     </div>
     <div style="clear: both"></div>
-    <div class="goods-detail-wrap">
-      <ul class="tab-list" :class="{ tabFixed: isFixed }">
-        <a
-            class="tab-button"
-            v-for="item in list"
-            :key="item.id"
-            :class="{ tabActive: item.active }"
-            @click="moveStage(item.id)"
-        >
-          <li>{{ item.label }}</li>
-        </a>
-      </ul>
-      <div class="tab-content">
-        <div class="review-top-wrap">
-          <ul>
-            <li>http://localhost:3000/
-
-              <select name="" id="">
-                <option value="0" selected>평점전체</option>
-                <option value="1">★</option>
-                <option value="2">★★</option>
-                <option value="3">★★★</option>
-                <option value="4">★★★★</option>
-                <option value="5">★★★★★</option>
-              </select>
-            </li>
-            <li>
-              <input type="text" placeholder="제목,상품명,작성자"/>
-              <button type="button">검색</button>
-            </li>
-          </ul>
-        </div>
-        <table class="table review-table">
-          <thead class="table-light">
-          <tr class="text-center">
-            <th class="col-1">번호</th>
-            <th class="col-5">후기</th>
-            <th>평가</th>
-            <th>작성자</th>
-            <th>등록일</th>
-            <th class="col-1">조회</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr class="text-center align-middle">
-            <td class="col-1">1</td>
-            <td class="col-5">
-              <div class="review-img-wrap">
-                <img src="../../assets/img/bouquet1.jpg" alt=""/>
-                <ul>
-                  <li>상품 : 지금 이 순간</li>
-                  <li class="fw-bold">제목 : 사진과 많이 달라요..</li>
-                  <li>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Blanditiis numquam maxime praesentium sint neque error
-                    voluptatem totam quis cum nihil ab aliquid facilis
-                    laudantium perspiciatis vero ut officiis, nulla quod.
-                  </li>
-                </ul>
-              </div>
-            </td>
-            <td>★★★★★</td>
-            <td>wls****</td>
-            <td>2023-08-01 09:10</td>
-            <td class="col-1">7</td>
-          </tr>
-          </tbody>
-        </table>
-        <button class="review-btn" @click="openModal">
-          리뷰작성하기
-        </button>
-        <!-- 리뷰 모달 -->
-        <ReviewModal
-            :isOpenReview="isOpenReview"
-            @closeModal="isOpenReview = false"
-        ></ReviewModal>
-
-        <div style="clear: both"></div>
-        <div class="paging-navigation">
-          <a href="">◀</a>
-          <a class="page-active" href="">1</a>
-          <a href="">2</a>
-          <a href="">3</a>
-          <a href="">▶</a>
-        </div>
-      </div>
-      <div class="tab-content">
-        <div class="review-top-wrap">
-          <ul>
-            <li>
-              <select name="" id="">
-                <option value="0" selected>전체</option>
-                <option value="1">상품 문의</option>
-                <option value="2">색상 문의</option>
-                <option value="3">기타 문의</option>
-              </select>
-            </li>
-            <li>
-              <input type="text" placeholder="제목,상품명,작성자"/>
-              <button type="button">검색</button>
-            </li>
-          </ul>
-        </div>
-        <table class="table review-table">
-          <thead class="table-light">
-          <tr class="text-center">
-            <th class="col-1">번호</th>
-            <th>상태</th>
-            <th>분류</th>
-            <th class="col-5">문의</th>
-            <th>작성자</th>
-            <th>등록일</th>
-            <th class="col-1">조회</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr class="text-center align-middle">
-            <td class="col-1">1</td>
-            <td>답변완료</td>
-            <td>[색상 문의]</td>
-            <td class="col-5">
-              <div class="review-img-wrap">
-                <img src="../../assets/img/bouquet1.jpg" alt=""/>
-                <ul>
-                  <li>상품 : 지금 이 순간</li>
-                  <li class="fw-bold">제목 : 색상문의</li>
-                  <li>비밀글입니다.</li>
-                </ul>
-              </div>
-            </td>
-            <td>wls****</td>
-            <td>2023-08-01 09:10</td>
-            <td class="col-1">2</td>
-          </tr>
-          </tbody>
-        </table>
-        <button class="review-btn">문의작성하기</button>
-        <div style="clear: both"></div>
-        <div class="paging-navigation">
-          <a href="">◀</a>
-          <a class="page-active" href="">1</a>
-          <a href="">2</a>
-          <a href="">3</a>
-          <a href="">▶</a>
-        </div>
-      </div>
-    </div>
+    <view-detail @closeModal="detailControl" :isReviewWrite="this.isReviewWrite" :reviewKey="this.reviewKey"/>
     <div style="height: 1000px"></div>
   </section>
 </template>
@@ -310,8 +159,8 @@
 <script>
 import custom_header from "../../components/Header.vue";
 import custom_nav from "../../components/Nav.vue";
-import ReviewModal from "../../components/modal/ReviewModal.vue";
-import axios from "axios";
+
+import viewDetail from "@/pages/goods/viewDetail";
 import {mapMutations, mapState} from "vuex";
 import router from "@/router";
 
@@ -327,14 +176,20 @@ export default {
       options: [],
       optionList: [],
 
+      reviewKey:{
+        cust_id: '',
+        product_id : this.product_id,
+        product_name : '',
+        img : '',
+        uploadFile : '',
+      },
+      target:'',
+      isReviewWrite:'',
+
       cartList: [],
-      isFixed: false,
-      isStaging: false,
-      isOpenReview: false,
-      list: [
-        {id: 1, label: "상품후기", content: "콘텐츠1", active: true},
-        {id: 2, label: "상품문의", content: "콘텐츠2", active: false},
-      ],
+
+
+
     };
   },
 
@@ -343,23 +198,34 @@ export default {
   },
 
   mounted() {
-    document.addEventListener("scroll", this.scroll);
-    this.postGoods();
-  },
 
-  beforeUnmount() {
-    document.removeEventListener("scroll", this.scroll);
+    this.postGoods();
   },
 
   methods: {
     ...mapMutations(['setFixed']),
 
     postGoods() {
-      axios.post("/api/goods/view", this.product_id).then(({data}) => {
+      this.axios.post("/api/goods/view", this.product_id).then(({data}) => {
         this.goods = data.goods;
         this.options = data.options;
+
+        this.reviewKey.product_name = this.goods[0].product_name;
+        this.reviewKey.uploadFile = this.goods[0].uploadFile;
+        this.reviewKey.img = this.goods[0].img1;
       })
 
+      this.getReviewCheck();
+    },
+
+    getReviewCheck(){
+      this.axios.post("/api/goods/check-review", this.reviewKey).then(({data})=>{
+          this.isReviewWrite = data;
+      })
+    },
+
+    detailControl(){
+      this.postGoods();
     },
 
     comma(val) {
@@ -485,7 +351,7 @@ export default {
         delete item.maxCount;
       })
 
-      axios.post("/api/account/input-cart", JSON.stringify(this.cartList),
+      this.axios.post("/api/account/input-cart", JSON.stringify(this.cartList),
           { headers: { 'Content-Type': 'application/json' } }).then(({data})=>{
         if (data > 0){
           if(confirm('장바구니로 이동 하시겠습니까?')){
@@ -520,49 +386,11 @@ export default {
       });
     },
 
-    moveStage(id) {
-      let location =
-          document.querySelectorAll(".tab-content")[id - 1].offsetTop - 200;
-      window.scrollTo({top: location, behavior: "smooth"});
-    },
-    scroll() {
-      let currentScroll = window.scrollY,
-          location1 =
-              document.querySelectorAll(".tab-content")[0].offsetTop - 200,
-          location2 =
-              document.querySelectorAll(".tab-content")[1].offsetTop - 200;
-
-      if (currentScroll > 767) {
-        this.isFixed = true;
-      } else {
-        this.isFixed = false;
-      }
-
-      if (!this.isStaging) {
-        if (currentScroll > location1 && currentScroll < location2) {
-          this.list[0].active = true;
-          this.list[1].active = false;
-        } else if (currentScroll >= location2) {
-          this.list[0].active = false;
-          this.list[1].active = true;
-        }
-      }
-    },
-
-    openModal(){
-      this.isOpenReview = true;
-      this.setFixed(false);
-    },
-
-    ratingToPercent() {
-      const score = +this.별점평균 * 20;
-      return score + 1.5;
-    },
   },
   components: {
     custom_header,
     custom_nav,
-    ReviewModal,
+    viewDetail,
   },
   props: {
     product_id: {
@@ -816,126 +644,4 @@ export default {
   vertical-align: bottom;
 }
 
-.goods-detail-wrap {
-  margin-top: 5rem;
-  margin-left: 3rem;
-  margin-right: 1.5rem;
-}
-
-.tabFixed {
-  position: sticky;
-  top: 95px;
-}
-
-.tab-list {
-  display: flex;
-  justify-content: center;
-  list-style-type: none;
-  border-bottom: 1px solid #ccc;
-  background-color: white;
-}
-
-.tab-list::after {
-  content: "";
-  display: block;
-  clear: both;
-}
-
-.tab-button {
-  padding: 10px 30px;
-  margin-right: -1px;
-  margin-bottom: -1px;
-  color: grey;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.tabActive {
-  border-top: 2px solid #3385f096;
-  border-right: 1px solid #ccc;
-  border-bottom: 1px solid white;
-  border-left: 1px solid #ccc;
-  color: black;
-}
-
-.tab-content {
-  margin-bottom: 20rem;
-}
-
-.tab-content select {
-  border: 1px solid #ccc;
-  font-size: 14px;
-  height: 32px;
-  padding-left: 5px;
-  border-radius: 2px;
-}
-
-.tab-content input {
-  margin-right: 2px;
-  padding: 0 9px;
-  width: 180px;
-  height: 32px;
-  font-size: 13px;
-  line-height: 32px;
-  border: 1px #ccc solid;
-  border-radius: 2px;
-  outline: 0;
-}
-
-.tab-content button {
-  height: 32px;
-  font-size: 13px;
-  min-width: 60px;
-  border: 1px #ccc solid;
-  background: #fff;
-  line-height: 26px;
-  border-radius: 2px;
-}
-
-.review-top-wrap > ul {
-  margin-top: 10rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-.review-table > thead {
-  font-size: 14px;
-}
-
-.review-table tbody {
-  font-size: 12px;
-}
-
-.review-img-wrap {
-  text-align: left;
-  display: flex;
-}
-
-.review-img-wrap img {
-  width: 4.5rem;
-  height: 4rem;
-}
-
-.review-img-wrap ul {
-  margin-left: 5px;
-  font-size: 13px;
-  margin-bottom: 0;
-}
-
-.review-img-wrap li {
-  max-width: 350px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.review-btn {
-  float: right;
-  background: #3385f096 !important;
-  border: none !important;
-  color: white;
-  height: 2.3rem !important;
-  padding: 0.3rem;
-  outline: none;
-}
 </style>

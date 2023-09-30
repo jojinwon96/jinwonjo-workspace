@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class pasingProduct {
+public class PagingProduct {
     private List<ProductDTO> products;
     private List<ProductDTO> options;
     private Pagination pagination;

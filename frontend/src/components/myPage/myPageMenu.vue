@@ -8,7 +8,9 @@
       <router-link to="/myPage/orderList">
         <li>주문내역</li>
       </router-link>
-      <li>취소/환불</li>
+      <router-link to="/myPage/orderRefund">
+        <li>취소/환불</li>
+      </router-link>
       <router-link to="/myPage/wishList">
         <li>위시리스트</li>
       </router-link>
@@ -19,22 +21,22 @@
         <li>배송주소록</li>
       </router-link>
     </ul>
-    <h5 class="menu-title">해택</h5>
-    <ul class="sub-menu">
-      <li>마일리지</li>
-      <li>쿠폰</li>
-    </ul>
     <h5 class="menu-title">활동</h5>
     <ul class="sub-menu">
-      <li>1:1문의</li>
-      <li>상품문의</li>
-      <li>상품후기</li>
+      <router-link to="/myPage/inquiryList">
+        <li>상품문의</li>
+      </router-link>
+      <router-link to="/myPage/reviewList">
+        <li>상품후기</li>
+      </router-link>
     </ul>
-    <h5 class="menu-title">내 정보</h5>
-    <ul class="sub-menu">
-      <li>회원정보수정</li>
-      <li>회원탈퇴</li>
-    </ul>
+<!--    <h5 class="menu-title">내 정보</h5>-->
+<!--    <ul class="sub-menu">-->
+<!--      <router-link to="/myPage/modifyCustomer">-->
+<!--        <li>회원정보수정</li>-->
+<!--      </router-link>-->
+<!--      <li>회원탈퇴</li>-->
+<!--    </ul>-->
   </div>
 </template>
 

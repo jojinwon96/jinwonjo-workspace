@@ -4,7 +4,7 @@
            @mouseleave="isHover=false"
            v-if="product.uploadFile != 'Y'" class="card-img-wrap"
            :style="{ backgroundImage: `url(${product.img1})`}">
-      <span @click.stop="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
+      <span v-if="account.id != undefined" @click.stop="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
         <img v-if="product.like_id == null || product.like_id == 0" src="@/assets/img/like.png" class="like-btn"/>
         <img v-else src="@/assets/img/like-red.png" class="like-btn"/>
       </span>
@@ -13,7 +13,7 @@
            @mouseleave="isHover=false"
            v-else class="card-img-wrap"
            :style="{'background-image': 'url(' + require('@/assets/product/uploadfile/' + product.img1) + ')'}">
-      <span @click.stop="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
+      <span v-if="account.id != undefined" @click.stop="onChangeLike" class="like-btn-panel" :class="{'like-show' : isHover == true}">
         <img v-if="product.like_id == null || product.like_id == 0" src="@/assets/img/like.png" class="like-btn"/>
         <img v-else src="@/assets/img/like-red.png" class="like-btn"/>
       </span>
@@ -31,13 +31,14 @@
           <span class="origin-price">{{ comma(product.option_price) }}원</span>
         </div>
       </div>
-      <star-rating :rating="(3.5)"
+      <star-rating :rating="(product.rate)"
                    :read-only="true"
                    :increment="0.01"
                    :show-rating="false"
                    :inline="true"
                    v-bind:star-size="20"/>
-      <span>(3.5)</span>
+      <span>({{ product.rate }})</span>
+      <div class="order-count">구매 {{product.orderCount}}건</div>
     </div>
 
 </template>
@@ -75,6 +76,10 @@ export default {
     },
 
     onChangeLike() {
+      if (this.account.id == undefined){
+        alert('로그인 후 이용가능한 기능입니다..');
+        return;
+      }
       let info = {
         cust_id: this.account.id,
         product_id: this.product.product_id,
@@ -96,9 +101,7 @@ export default {
 
 
       axios.post(url, info).then(({data}) => {
-        console.log(msg);
-        console.log(data);
-        // alert(msg);
+        alert(msg);
         info.like_id = data;
         this.$emit('setLikeId', info);
       })
@@ -226,6 +229,10 @@ export default {
 
 .like-show {
   opacity: 1;
+}
+
+.order-count{
+  margin: 5px 0;
 }
 
 @media screen and (max-width: 1000px) {

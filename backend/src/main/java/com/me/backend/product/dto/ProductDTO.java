@@ -25,13 +25,14 @@ public class ProductDTO {
     private String main;
     private String status;
     private String addStatus;
-
+    private int count;
     private String img1;
     private String img2;
     private String img3;
     private String img4;
     private String img5;
     private String uploadFile;
-
-    private String like_id;
+    private double rate;
+    private int orderCount;
+    private int like_id;
 }

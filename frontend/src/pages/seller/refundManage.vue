@@ -3,22 +3,22 @@
   <div class="s-om-wrap">
     <div class="s-pm-items">
       <router-link to="/orderManage/order" class="default-border">
-        <span class="pm-item-btn itemActive">주문</span>
+        <span class="pm-item-btn">주문</span>
       </router-link>
       <span class="partition"></span>
       <router-link to="/orderManage/refund" class="default-border">
-        <span class="pm-item-btn">취소/환불</span>
+        <span class="pm-item-btn itemActive">취소/환불</span>
       </router-link>
     </div>
     <div class="s-om-head">
       <div class="s-om-head-left">
         <div class="tr">
-          <div class="td td-title">주문상태</div>
+          <div class="td td-title">상태</div>
           <div class="td td-content">
-            <select class="order-status" v-model="pageInfo.status">
+            <select class="order-status" v-model="pageInfo.refundStatus">
               <option value="A" selected>전체</option>
-              <option value="N">주문준비중</option>
-              <option value="Y">주문완료</option>
+              <option value="N">취소신청</option>
+              <option value="Y">처리완료</option>
             </select>
           </div>
         </div>
@@ -36,7 +36,6 @@
             <input class="search-input" type="text" @keyup.enter="onSearch()" v-model="pageInfo.content">
           </div>
         </div>
-
       </div>
 
       <div class="s-om-head-right">
@@ -45,7 +44,7 @@
         <button class="s-om-reset-btn" @click="onReset">초기화</button>
       </div>
     </div>
-    <div class="s-om-body" v-if="this.orderList.length>0">
+    <div class="s-om-body">
       <table class="table text-center">
         <thead>
         <tr>
@@ -61,13 +60,13 @@
             <span>선택옵션</span>
           </th>
           <th>수량</th>
-          <th class="col-2">결제액</th>
+          <th class="col-2">환불금액</th>
           <th>상태</th>
           <th></th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="item in orderList" :key="item">
+        <tr v-for="item in this.refundList" :key="item">
           <th>
             <span>{{ item.order_id }}</span>
             <span>{{ item.order_name }}</span>
@@ -83,15 +82,15 @@
           <th>{{ item.count }}</th>
           <th>{{ item.price * item.count }}</th>
           <th>
-              <span v-if="item.status == 'N'">
-                준비중
+              <span v-if="item.refundStatus == 'N'">
+                취소신청
               </span>
             <span v-else>
-                주문완료
+                처리완료
               </span>
           </th>
           <th>
-            <button class="om-success-btn" v-if="item.status == 'N'" @click="onOrder(item)">완료</button>
+            <button class="om-success-btn" v-if="item.refundStatus == 'N'" @click="onRefund(item)">완료</button>
             <button class="om-success-btn-disabled" v-else disabled>완료</button>
           </th>
         </tr>
@@ -111,25 +110,25 @@ import {mapMutations, mapState} from "vuex";
 import axios from "axios";
 
 export default {
-  name: "orderManage.vue",
+  name: "refundManage.vue",
 
   data() {
     return {
-      orderList: [],
+      refundList: [],
       pagination: {},
       pages: [],
       pageInfo: {
         page: 1,
         range: 1,
         target:'all',
-        status:'A',
+        refundStatus:'A',
         content:'',
       }
     }
   },
 
   mounted() {
-    this.postOrder();
+    this.postRefund();
   },
 
   computed: {
@@ -140,7 +139,7 @@ export default {
     ...mapMutations(['setSeller']),
 
     onSearch() {
-      this.postOrder();
+      this.postRefund();
     },
 
     onReset(){
@@ -149,15 +148,14 @@ export default {
       this.pageInfo.target = 'all';
       this.pageInfo.status = 'A'
       this.pageInfo.content = '';
-      this.postOrder();
+      this.postRefund();
     },
 
-    postOrder() {
-      axios.post("/api/seller/order", this.pageInfo).then(({data}) => {
-        this.orderList = data.order;
+    postRefund() {
+      axios.post("/api/seller/refund", this.pageInfo).then(({data}) => {
+        console.log(data);
+        this.refundList = data.order;
         this.pagination = data.pagination;
-
-        console.log(data.pagination);
 
         this.pages = [];
         for (let i = this.pagination.startPage; i <= this.pagination.endPage; i++) {
@@ -183,15 +181,15 @@ export default {
         }
       }
 
-      this.postOrder();
+      this.postRefund();
     },
 
-    onOrder(value){
-      if (confirm('해당 상품의 주문완료 처리를 하시겠습니까?')){
-        axios.post("/api/seller/modify-order",value).then(({data})=>{
+    onRefund(value){
+      if (confirm('해당 상품의 취소신청을 처리 하시겠습니까?')){
+        axios.post("/api/seller/modify-refund",value).then(({data})=>{
           if (data > 0){
-            alert('성공적으로 주문완료 처리를 하였습니다.');
-            this.postOrder();
+            alert('성공적으로 상품의 취소신청을 처리하였습니다.');
+            this.postRefund();
           }
         })
       }
@@ -284,7 +282,6 @@ export default {
 }
 
 .s-om-head select {
-  width: 20%;
   font-size: 14px;
   padding: 3px;
 }

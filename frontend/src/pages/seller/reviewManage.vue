@@ -1,24 +1,25 @@
 <template>
   <seller-header/>
-  <div class="s-om-wrap">
+  <div class="s-rm-wrap">
     <div class="s-pm-items">
-      <router-link to="/orderManage/order" class="default-border">
-        <span class="pm-item-btn itemActive">주문</span>
+      <router-link to="/reviewInquiryManage/review" class="default-border">
+        <span class="pm-item-btn itemActive">후기</span>
       </router-link>
       <span class="partition"></span>
-      <router-link to="/orderManage/refund" class="default-border">
-        <span class="pm-item-btn">취소/환불</span>
+      <router-link to="/reviewInquiryManage/inquiry" class="default-border">
+        <span class="pm-item-btn">문의</span>
       </router-link>
     </div>
+
     <div class="s-om-head">
       <div class="s-om-head-left">
         <div class="tr">
-          <div class="td td-title">주문상태</div>
+          <div class="td td-title">상태</div>
           <div class="td td-content">
             <select class="order-status" v-model="pageInfo.status">
               <option value="A" selected>전체</option>
-              <option value="N">주문준비중</option>
-              <option value="Y">주문완료</option>
+              <option value="N">작성글</option>
+              <option value="Y">삭제글</option>
             </select>
           </div>
         </div>
@@ -26,110 +27,100 @@
         <div class="tr">
           <div class="td td-title">검색</div>
           <div class="td td-content">
+            <select class="search-target" v-model="pageInfo.rate">
+              <option value="0" selected>평점전체</option>
+              <option value="1">★</option>
+              <option value="2">★★</option>
+              <option value="3">★★★</option>
+              <option value="4">★★★★</option>
+              <option value="5">★★★★★</option>
+            </select>
             <select class="search-target" v-model="pageInfo.target">
               <option value="all" selected>전체</option>
-              <option value="order_id">주문번호</option>
-              <option value="order_detail_id">상세주문번호</option>
-              <option value="order_name">주문자명</option>
+              <option value="name">작성자</option>
+              <option value="title">제목</option>
               <option value="product_name">상품명</option>
             </select>
-            <input class="search-input" type="text" @keyup.enter="onSearch()" v-model="pageInfo.content">
+            <input class="search-input" type="text" v-model="pageInfo.content" @keyup.enter="postReview">
           </div>
         </div>
 
       </div>
 
       <div class="s-om-head-right">
-        <button class="s-om-search-btn" type="button"
-                @click="onSearch">검색하기</button>
-        <button class="s-om-reset-btn" @click="onReset">초기화</button>
+        <button class="s-om-search-btn" type="button" @click="postReview">검색하기</button>
+        <button class="s-om-reset-btn" @click="reviewReset">초기화</button>
       </div>
     </div>
-    <div class="s-om-body" v-if="this.orderList.length>0">
+
+    <div class="s-om-body" v-if="this.reviewList.length > 0">
       <table class="table text-center">
         <thead>
         <tr>
-          <th class="col-2">
-            <span>주문번호</span>
-            <span>주문자</span>
-            <span>연락처</span>
-          </th>
-          <th class="col">상세주문번호</th>
-          <th>주문일</th>
-          <th class="col-3">
-            <span>상품명</span>
-            <span>선택옵션</span>
-          </th>
-          <th>수량</th>
-          <th class="col-2">결제액</th>
-          <th>상태</th>
+          <th>리뷰번호</th>
+          <th>작성자</th>
+          <th>상품명</th>
+          <th>제목</th>
+          <th>평점</th>
+          <th>작성일</th>
           <th></th>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="item in orderList" :key="item">
-          <th>
-            <span>{{ item.order_id }}</span>
-            <span>{{ item.order_name }}</span>
-            <span>{{ item.phone }}</span>
-          </th>
-          <th>{{ item.order_detail_id }}</th>
-          <th>{{ item.order_date }}</th>
-          <th>
-            <span>{{ item.product_name }}</span>
-            <span v-if="item.option_name2 == ''">{{ `${item.option_name1} : ${item.option_content1}` }}</span>
-            <span v-else>{{ `${item.option_content1} : ${item.option_content2}` }}</span>
-          </th>
-          <th>{{ item.count }}</th>
-          <th>{{ item.price * item.count }}</th>
-          <th>
-              <span v-if="item.status == 'N'">
-                준비중
-              </span>
-            <span v-else>
-                주문완료
-              </span>
-          </th>
-          <th>
-            <button class="om-success-btn" v-if="item.status == 'N'" @click="onOrder(item)">완료</button>
-            <button class="om-success-btn-disabled" v-else disabled>완료</button>
-          </th>
-        </tr>
+          <tr v-for="item in reviewList" :key="item">
+            <td>{{ item.review_id }}</td>
+            <td>{{ item.cust_id }}</td>
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.title }}</td>
+            <td>
+              <star-rating :rating="parseInt(item.rate)" :read-only="true" :show-rating="false" :star-size="15" :inline="true"/>
+            </td>
+            <td>{{ item.date }}</td>
+            <td>
+              <button class="review-detail-btn" @click="onReviewDetail(item)">상세</button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
     <Pagination :pagination="this.pagination"
                 :onPageChange="this.onPageChange"
                 :pages="pages"/>
+    <ReviewDetailModal :isOpenReview="isOpenReview" :review="review" @closeModal="modalControl"/>
   </div>
 </template>
 
 <script>
+import {mapMutations, mapState} from "vuex";
 import SellerHeader from "@/components/seller/sellerHeader";
 import Pagination from "@/components/common/Pagination";
-import {mapMutations, mapState} from "vuex";
+import ReviewDetailModal from "@/components/seller/modal/reviewDetailModal";
 import axios from "axios";
 
 export default {
-  name: "orderManage.vue",
+  name: "reviewInquiryManage",
 
   data() {
     return {
-      orderList: [],
+      isOpenReview:false,
+      review:{},
+
+      reviewList: [],
       pagination: {},
       pages: [],
       pageInfo: {
         page: 1,
         range: 1,
-        target:'all',
-        status:'A',
+        status: 'A',
+        rate: 0,
+        target: 'all',
         content:'',
-      }
+      },
     }
   },
 
   mounted() {
-    this.postOrder();
+    this.postReview();
   },
 
   computed: {
@@ -139,25 +130,24 @@ export default {
   methods: {
     ...mapMutations(['setSeller']),
 
-    onSearch() {
-      this.postOrder();
+    reviewReset(){
+      let reset = {
+        page: 1,
+        range: 1,
+        status: 'A',
+        rate: 0,
+        target: 'all',
+        content:'',
+      }
+      this.pageInfo = reset;
+      this.postReview();
     },
 
-    onReset(){
-      this.pageInfo.page = 1;
-      this.pageInfo.range = 1;
-      this.pageInfo.target = 'all';
-      this.pageInfo.status = 'A'
-      this.pageInfo.content = '';
-      this.postOrder();
-    },
-
-    postOrder() {
-      axios.post("/api/seller/order", this.pageInfo).then(({data}) => {
-        this.orderList = data.order;
+    postReview() {
+      axios.post("/api/seller/review", this.pageInfo).then(({data}) => {
+        console.log(data);
+        this.reviewList = data.reviews;
         this.pagination = data.pagination;
-
-        console.log(data.pagination);
 
         this.pages = [];
         for (let i = this.pagination.startPage; i <= this.pagination.endPage; i++) {
@@ -183,29 +173,35 @@ export default {
         }
       }
 
-      this.postOrder();
+      this.postReview();
     },
 
-    onOrder(value){
-      if (confirm('해당 상품의 주문완료 처리를 하시겠습니까?')){
-        axios.post("/api/seller/modify-order",value).then(({data})=>{
-          if (data > 0){
-            alert('성공적으로 주문완료 처리를 하였습니다.');
-            this.postOrder();
-          }
-        })
-      }
+    onReviewDetail(item){
+      this.review = item;
+      this.isOpenReview = true;
+    },
+
+    modalControl(){
+      this.isOpenReview = false;
+      this.postReview();
     },
   },
 
   components: {
     SellerHeader,
-    Pagination
+    Pagination,
+    ReviewDetailModal,
   }
 }
 </script>
 
 <style scoped>
+.s-rm-wrap {
+  margin: 8rem auto;
+  width: 1000px;
+  padding: 1.2rem;
+}
+
 .s-pm-items {
   display: flex;
   justify-content: center;
@@ -240,15 +236,8 @@ export default {
   height: 3.5rem;
 }
 
-.s-om-wrap {
-  margin: 8rem auto;
-  width: 1000px;
-  padding: 1.2rem;
-}
-
 .s-om-head {
   display: flex;
-  width: 100%;
   background: #cccccc;
 }
 
@@ -284,13 +273,13 @@ export default {
 }
 
 .s-om-head select {
-  width: 20%;
+  margin: 0 5px;
   font-size: 14px;
   padding: 3px;
 }
 
 .order-status {
-  width: 70%;
+  width: 87.2%;
   border: none;
   outline: none;
 }
@@ -322,7 +311,7 @@ export default {
   padding: 1.5rem 0;
 }
 
-.s-om-reset-btn{
+.s-om-reset-btn {
   border: 1px solid #cccccc;
   background: #575757;
   font-size: 18px;
@@ -355,17 +344,11 @@ tbody span {
   display: block;
 }
 
-.om-success-btn {
+.review-detail-btn{
   border: none;
   background: #3385f096;
-  color: white;
   padding: 5px 12px;
-}
-
-.om-success-btn-disabled {
-  border: none;
-  background: #aaa9a9;
   color: white;
-  padding: 5px 12px;
+  font-weight: 600;
 }
 </style>

@@ -16,7 +16,6 @@ import custom_header from "../../components/Header.vue";
 import custom_nav from "../../components/Nav.vue";
 import MyPageMenu from "@/components/myPage/myPageMenu";
 
-
 export default {
   name: "myPage",
 

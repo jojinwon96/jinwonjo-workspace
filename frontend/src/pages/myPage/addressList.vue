@@ -79,11 +79,8 @@ export default {
       this.target = target;
       if (this.isOpenModal){
         this.isOpenModal = false;
-        document.body.style = `overflow: auto`;
-        this.getAddress();
       } else {
         this.isOpenModal = true;
-        document.body.style = `overflow: hidden`;
       }
     },
 

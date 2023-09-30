@@ -32,12 +32,12 @@
                 <span>{{ item.product_name }}</span>
                 <div class="omc-item-price">
                   <span>&#10005;{{ item.count }}</span>
-                  <span>{{ comma(item.count * item.option_price) }}원</span>
+                  <span>{{ comma(item.option_price) }}원</span>
                 </div>
               </div>
               <div class="order-total-wrap">
                 <span>총 결제 금액</span>
-                <span>{{ comma(order[0].price) }}원</span>
+                <span>{{ comma(totalPrice) }}원</span>
               </div>
             </div>
           </div>
@@ -53,13 +53,23 @@ import {mapMutations} from "vuex";
 export default {
   name: "OrderDetailModal",
 
+  data(){
+    return{
+      totalPrice:0,
+    }
+  },
+
   watch: {
     isOpenModal(value) {
-      console.log(this.order);
+      console.log(value);
       if (value) {
         document.body.style = `overflow: hidden`;
+        this.order.forEach((item)=>{
+          this.totalPrice += (item.option_price * item.count);
+        })
       } else {
         document.body.style = `overflow: auto`;
+        this.totalPrice = 0;
       }
     },
 
@@ -179,8 +189,4 @@ export default {
   display: flex;
 }
 
-.order-modal-footer {
-  border-top: 1px solid #cfcdcd;
-  padding: 1rem 0;
-}
 </style>

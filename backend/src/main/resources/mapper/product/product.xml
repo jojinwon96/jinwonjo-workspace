@@ -3,6 +3,71 @@
 
 <mapper namespace="com.me.backend.product.mapper.ProductMapper">
 
+    <select id="bestGoods" resultType="ProductDTO">
+        select
+            p.product_id,
+            count(p.product_id) as 'count',
+            p.product_name,
+            img1,
+            uploadFile,
+            option_price,
+            opt.price,
+            discount,
+            like_id,
+            truncate(IFNULL(avg(rate),0), 1) as 'rate',
+            count(rate) as 'count',
+            count(od.order_detail_id) as 'orderCount'
+        from foryou.order o
+                 join foryou.order_detail od on o.order_id = od.order_id
+                 join foryou.`option` opt on od.option_id = opt.option_id
+                 join foryou.product p on p.product_id = opt.product_id
+                 left join foryou.like l on p.product_id = l.product_id
+                 left join foryou.review r on p.product_id = r.product_id
+        group by p.product_id
+        order by 2 desc
+            limit 0, 8
+    </select>
+
+    <select id="searchGoodsCount" parameterType="hashMap" resultType="_int">
+        select count(*)
+        from foryou.product p
+                 inner join foryou.option o on (p.product_id = o.product_id)
+                 left join foryou.like l on (p.product_id = l.product_id)
+        where o.status = 'Y'
+          and o.main = 'Y'
+          and p.product_name like CONCAT('%',#{content},'%')
+          <if test="!category_id.equals('none')">
+              and category_id like CONCAT('%',#{category_id},'%')
+          </if>
+    </select>
+
+    <select id="searchGoods" parameterType="hashMap" resultType="productDTO">
+        select
+            p.product_id,
+            p.product_name,
+            img1,
+            uploadFile,
+            option_price,
+            opt.price,
+            discount,
+            like_id,
+            truncate(IFNULL(avg(rate),0), 1) as 'rate'
+        from foryou.product p
+            left join foryou.`option` opt on p.product_id = opt.product_id
+            left join foryou.order_detail od on opt.option_id = od.option_id
+            left join foryou.order o on o.order_id = od.order_id
+            left join foryou.like l on p.product_id = l.product_id
+            left join foryou.review r on p.product_id = r.product_id
+        where opt.status = 'Y'
+            and opt.main = 'Y'
+            and p.product_name like CONCAT('%',#{content},'%')
+            <if test="!category_id.equals('none')">
+                and p.category_id like CONCAT('%',#{category_id},'%')
+            </if>
+        group by p.product_id
+            limit #{pageInfo.startList}, #{pageInfo.listSize}
+    </select>
+
     <select id="findAllModifyProducts" parameterType="hashmap" resultType="ProductDTO">
         select p.product_id
              , product_name
@@ -70,8 +135,7 @@
                price,
                stock,
                img1,
-               o.status as 'status',
-               uploadFile
+               o.status as 'status', uploadFile
         from foryou.seller s
                  join foryou.product p on (s.seller_id = p.seller_id)
                  join foryou.category c on (p.category_id = c.category_id)
@@ -273,20 +337,42 @@
     </select>
 
 
-    <select id="goodsCount" parameterType="String" resultType="_int">
+    <select id="goodsCount" parameterType="hashmap" resultType="_int">
         select count(*)
-        from foryou.product
+        from foryou.product p
+        join foryou.option opt on (p.product_id = opt.product_id)
         where category_id = #{category_id}
+        <if test="num1 gt 0">
+            and opt.price between #{num1} and #{num2}
+        </if>
     </select>
 
     <select id="goods" parameterType="hashmap" resultType="ProductDTO">
-        select p.product_id, p.product_name, img1, uploadFile, option_price, price, discount, like_id
+        select
+            p.product_id,
+            p.product_name,
+            img1,
+            uploadFile,
+            option_price,
+            opt.price,
+            discount,
+            like_id,
+            truncate(IFNULL(avg(rate),0), 1) as 'rate',
+            count(rate) as 'count',
+            count(od.order_detail_id) as 'orderCount'
         from foryou.product p
-        inner
-            join foryou.option o on (p.product_id = o.product_id)
-            left join foryou.like l on (p.product_id = l.product_id)
-        where category_id = #{category_id}
-        and o.status = 'Y' and o.main = 'Y'
+            left join foryou.`option` opt on p.product_id = opt.product_id
+            left join foryou.order_detail od on opt.option_id = od.option_id
+            left join foryou.order o on o.order_id = od.order_id
+            left join foryou.like l on p.product_id = l.product_id
+            left join foryou.review r on p.product_id = r.product_id
+        where opt.status = 'Y'
+        and opt.main = 'Y'
+        and p.category_id = #{category_id}
+        <if test="num1 gt 0">
+            and (opt.price between #{num1} and #{num2})
+        </if>
+        group by p.product_id
         order by
         <choose>
             <when test="sortTarget.equals('asc')">
@@ -294,6 +380,18 @@
             </when>
             <when test="sortTarget.equals('desc')">
                 price desc
+            </when>
+            <when test="sortTarget.equals('review_asc')">
+                truncate(IFNULL(avg(rate),0), 1) asc
+            </when>
+            <when test="sortTarget.equals('review_desc')">
+                truncate(IFNULL(avg(rate),0), 1) desc
+            </when>
+            <when test="sortTarget.equals('review_count_desc')">
+                count(rate) desc
+            </when>
+            <when test="sortTarget.equals('order')">
+                count(od.order_detail_id) desc
             </when>
             <otherwise>
                 p.product_id*1
@@ -303,17 +401,16 @@
     </select>
 
     <select id="findGoods" parameterType="String" resultType="ProductDTO">
-        select
-               p.product_id
+        select p.product_id
              , p.product_name
-             , option_id
+             , opt.option_id
              , option_name1
              , option_content1
              , option_name2
              , option_content2
              , option_price
              , discount
-             , price
+             , opt.price
              , maxCount
              , stock
              , main
@@ -325,21 +422,26 @@
              , category_name
              , company_name
              , uploadFile
+             , truncate(IFNULL(avg(rate),0), 1) as 'rate'
+             , count(r.product_id) as 'count'
         from foryou.product p
-                 join foryou.option o on (p.product_id = o.product_id)
-                 join foryou.seller s on (p.seller_id = s.seller_id)
-                 join foryou.category c on (p.category_id = c.category_id)
-        where p.product_id = #{id} and p.status = 'Y'
+                 left join foryou.seller s on (p.seller_id = s.seller_id)
+                 left join foryou.category c on (p.category_id = c.category_id)
+                 left join foryou.option opt on (p.product_id = opt.product_id)
+                 left join foryou.review r on p.product_id = r.product_id
+        where p.product_id = #{id}
+          and p.status = 'Y'
+        group by p.product_id
     </select>
 
     <select id="goodsPriceRange" parameterType="String" resultType="optionDTO">
-        select
-            option_content1,
-            max(option_price) as 'maxPrice',
-            min(option_price) as 'minPrice'
+        select option_content1,
+               max(option_price) as 'maxPrice', min(option_price) as 'minPrice'
         from foryou.product p
                  join foryou.option o on (p.product_id = o.product_id)
-        where p.product_id = #{id} and p.status = 'Y' and o.status = 'Y'
+        where p.product_id = #{id}
+          and p.status = 'Y'
+          and o.status = 'Y'
         group by option_content1
     </select>
 
@@ -350,32 +452,552 @@
                  join foryou.`option` opt on (od.option_id = opt.option_id)
                  join foryou.product p on (opt.product_id = p.product_id)
                  join foryou.seller s on (p.seller_id = s.seller_id)
-        where p.seller_id = #{id} and o.status = 'N'
+        where p.seller_id = #{id}
+          and od.status = 'N'
     </select>
 
-    <select id="order" parameterType="String" resultType="OrderDTO">
+    <select id="orderSearchCount" parameterType="hashMap">
+        select count(*)
+        from foryou.order o
+        join foryou.`order_detail` od on (o.order_id = od.order_id)
+        join foryou.`option` opt on (od.option_id = opt.option_id)
+        join foryou.product p on (opt.product_id = p.product_id)
+        join foryou.seller s on (p.seller_id = s.seller_id)
+        where p.seller_id = #{id}
+        <choose>
+            <when test='status == "Y"'>
+                and od.status like CONCAT('%',#{status},'%')
+            </when>
+            <when test='status == "N"'>
+                and od.status like CONCAT('%',#{status},'%')
+            </when>
+        </choose>
+        <choose>
+            <when test="target.equals('product_name')">
+                and p.product_name like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_id')">
+                and o.order_id like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_name')">
+                and o.order_name like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_detail_id')">
+                and od.order_detail_id like CONCAT('%',#{content},'%')
+            </when>
+        </choose>
+    </select>
+
+    <select id="order" parameterType="hashMap" resultType="OrderDTO">
         select
-            od.order_detail_id,
+        o.order_id,
+        od.order_detail_id,
+        p.product_id,
+        p.product_name,
+        opt.option_id,
+        opt.option_name1,
+        opt.option_content1,
+        opt.option_name2,
+        opt.option_content2,
+        opt.price,
+        od.count,
+        o.order_name,
+        o.phone,
+        od.status,
+        o.order_date,
+        img1,
+        uploadFile
+        from foryou.order o
+        join foryou.`order_detail` od on (o.order_id = od.order_id)
+        join foryou.`option` opt on (od.option_id = opt.option_id)
+        join foryou.product p on (opt.product_id = p.product_id)
+        join foryou.seller s on (p.seller_id = s.seller_id)
+        where p.seller_id = #{id}
+        <choose>
+            <when test='status == "Y"'>
+                and od.status like CONCAT('%',#{status},'%')
+            </when>
+            <when test='status == "N"'>
+                and od.status like CONCAT('%',#{status},'%')
+            </when>
+        </choose>
+        <choose>
+            <when test="target.equals('product_name')">
+                and p.product_name like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_id')">
+                and o.order_id like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_name')">
+                and o.order_name like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_detail_id')">
+                and od.order_detail_id like CONCAT('%',#{content},'%')
+            </when>
+        </choose>
+        order by od.order_detail_id
+        limit #{pageInfo.startList}, #{pageInfo.listSize}
+    </select>
+
+    <update id="modifyOrder" parameterType="OrderDTO">
+        update foryou.order_detail
+            set status = 'Y'
+        where order_detail_id = #{order_detail_id};
+    </update>
+
+    <update id="modifyGoodsStock" parameterType="OrderDTO">
+        update foryou.option
+            set stock = stock - #{count}
+        where option_id = #{option_id}
+    </update>
+
+    <select id="refundCount" parameterType="String">
+        select count(*)
+        from foryou.refund r
+                 join foryou.order_detail od on od.order_detail_id = r.order_detail_id
+                 join foryou.`option` opt on od.option_id = opt.option_id
+                 join foryou.product p on opt.product_id = p.product_id
+        where seller_id = #{id}
+          and r.status = 'N'
+    </select>
+
+    <select id="refundSearchCount" parameterType="hashMap">
+        select count(*)
+        from foryou.refund
+        join foryou.order_detail od on od.order_detail_id = refund.order_detail_id
+        join foryou.`option` opt on od.option_id = opt.option_id
+        join foryou.product p on opt.product_id = p.product_id
+        right join foryou.refund r on (od.order_detail_id = r.order_detail_id)
+        where seller_id = #{id}
+        <choose>
+            <when test='refundStatus == "Y"'>
+                and r.status like CONCAT('%',#{refundStatus},'%')
+            </when>
+            <when test='refundStatus == "N"'>
+                and r.status like CONCAT('%',#{refundStatus},'%')
+            </when>
+        </choose>
+        <choose>
+            <when test="target.equals('product_name')">
+                and p.product_name like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_id')">
+                and o.order_id like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_name')">
+                and o.order_name like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_detail_id')">
+                and od.order_detail_id like CONCAT('%',#{content},'%')
+            </when>
+        </choose>
+    </select>
+
+    <select id="refund" parameterType="hashMap" resultType="OrderDTO">
+        select
+        o.order_id,
+        od.order_detail_id,
+        p.product_id,
+        p.product_name,
+        opt.option_id,
+        opt.option_name1,
+        opt.option_content1,
+        opt.option_name2,
+        opt.option_content2,
+        opt.price,
+        od.count,
+        o.order_name,
+        o.phone,
+        od.status,
+        o.order_date,
+        img1,
+        r.status as 'refundStatus'
+        from foryou.order o
+        join foryou.`order_detail` od on (o.order_id = od.order_id)
+        join foryou.`option` opt on (od.option_id = opt.option_id)
+        join foryou.product p on (opt.product_id = p.product_id)
+        join foryou.seller s on (p.seller_id = s.seller_id)
+        right join foryou.refund r on (od.order_detail_id = r.order_detail_id)
+        where p.seller_id = #{id}
+        <choose>
+            <when test='refundStatus == "Y"'>
+                and r.status like CONCAT('%',#{refundStatus},'%')
+            </when>
+            <when test='refundStatus == "N"'>
+                and r.status like CONCAT('%',#{refundStatus},'%')
+            </when>
+        </choose>
+        <choose>
+            <when test="target.equals('product_name')">
+                and p.product_name like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_id')">
+                and o.order_id like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_name')">
+                and o.order_name like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('order_detail_id')">
+                and od.order_detail_id like CONCAT('%',#{content},'%')
+            </when>
+        </choose>
+        order by order_detail_id
+        limit #{pageInfo.startList}, #{pageInfo.listSize}
+    </select>
+
+    <update id="modifyRefund" parameterType="_int">
+        update foryou.refund
+        set status          = 'Y',
+            processing_date = now()
+        where order_detail_id = #{id}
+    </update>
+
+    <select id="checkOrder" parameterType="hashMap">
+        select count(*)
+        from foryou.`order`
+                 join foryou.order_detail on `order`.order_id = order_detail.order_id
+                 join foryou.`option` on order_detail.option_id = `option`.option_id
+        where product_id = #{product_id}
+          and cust_id = #{cust_id}
+    </select>
+
+    <select id="checkReview" parameterType="hashMap" resultType="String">
+        select status
+        from foryou.review
+        where cust_id = #{cust_id}
+          and product_id = #{product_id}
+    </select>
+
+    <insert id="inputReview" parameterType="ReviewDTO">
+        insert into foryou.review
+        (cust_id,
+         product_id,
+         title,
+         content,
+         rate,
+         img)
+        values (#{cust_id},
+                #{product_id},
+                #{title},
+                #{content},
+                #{rate},
+                #{img})
+    </insert>
+
+    <select id="review" parameterType="String" resultType="ReviewDTO">
+        select review_id,
+               cust_id,
+               r.product_id,
+               p.product_name,
+               title,
+               content,
+               rate,
+               img,
+               date_format(date, '%Y-%m-%d %I:%i') date,
+            r.status
+        from foryou.review r
+            join foryou.product p
+        on (r.product_id = p.product_id)
+        where r.product_id = #{product_id}
+    </select>
+
+    <select id="findReview" parameterType="ReviewDTO" resultType="ReviewDTO">
+        select review_id,
+               cust_id,
+               title,
+               content,
+               rate,
+               img,
+               status
+        from foryou.review
+        where product_id = #{product_id}
+          and cust_id = #{cust_id}
+    </select>
+
+    <update id="modifyReview" parameterType="ReviewDTO">
+        update foryou.review
+        set
+            <if test="img != null">
+                img = #{img},
+            </if>
+            title   = #{title},
+            content = #{content},
+            rate    = #{rate}
+        where product_id = #{product_id}
+          and cust_id = #{cust_id}
+    </update>
+
+    <select id="sellerReviewCount" parameterType="hashMap" resultType="_int">
+        select
+        count(*)
+        from foryou.review r
+        join foryou.product p on r.product_id = p.product_id
+        where seller_id = #{id}
+        <choose>
+            <when test='status == "N"'>
+                and r.status = 'N'
+            </when>
+            <when test='status == "Y"'>
+                and r.status = 'Y'
+            </when>
+        </choose>
+
+        <choose>
+            <when test="rate > 0">
+                and rate = #{rate}
+            </when>
+        </choose>
+
+        <choose>
+            <when test="target.equals('name')">
+                and cust_id like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('title')">
+                and title like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('product_name')">
+                and product_name like CONCAT('%',#{content},'%')
+            </when>
+        </choose>
+    </select>
+
+    <select id="sellerReview" parameterType="hashMap" resultType="ReviewDTO">
+        select
+        review_id,
+        cust_id,
+        product_name,
+        title,
+        content,
+        rate,
+        img,
+        r.status,
+        date
+        from foryou.review r
+        join foryou.product p on r.product_id = p.product_id
+        where seller_id = #{id}
+        <choose>
+            <when test='status == "N"'>
+                and r.status = 'N'
+            </when>
+            <when test='status == "Y"'>
+                and r.status = 'Y'
+            </when>
+        </choose>
+
+        <choose>
+            <when test="rate > 0">
+                and rate = #{rate}
+            </when>
+        </choose>
+
+        <choose>
+            <when test="target.equals('name')">
+                and cust_id like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('title')">
+                and title like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('product_name')">
+                and product_name like CONCAT('%',#{content},'%')
+            </when>
+        </choose>
+        limit #{pageInfo.startList}, #{pageInfo.listSize}
+    </select>
+
+    <update id="deleteReview" parameterType="ReviewDTO">
+        update foryou.review
+        set status = 'Y'
+        where review_id = #{review_id}
+    </update>
+
+    <select id="goodsReviewCount" parameterType="hashMap" resultType="_int">
+        select
+        count(*)
+        from foryou.review r
+        join foryou.product p on r.product_id = p.product_id
+        where r.product_id = #{id}
+        <choose>
+            <when test='status == "N"'>
+                and r.status = 'N'
+            </when>
+            <when test='status == "Y"'>
+                and r.status = 'Y'
+            </when>
+        </choose>
+
+        <choose>
+            <when test="rate > 0">
+                and rate = #{rate}
+            </when>
+        </choose>
+        and (cust_id like CONCAT('%',#{content},'%')
+        or title like CONCAT('%',#{content},'%')
+        or product_name like CONCAT('%',#{content},'%'))
+    </select>
+
+    <select id="goodsReview" parameterType="hashMap" resultType="ReviewDTO">
+        select
+            review_id,
+            cust_id,
+            product_name,
+            title,
+            content,
+            rate,
+            img,
+            r.status
+        from foryou.review r
+        join foryou.product p on r.product_id = p.product_id
+        where r.product_id = #{id}
+        <choose>
+            <when test='status == "N"'>
+                and r.status = 'N'
+            </when>
+            <when test='status == "Y"'>
+                and r.status = 'Y'
+            </when>
+        </choose>
+        <choose>
+            <when test="rate > 0">
+                and rate = #{rate}
+            </when>
+        </choose>
+        and (cust_id like CONCAT('%',#{content},'%')
+        or title like CONCAT('%',#{content},'%')
+        or product_name like CONCAT('%',#{content},'%'))
+        limit #{pageInfo.startList}, #{pageInfo.listSize}
+    </select>
+
+    <insert id="inputInquiry" parameterType="InquiryDTO">
+        insert into
+            foryou.inquiry
+            (
+                cust_id,
+                product_id,
+                title,
+                content,
+                answer,
+                status
+            )
+            values
+            (
+                #{cust_id},
+                #{product_id},
+                #{title},
+                #{content},
+                #{answer},
+                #{status}
+            )
+    </insert>
+
+    <select id="goodsInquiryCount" parameterType="hashMap" resultType="_int">
+        select
+            count(*)
+        from foryou.inquiry i
+        join foryou.product p on (i.product_id = p.product_id)
+        where p.product_id = #{id}
+           and (cust_id like CONCAT('%',#{content},'%')
+           or title like CONCAT('%',#{content},'%')
+           or product_name like CONCAT('%',#{content},'%'))
+    </select>
+
+    <select id="goodsInquiry" parameterType="hashMap" resultType="InquiryDTO">
+        select
+            inquiry_id,
+            cust_id,
             p.product_id,
             p.product_name,
-            opt.option_id,
-            opt.option_name1,
-            opt.option_content1,
-            opt.option_name2,
-            opt.option_content2,
-            opt.price,
-            od.count,
-            o.recipient,
-            o.recipient_phone,
-            od.status,
-            o.order_date,
-            img1 as 'img',
-            uploadFile
-        from foryou.order o
-                 join foryou.`order_detail` od on (o.order_id = od.order_id)
-                 join foryou.`option` opt on (od.option_id = opt.option_id)
-                 join foryou.product p on (opt.product_id = p.product_id)
-                 join foryou.seller s on (p.seller_id = s.seller_id)
+            title,
+            content,
+            answer,
+            i.status,
+            date_format(date, '%Y-%m-%d %I:%i') date,
+            date_format(answer_date, '%Y-%m-%d %I:%i') answer_date
+        from foryou.inquiry i
+        join foryou.product p on (i.product_id = p.product_id)
+        where p.product_id = #{id}
+                and (cust_id like CONCAT('%',#{content},'%')
+                or title like CONCAT('%',#{content},'%')
+                or product_name like CONCAT('%',#{content},'%'))
+        limit #{pageInfo.startList}, #{pageInfo.listSize}
+    </select>
+
+    <select id="sellerInquiryCount" parameterType="hashMap" resultType="_int">
+        select
+            count(*)
+        from foryou.inquiry i
+            join foryou.product p on i.product_id = p.product_id
+            join foryou.seller s on p.seller_id = s.seller_id
         where p.seller_id = #{id}
+        <choose>
+            <when test='status == "N"'>
+                and answer IS NULL
+            </when>
+            <when test='status == "Y"'>
+                and answer IS NOT NULL
+            </when>
+        </choose>
+        <choose>
+            <when test="target.equals('name')">
+                and cust_id like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('title')">
+                and title like CONCAT('%',#{content},'%')
+            </when>
+            <when test="target.equals('product_name')">
+                and product_name like CONCAT('%',#{content},'%')
+            </when>
+        </choose>
+    </select>
+
+    <select id="sellerInquiry" parameterType="hashMap" resultType="InquiryDTO">
+        select
+            inquiry_id,
+            cust_id,
+            i.product_id,
+            p.product_name,
+            title,
+            content,
+            answer,
+            i.status,
+            date_format(date, '%Y-%m-%d %I:%i') date
+        from foryou.inquiry i
+            join foryou.product p on i.product_id = p.product_id
+            join foryou.seller s on p.seller_id = s.seller_id
+        where p.seller_id = #{id}
+            <choose>
+                <when test='status == "N"'>
+                    and answer IS NULL
+                </when>
+                <when test='status == "Y"'>
+                    and answer IS NOT NULL
+                </when>
+            </choose>
+            <choose>
+                <when test="target.equals('name')">
+                    and cust_id like CONCAT('%',#{content},'%')
+                </when>
+                <when test="target.equals('title')">
+                    and title like CONCAT('%',#{content},'%')
+                </when>
+                <when test="target.equals('product_name')">
+                    and product_name like CONCAT('%',#{content},'%')
+                </when>
+            </choose>
+        limit #{pageInfo.startList}, #{pageInfo.listSize}
+    </select>
+
+    <update id="modifyInquiry" parameterType="inquiryDTO">
+        update foryou.inquiry
+        set answer = #{answer},
+            answer_date = now()
+        where inquiry_id = #{inquiry_id}
+    </update>
+
+    <select id="inquiryCount" parameterType="String" resultType="_int">
+        select count(*)
+        from foryou.inquiry i
+                 join foryou.product p on i.product_id = p.product_id
+        where seller_id = #{id}
+          and answer is null
     </select>
 </mapper>

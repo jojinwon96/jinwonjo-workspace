@@ -418,14 +418,6 @@
         where coupon_list_id = #{id}
     </delete>
 
-    <update id="stockModify" parameterType="java.util.List">
-        <foreach collection="list" item="item" separator=";">
-            update foryou.option
-                set stock = stock - #{item.count}
-            where option_id = #{item.option_id}
-        </foreach>
-    </update>
-
     <update id="modifyMileage" parameterType="OrderDTO">
         update foryou.customer
             set mileage = mileage - #{mileage}
@@ -449,7 +441,7 @@
                 option_content1,
                 option_name2,
                 option_content2,
-                o.status,
+                od.status,
                 od.count,
                 o.price as 'price',
                 op.price as 'option_price',
@@ -461,6 +453,101 @@
                  join foryou.option op on od.option_id = op.option_id
                  join foryou.product p on op.product_id = p.product_id
                  join foryou.seller s on p.seller_id = s.seller_id
+                 left join foryou.refund r on r.order_detail_id = od.order_detail_id
+        where cust_id = #{id} and (r.status IS NULL or r.status = 'N')
+    </select>
+
+    <insert id="inputRefund" parameterType="RefundDTO">
+        insert into foryou.refund
+        (
+            order_detail_id,
+            reason,
+            content,
+            status
+        )
+        values
+        (
+            #{order_detail_id},
+            #{reason},
+            #{content},
+            'N'
+        )
+    </insert>
+
+    <select id="refundList" parameterType="String" resultType="RefundDTO">
+        select
+                refund_id,
+                r.order_detail_id,
+                reason,
+                content,
+                r.status,
+                date_format(date,'%Y-%m-%d %I:%i') date,
+                date_format(processing_date,'%Y-%m-%d %I:%i') processing_date,
+                p.product_id,
+                p.product_name,
+                opt.option_name1,
+                opt.option_content1,
+                opt.option_name2,
+                opt.option_content2,
+                opt.price,
+                od.count,
+                p.img1 as 'img',
+                p.uploadFile
+        from foryou.refund r
+             join foryou.order_detail od on (r.order_detail_id = od.order_detail_id)
+             join foryou.option opt on (od.option_id = opt.option_id)
+             join foryou.order o on (od.order_id = o.order_id)
+             join foryou.product p on (opt.product_id = p.product_id)
+        where o.cust_id = #{id}
+    </select>
+
+    <select id="reviewList" parameterType="String" resultType="reviewDTO">
+        select
+            review_id,
+            cust_id,
+            r.product_id,
+            product_name,
+            content,
+            rate,
+            img,
+            p.img1 as 'product_img',
+            uploadFile,
+            r.status,
+            title,
+            date_format(date,'%Y-%m-%d %I:%i') date
+        from foryou.review r
+            join foryou.product p on r.product_id = p.product_id
+        where cust_id = #{id}
+    </select>
+
+    <select id="inquiryList" parameterType="String" resultType="inquiryDTO">
+        select
+            inquiry_id,
+            cust_id,
+            p.product_id,
+            p.product_name,
+            title,
+            content,
+            answer,
+            i.status,
+            date_format(date, '%Y-%m-%d %I:%i') as 'date',
+            date_format(answer_date, '%Y-%m-%d %I:%i') as 'answer_date'
+        from foryou.inquiry i
+            join foryou.product p on (i.product_id = p.product_id)
+        where cust_id = #{id}
+    </select>
+
+    <select id="likeCount" parameterType="String" resultType="_int">
+        select
+            count(*)
+        from foryou.`like`
+        where cust_id = #{id}
+    </select>
+
+    <select id="cartCount" parameterType="String" resultType="_int">
+        select
+            count(*)
+        from foryou.cart
         where cust_id = #{id}
     </select>
 </mapper>

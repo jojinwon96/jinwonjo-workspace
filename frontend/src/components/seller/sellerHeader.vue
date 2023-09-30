@@ -14,9 +14,11 @@
             <router-link :to="{path: '/productManage'}" class="s-header-tab">상품관리</router-link>
           </a>
           <a>
-            <router-link :to="{path: '/orderManage'}" class="s-header-tab">주문관리</router-link>
+            <router-link :to="{path: '/orderManage/order'}" class="s-header-tab">주문관리</router-link>
           </a>
-          <a class="s-header-tab">문의/후기</a>
+          <a>
+            <router-link :to="{path: '/reviewInquiryManage/review'}" class="s-header-tab">후기/문의</router-link>
+          </a>
           <div class="dropdown">
             <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                aria-expanded="false">
@@ -52,11 +54,11 @@ export default {
           seller_number:'',
           seller_tel:'',
         }
-        axios.get("api/account/logout").then(({status}) => {
+        axios.get("/api/account/logout").then(({status}) => {
           if (status == 200) {
             alert("성공적으로 로그아웃 되었습니다.");
             this.setAccount(logOutUser);
-            router.replace({path: "/"});
+            router.replace({name: "home"});
           }
         })
     },
